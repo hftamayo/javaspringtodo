@@ -1,9 +1,19 @@
 package com.hftamayo.java.todo.Model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(schema = "tasks")
 public class Task {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column
     private String title;
+
+    @Column
     private String description;
 
     public long getId() {
