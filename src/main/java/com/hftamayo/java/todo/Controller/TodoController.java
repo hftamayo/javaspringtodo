@@ -11,10 +11,6 @@ import java.util.List;
 public class TodoController {
     @Autowired
     private TodoRepository todoRepository;
-    @GetMapping(value = "/saludo")
-    public String holaMundo(){
-        return "Hola Mundo";
-    }
 
     @GetMapping(value = "/tasks")
     public List<Task> getTasks(){
