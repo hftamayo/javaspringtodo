@@ -25,5 +25,8 @@ public class TodoService {
         todoRepository.save(task);
     }
 
-
+    public void deleteTask(long id) {
+        Task deletedTask = todoRepository.findById(id).get();
+        todoRepository.delete(deletedTask);
+    }
 }
