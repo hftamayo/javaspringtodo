@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -22,6 +23,10 @@ public class TodoService {
     }
 
     public void newTask(Task task){
+        Optional<Task> requestedTask = todoRepository.findTaskByTitle(task.getTitle());
+        if(requestedTask.isPresent()){
+            throw new IllegalStateException("Title already exists");
+        }
         todoRepository.save(task);
     }
 
