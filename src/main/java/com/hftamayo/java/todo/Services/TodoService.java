@@ -20,4 +20,10 @@ public class TodoService {
     public List<Task> getTasks(){
         return todoRepository.findAll();
     }
+
+    public void newTask(Task task){
+        todoRepository.save(task);
+    }
+
+
 }
