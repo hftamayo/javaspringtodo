@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,14 @@ public class TodoService {
     }
 
     public void deleteTask(long id) {
-        Task deletedTask = todoRepository.findById(id).get();
-        todoRepository.delete(deletedTask);
+        Task requestedTask = todoRepository.findById(id).get();
+        todoRepository.delete(requestedTask);
+    }
+
+    public void updateTask(long id, Task task) {
+        Task requestedTask = todoRepository.findById(id).get();
+        requestedTask.setTitle(task.getTitle());
+        requestedTask.setDescription(task.getDescription());
+        todoRepository.save(requestedTask);
     }
 }

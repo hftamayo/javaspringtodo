@@ -31,10 +31,7 @@ public class TodoController {
 
     @PutMapping(value="/updatetask/{id}")
     public String updateTask(@PathVariable long id, @RequestBody Task task){
-        Task updatedTask = todoRepository.findById(id).get();
-        updatedTask.setTitle(task.getTitle());
-        updatedTask.setDescription(task.getDescription());
-        todoRepository.save(updatedTask);
+        todoService.updateTask(id, task);
         return "data updated";
     }
 
