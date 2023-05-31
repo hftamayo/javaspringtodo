@@ -29,15 +29,15 @@ public class TodoController {
         return "Task saved";
     }
 
-    @PutMapping(value="/updatetask/{id}")
-    public String updateTask(@PathVariable long id, @RequestBody Task task){
-        todoService.updateTask(id, task);
+    @PutMapping(value="/updatetask/{taskId}")
+    public String updateTask(@PathVariable long taskId, @RequestBody Task task){
+        todoService.updateTask(taskId, task);
         return "data updated";
     }
 
-    @DeleteMapping(value="/deletetask/{id}")
-    public String deleteTask(@PathVariable long id){
-        todoService.deleteTask(id);
+    @DeleteMapping(value="/deletetask/{taskId}")
+    public String deleteTask(@PathVariable long taskId){
+        todoService.deleteTask(taskId);
         return "data deleted";
     }
 }

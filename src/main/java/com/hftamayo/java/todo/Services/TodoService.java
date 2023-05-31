@@ -32,14 +32,17 @@ public class TodoService {
     }
 
     public void deleteTask(long id) {
-        Task requestedTask = todoRepository.findById(id).get();
-        todoRepository.delete(requestedTask);
+        boolean recordExists = this.todoRepository.existsById(id);
+        if(recordExists){
+            todoRepository.deleteById(id);
+        }
     }
 
     public void updateTask(long id, Task task) {
         Task requestedTask = todoRepository.findById(id).get();
         requestedTask.setTitle(task.getTitle());
         requestedTask.setDescription(task.getDescription());
+
         todoRepository.save(requestedTask);
     }
 }
