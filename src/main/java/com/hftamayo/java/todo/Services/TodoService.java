@@ -3,6 +3,7 @@ package com.hftamayo.java.todo.Services;
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -45,4 +46,12 @@ public class TodoService {
 
         todoRepository.save(requestedTask);
     }
+
+//    public void ApiResponse updateTask(long id, Task task){
+//        Task requestedTask = todoRepository.findById(id).get();
+//        requestedTask.setTitle(task.getTitle());
+//        requestedTask.setDescription(task.getDescription());
+//        todoRepository.save(requestedTask);
+//        return new ApiResponse(HttpStatus.OK.value), "task updated");
+//    }
 }
