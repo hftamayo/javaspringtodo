@@ -14,15 +14,19 @@ public class Task {
     private long id;
 
     @Column(unique = true)
+    @NotNull
     private String title;
 
     @Column
+    @NotNull
     private String description;
 
     @Column
+    @NotNull
     private LocalDate dateAdded;
 
     @Column
+    @NotNull
     private LocalDate dateUpdated;
 
     @Transient
