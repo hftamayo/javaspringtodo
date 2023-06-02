@@ -76,7 +76,7 @@ public class Task {
         return dateUpdated;
     }
     public int getDaysAdded(){
-        return Period.between(this.dateAdded,LocalDate.now()).getYears();
+        return Period.between(this.dateAdded,LocalDate.now()).getDays();
     }
 
 }
