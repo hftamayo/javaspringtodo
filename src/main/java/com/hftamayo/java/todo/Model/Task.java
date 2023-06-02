@@ -25,23 +25,22 @@ public class Task {
     @Transient
     private int daysAdded;
 
-    public Task(long id, String title, String description, LocalDate dateAdded) {
-        this.id = id;
+    public Task(String title, String description) {
         this.title = title;
         this.description = description;
-        this.dateAdded = dateAdded;
     }
 
     public Task() {
 
     }
 
-    public long getId() {
-        return id;
+    @PrePersist
+    protected void onCreate(){
+        dateAdded = LocalDate.now();
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public long getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -64,15 +63,8 @@ public class Task {
         return dateAdded;
     }
 
-    public void setDateAdded(LocalDate dateAdded) {
-        this.dateAdded = dateAdded;
-    }
-
     public int getDaysAdded(){
         return Period.between(this.dateAdded,LocalDate.now()).getYears();
     }
 
-    public void setDaysAdded(int daysAdded){
-        this.daysAdded = daysAdded;
-    }
 }
