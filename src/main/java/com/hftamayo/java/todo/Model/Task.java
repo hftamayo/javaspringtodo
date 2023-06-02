@@ -22,6 +22,9 @@ public class Task {
     @Column
     private LocalDate dateAdded;
 
+    @Column
+    private LocalDate dateUpdated;
+
     @Transient
     private int daysAdded;
 
@@ -37,6 +40,12 @@ public class Task {
     @PrePersist
     protected void onCreate(){
         dateAdded = LocalDate.now();
+        dateUpdated = LocalDate.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        dateUpdated = LocalDate.now();
     }
 
     public long getId() {
@@ -63,6 +72,9 @@ public class Task {
         return dateAdded;
     }
 
+    public LocalDate getDateUpdated() {
+        return dateUpdated;
+    }
     public int getDaysAdded(){
         return Period.between(this.dateAdded,LocalDate.now()).getYears();
     }
