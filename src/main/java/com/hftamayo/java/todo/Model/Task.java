@@ -1,7 +1,6 @@
 package com.hftamayo.java.todo.Model;
 
 import jakarta.persistence.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -14,20 +13,16 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true)
-    @NotNull
+    @Column(unique = true, nullable = false)
     private String title;
 
-    @Column
-    @NotNull
+    @Column(nullable = false)
     private String description;
 
-    @Column
-    @NotNull
+    @Column(nullable = false)
     private LocalDate dateAdded;
 
-    @Column
-    @NotNull
+    @Column(nullable = false)
     private LocalDate dateUpdated;
 
     @Transient
