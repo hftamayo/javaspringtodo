@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.Model;
 
 import jakarta.persistence.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.Period;
