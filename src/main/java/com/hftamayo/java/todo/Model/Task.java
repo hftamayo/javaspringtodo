@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(schema = "tasks")
@@ -26,7 +27,7 @@ public class Task {
     private LocalDate dateUpdated;
 
     @Transient
-    private int daysAdded;
+    private long daysAdded;
 
     public Task(String title, String description) {
         this.title = title;
@@ -75,8 +76,8 @@ public class Task {
     public LocalDate getDateUpdated() {
         return dateUpdated;
     }
-    public int getDaysAdded(){
-        return Period.between(this.dateAdded,LocalDate.now()).getDays();
-    }
 
+    public long getDaysAdded(){
+        return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDate.now());
+    }
 }
