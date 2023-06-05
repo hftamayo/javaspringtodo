@@ -3,7 +3,6 @@ package com.hftamayo.java.todo.Model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -25,14 +24,6 @@ public class Task {
 
     @Column(nullable = false)
     private LocalDate dateUpdated;
-
-    @Transient
-    private long daysAdded;
-
-    public Task(String title, String description) {
-        this.title = title;
-        this.description = description;
-    }
 
     public Task() {
 
