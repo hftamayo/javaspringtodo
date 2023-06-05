@@ -1,7 +1,6 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Model.Task;
-import com.hftamayo.java.todo.Repository.TodoRepository;
 import com.hftamayo.java.todo.Services.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
