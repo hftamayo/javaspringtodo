@@ -3,10 +3,14 @@ package com.hftamayo.java.todo.Model;
 import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
+import java.time.*;
 
 public class TestTask {
 
@@ -55,12 +59,23 @@ public class TestTask {
 
     @Test
     @DisplayName("Get Days Added")
-    public void givenDisplayDaysAdded_whenGetDaysAddedRequest_thenDisplayGetDaysAdded(){
-        final LocalDate FAKE_DATE_ADDED = LocalDate.of(2023, 03, 01);
-        final LocalDate FAKE_DATE_NOW  = LocalDate.of(2023, 06, 01);
-        when(LocalDate.now()).thenReturn(FAKE_DATE_NOW);
+    public void givenNewTask_whenGetDaysAddedRequest_thenDisplayHowManyDaysAdded(){
+        Clock clockDateAdded;
+        Clock clockDateNow;
+        final String FAKE_DATE_ADDED = "2023-03-01T00:00:00.00Z";
+        final String FAKE_DATE_NOW  = "2023-06-01T00:00:00.00Z";
+
+        clockDateAdded = Clock.fixed(Instant.parse(FAKE_DATE_ADDED), ZoneId.of("UTC"));
+        LocalDateTime localDateTimeAdded = LocalDateTime.now(clockDateAdded);
+
+        Mockito.when(LocalDate.now()).thenReturn(LocalDate.from(localDateTimeAdded));
         Task testTask = new Task();
         testTask.onCreate();
-        LocalDate fakeDateNow = LocalDate.parse("01-06-2023");
+
+        clockDateNow = Clock.fixed(Instant.parse(FAKE_DATE_NOW), ZoneId.of("UTC"));
+        LocalDateTime localDateTimeNow = LocalDateTime.now(clockDateNow);
+        Mockito.when(LocalDate.now()).thenReturn(LocalDate.from(localDateTimeNow));
+
+        assertEquals(testTask.getDaysAdded(), 92);
     }
 }
