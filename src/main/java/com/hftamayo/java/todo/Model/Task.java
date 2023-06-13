@@ -30,8 +30,10 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime dateUpdated;
 
+    /* for the next release
     @Column
     private long updatedBy;
+     */
 
     public Task() {
 
@@ -41,11 +43,13 @@ public class Task {
     protected void onCreate(){
         dateAdded = LocalDateTime.now();
         dateUpdated = LocalDateTime.now();
+        //createdBy = LoggedUser.getId();
     }
 
     @PreUpdate
     protected void onUpdate(){
         dateUpdated = LocalDateTime.now();
+        //updatedBy = LoggedUser.getId();
     }
 
     public long getId() {
