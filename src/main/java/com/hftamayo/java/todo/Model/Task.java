@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.Model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -20,10 +20,10 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private LocalDate dateAdded;
+    private LocalDateTime dateAdded;
 
     @Column(nullable = false)
-    private LocalDate dateUpdated;
+    private LocalDateTime dateUpdated;
 
     public Task() {
 
@@ -31,13 +31,13 @@ public class Task {
 
     @PrePersist
     protected void onCreate(){
-        dateAdded = LocalDate.now();
-        dateUpdated = LocalDate.now();
+        dateAdded = LocalDateTime.now();
+        dateUpdated = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate(){
-        dateUpdated = LocalDate.now();
+        dateUpdated = LocalDateTime.now();
     }
 
     public long getId() {
@@ -60,15 +60,15 @@ public class Task {
         this.description = description;
     }
 
-    public LocalDate getDateAdded() {
+    public LocalDateTime getDateAdded() {
         return dateAdded;
     }
 
-    public LocalDate getDateUpdated() {
+    public LocalDateTime getDateUpdated() {
         return dateUpdated;
     }
 
     public long getDaysAdded(){
-        return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDate.now());
+        return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDateTime.now());
     }
 }
