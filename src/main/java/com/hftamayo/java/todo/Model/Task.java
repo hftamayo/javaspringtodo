@@ -35,6 +35,13 @@ public class Task {
     private long updatedBy;
      */
 
+    /*
+
+    @Column
+    private boolean isActive = Boolean.TRUE;
+    GENERAR GETTERS Y SETTERS PARA LAS NUEVAS PROPIEDADES
+    para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
+     */
     public Task() {
 
     }
