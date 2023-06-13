@@ -22,8 +22,16 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime dateAdded;
 
+    /* for the next release
+    @Column(nullable = false)
+    private long createdBy;
+     */
+
     @Column(nullable = false)
     private LocalDateTime dateUpdated;
+
+    @Column
+    private long updatedBy;
 
     public Task() {
 
