@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.Model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -20,24 +20,43 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private LocalDate dateAdded;
+    private LocalDateTime dateAdded;
+
+    /* for the next release
+    @Column(nullable = false)
+    private long createdBy;
+     */
 
     @Column(nullable = false)
-    private LocalDate dateUpdated;
+    private LocalDateTime dateUpdated;
 
+    /* for the next release
+    @Column
+    private long updatedBy;
+     */
+
+    /*
+
+    @Column
+    private boolean isActive = Boolean.TRUE;
+    GENERAR GETTERS Y SETTERS PARA LAS NUEVAS PROPIEDADES
+    para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
+     */
     public Task() {
 
     }
 
     @PrePersist
     protected void onCreate(){
-        dateAdded = LocalDate.now();
-        dateUpdated = LocalDate.now();
+        dateAdded = LocalDateTime.now();
+        dateUpdated = LocalDateTime.now();
+        //createdBy = LoggedUser.getId();
     }
 
     @PreUpdate
     protected void onUpdate(){
-        dateUpdated = LocalDate.now();
+        dateUpdated = LocalDateTime.now();
+        //updatedBy = LoggedUser.getId();
     }
 
     public long getId() {
@@ -60,15 +79,15 @@ public class Task {
         this.description = description;
     }
 
-    public LocalDate getDateAdded() {
+    public LocalDateTime getDateAdded() {
         return dateAdded;
     }
 
-    public LocalDate getDateUpdated() {
+    public LocalDateTime getDateUpdated() {
         return dateUpdated;
     }
 
     public long getDaysAdded(){
-        return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDate.now());
+        return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDateTime.now());
     }
 }
