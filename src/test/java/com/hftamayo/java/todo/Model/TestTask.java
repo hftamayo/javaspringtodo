@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.Model;
 
 import org.assertj.core.api.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -53,10 +54,17 @@ public class TestTask {
     }
 
     @Test
-    @DisplayName("Reject insert existing task")
+    @DisplayName("Reject insert existing task's title")
     public void givenNewTitle_whenAlreadyExists_thenRejectTaskCreation(){
-        Task testTask = new Task();
-        testTask.setTitle("Supermarket list");
+        Task firstTestTask = new Task();
+        firstTestTask.setTitle("Supermarket list");
+        firstTestTask.setDescription("meat, cereal, cheese and milk");
+        Task secondTestTask = new Task();
+        secondTestTask.setTitle("Supermarket list");
+        secondTestTask.setDescription("fruits, veggies");
+        //please polish the following case evaluation:
+        Assertions.assertFalse(firstTestTask.getTitle() != secondTestTask.getTitle());
+
     }
 
     @Test
