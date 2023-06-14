@@ -41,7 +41,7 @@ public class TestTask {
     public void givenTaskCreationRequest_whenOnCreate_thenCheckDatedAdded(){
         Task newTask = new Task();
         newTask.onCreate();
-        assertEquals(LocalDate.now(), newTask.getDateAdded());
+        assertEquals(LocalDate.now(), newTask.getDateAdded().toLocalDate());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class TestTask {
     public void givenTaskUpdateRequest_whenOnUpdate_thenCheckDatedUpdated(){
         Task newTask = new Task();
         newTask.onUpdate();
-        assertEquals(LocalDate.now(), newTask.getDateUpdated());
+        assertEquals(LocalDate.now(), newTask.getDateUpdated().toLocalDate());
     }
 
     @Test
