@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.time.*;
 
 public class TestTask {
+    MockedStatic<LocalDateTime> localDateTimeMocked;
 
     @Test
     @DisplayName("New Task: sending valid values")
@@ -61,42 +62,16 @@ public class TestTask {
     @Test
     @DisplayName("Get Days Added")
     public void givenNewTask_whenGetDaysAddedRequest_thenDisplayHowManyDaysAdded(){
-        Clock clockDateNow;
-
-        MockedStatic<LocalDateTime> localDateTimeMocked;
-
-        ZoneId z = ZoneId.of("UTC");
-
-        LocalDate ld = LocalDate.of(2023, Month.MARCH, 01);
-        LocalTime lt = LocalTime.NOON;
-        ZonedDateTime zdt = ZonedDateTime.of(ld, lt, z);
-        Instant instant = zdt.toInstant();
-        Clock clockDateAdded = Clock.fixed(instant, z);
-        Instant instantDateAdded = Instant.now(clockDateAdded);
-
         localDateTimeMocked = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
-        localDateTimeMocked.when(LocalDateTime::now).thenReturn(instantDateAdded);
+        LocalDateTime fakeDateAdded = LocalDateTime.of(2023, 03, 01, 12, 0);
+        localDateTimeMocked.when(LocalDateTime::now).thenReturn(fakeDateAdded);
 
-        System.out.println("Fecha de agregacion: "+LocalDateTime.now());
-
-
-        /*
-        final String FAKE_DATE_ADDED = "2023-03-01T00:00:00.00Z";
-        final String FAKE_DATE_NOW  = "2023-06-01T00:00:00.00Z";
-
-        clockDateAdded = Clock.fixed(Instant.parse(FAKE_DATE_ADDED), ZoneId.of("UTC"));
-        LocalDateTime localDateTimeAdded = LocalDateTime.now(clockDateAdded);
-
-        Mockito.when(LocalDate.now()).thenReturn(LocalDate.from(localDateTimeAdded));
         Task testTask = new Task();
         testTask.onCreate();
 
-        clockDateNow = Clock.fixed(Instant.parse(FAKE_DATE_NOW), ZoneId.of("UTC"));
-        LocalDateTime localDateTimeNow = LocalDateTime.now(clockDateNow);
-        Mockito.when(LocalDate.now()).thenReturn(LocalDate.from(localDateTimeNow));
+        LocalDateTime fakeDateNow = LocalDateTime.of(2023, 06, 01, 12, 0);
+        localDateTimeMocked.when(LocalDateTime::now).thenReturn(fakeDateNow);
 
         assertEquals(testTask.getDaysAdded(), 92);
-
-         */
     }
 }
