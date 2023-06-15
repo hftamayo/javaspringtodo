@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.Repository;
 
 import com.hftamayo.java.todo.Model.Task;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,5 +24,10 @@ public class TodoRepositoryTest {
                 new Task("supermarket list", "milk, cheese, fruits, veggies")
         );
         todoRepository.saveAll(tasks);
+    }
+
+    @AfterEach
+    public void destroyAll(){
+        todoRepository.deleteAll();
     }
 }
