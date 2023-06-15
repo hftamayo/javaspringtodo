@@ -46,6 +46,11 @@ public class Task {
 
     }
 
+    public Task(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
     @PrePersist
     protected void onCreate(){
         dateAdded = LocalDateTime.now();
