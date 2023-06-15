@@ -1,6 +1,5 @@
 package com.hftamayo.java.todo.Model;
 
-import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,11 +9,10 @@ import org.mockito.Mockito;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
 
 import java.time.*;
 
-public class TestTask {
+public class TaskTest {
     MockedStatic<LocalDateTime> localDateTimeMocked;
 
     @Test
