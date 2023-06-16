@@ -52,4 +52,12 @@ public class TodoRepositoryTest {
         });
         assertThat(validIdFound.intValue()).isEqualTo(3);
     }
+
+    @Test
+    void findAll_success(){
+        List<Task> allTasks = todoRepository.findAll();
+        assertThat(allTasks.size()).isGreaterThanOrEqualTo(1);
+    }
+
+
 }
