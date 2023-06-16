@@ -59,5 +59,17 @@ public class TodoRepositoryTest {
         assertThat(allTasks.size()).isGreaterThanOrEqualTo(1);
     }
 
+    @Test
+    void findTaskByTitle_success(){
+        List<Task> task = todoRepository.findTaskByTitle("supermarket list");
+        assertThat(task.size()).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    void findTaskByTitle_failed(){
+        List<Task> task = todoRepository.findTaskByTitle("doctor appointment");
+        assertThat(task.size()).isGreaterThanOrEqualTo(0);
+    }
+
 
 }
