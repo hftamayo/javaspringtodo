@@ -12,6 +12,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
@@ -60,9 +63,19 @@ public class TodoControllerTest {
 
     @Test
     @DisplayName("get all available task")
-    public void givenUserRequest_whenDiusplayTask_thenDisplayAllAvailableTasks()
+    public void givenUserRequest_whenDisplayTask_thenDisplayAllAvailableTasks() throws Exception {
+        List<Task> tasksList = Arrays.asList(
+                new Task("go to the supermarket", "cheese, fruits, veggies"),
+                new Task("call the doctor", "make appointment"),
+                new Task("pay bills", "telephone, cable, water")
+        );
 
+        when(todoService.getTasks()).thenReturn(tasksList);
 
-
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{}, {}, {}]"));
+    }
 
 }
