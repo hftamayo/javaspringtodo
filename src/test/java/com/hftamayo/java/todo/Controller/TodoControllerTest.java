@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Services.TodoService;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +77,14 @@ public class TodoControllerTest {
                 MockMvcRequestBuilders.get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[{}, {}, {}]"));
+    }
+
+    public static String asJsonString(final Object obj){
+        try{
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
 }
