@@ -3,6 +3,7 @@ package com.hftamayo.java.todo.Repository;
 import com.hftamayo.java.todo.Model.Task;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,6 +37,7 @@ public class TodoRepositoryTest {
     }
 
     @Test
+    @DisplayName("saving several tasks with valid data")
     void saveAll_success(){
         List<Task> tasks = Arrays.asList(
                 new Task("pay the bills", "water, cable, electricity"),
@@ -54,18 +56,21 @@ public class TodoRepositoryTest {
     }
 
     @Test
+    @DisplayName("getting all available tasks")
     void findAll_success(){
         List<Task> allTasks = todoRepository.findAll();
         assertThat(allTasks.size()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
+    @DisplayName("finding an existing task")
     void findTaskByTitle_success(){
         List<Task> task = todoRepository.findTaskByTitle("supermarket list");
         assertThat(task.size()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
+    @Displayame("searching for non-existing task")
     void findTaskByTitle_failed(){
         List<Task> task = todoRepository.findTaskByTitle("doctor appointment");
         assertThat(task.size()).isGreaterThanOrEqualTo(0);
