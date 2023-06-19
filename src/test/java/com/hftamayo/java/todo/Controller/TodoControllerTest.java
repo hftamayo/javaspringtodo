@@ -27,7 +27,7 @@ public class TodoControllerTest {
     TodoService todoService;
 
     @Test
-    @DisplayName("saving a task")
+    @DisplayName("saving a task successfully")
     public void givenValidValues_whenNewTask_thenSaveTask() throws Exception {
         Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
         when(todoService.newTask(any())).thenReturn(Boolean.TRUE);
@@ -41,6 +41,26 @@ public class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Task saved"));
     }
+
+    @Test
+    @DisplayName("saving a task failed process")
+    public void givenValidValues_whenNewTask_thenSaveTaskFailing() throws Exception {
+        Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
+        when(todoService.newTask(any())).thenReturn(Boolean.FALSE);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/savetask")
+                        .content(asJsonString(newTask))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string("Task could not be saved"));
+    }
+
+    @Test
+    @DisplayName("get all available task")
+    public void givenUserRequest_whenDiusplayTask_thenDisplayAllAvailableTasks()
 
 
 
