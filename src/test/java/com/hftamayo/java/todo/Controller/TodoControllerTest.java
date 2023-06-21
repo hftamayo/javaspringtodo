@@ -103,7 +103,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    @DisplayName("update a task")
+    @DisplayName("update a task successfully")
     public void givenTaskId_whenUpdateTask_thenReturnSuccess() throws Exception {
         long taskId = 1L;
         Task savedTask = Task.builder()
@@ -131,6 +131,31 @@ public class TodoControllerTest {
 
     }
 
+    @Test
+    @DisplayName("update a task failing")
+    public void givenTaskId_whenUpdateTask_thenReturnFailed() throws Exception {
+        long taskId = 1L;
+        Task savedTask = Task.builder()
+                .title("study history")
+                .description("History of Matin Luther King")
+                .build();
+
+        Task updatedTask = Task.builder()
+                .title("buy bread")
+                .description("don't forget the change")
+                .build();
+
+        given(todoService.getTaskById(taskId)).willReturn(Optional.empty());
+        given(todoService.updateTask(any(Task.class)));
+        .willAnswer((invocation) -> invocation.getArgument(0));
+
+        ResultActions response = mockMvc.perform(put("/updatetask/{taskId}", taskId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedTask)));
+
+        response.andExpect(status().isNotFound())
+                .andDo(print());
+    }
 
 
     public static String asJsonString(final Object obj){
