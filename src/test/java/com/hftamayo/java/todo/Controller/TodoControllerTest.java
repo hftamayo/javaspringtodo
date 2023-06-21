@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.willAnswer;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -29,6 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest({TodoController.class})
@@ -88,7 +89,9 @@ public class TodoControllerTest {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{}, {}, {}]"));
+                .andDo(print())
+                .andExpect(jsonPath("$.size()",
+                        is(tasksList.size())));
     }
 
     @Test
@@ -117,7 +120,7 @@ public class TodoControllerTest {
                 .build();
 
         given(todoService.getTaskById(taskId)).willReturn(Optional.of(savedTask));
-        given(todoService.updateTask(any(Task.class)));
+        given(todoService.updateTask(any(Task.class)))
         .willAnswer((invocation) -> invocation.getArgument(0));
 
         ResultActions response = mockMvc.perform(put("/updatetask/{taskId}", taskId)
