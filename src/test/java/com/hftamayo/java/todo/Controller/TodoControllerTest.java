@@ -58,36 +58,8 @@ public class TodoControllerTest {
         response.andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title", is(newTask.getTitle())))
-                .andExpect(jsonPath("$.description", is(newTask.getDescription())))
-                .andDo(print());
+                .andExpect(jsonPath("$.description", is(newTask.getDescription())));
 
-//        Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
-//        when(todoService.newTask(any())).thenReturn(Boolean.TRUE);
-//
-//        mockMvc.perform(
-//                MockMvcRequestBuilders.post("/savetask")
-//                        .content(asJsonString(newTask))
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON)
-//        )
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("Task saved"));
-    }
-
-    @Test
-    @DisplayName("saving a task failed process")
-    public void givenValidValues_whenNewTask_thenSaveTaskFailing() throws Exception {
-        Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
-        when(todoService.newTask(any())).thenReturn(Boolean.FALSE);
-
-        mockMvc.perform(
-                post("/savetask")
-                        .content(asJsonString(newTask))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
-                .andExpect(status().isOk())
-                .andExpect(content().string("Task could not be saved"));
     }
 
     @Test
@@ -173,15 +145,6 @@ public class TodoControllerTest {
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
-    }
-
-
-    public static String asJsonString(final Object obj){
-        try{
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e){
-            throw new RuntimeException(e);
-        }
     }
 
 }
