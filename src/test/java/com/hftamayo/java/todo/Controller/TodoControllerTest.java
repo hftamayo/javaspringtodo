@@ -43,6 +43,25 @@ public class TodoControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @DisplayName("get all available task")
+    public void givenUserRequest_whenGetTasks_thenReturnRecords() throws Exception {
+        List<Task> tasksList = Arrays.asList(
+                new Task("go to the supermarket", "cheese, fruits, veggies"),
+                new Task("call the doctor", "make appointment"),
+                new Task("pay bills", "telephone, cable, water")
+        );
+
+        when(todoService.getTasks()).thenReturn(tasksList);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/tasks"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.size()",
+                        is(tasksList.size())));
+    }
+
+    @Test
     @DisplayName("saving a task successfully")
     public void givenValidValues_whenNewTask_thenSaveTaskSuccessfully() throws Exception {
         Task newTask = Task.builder()
@@ -62,24 +81,6 @@ public class TodoControllerTest {
 
     }
 
-    @Test
-    @DisplayName("get all available task")
-    public void givenUserRequest_whenGetTasks_thenReturnRecords() throws Exception {
-        List<Task> tasksList = Arrays.asList(
-                new Task("go to the supermarket", "cheese, fruits, veggies"),
-                new Task("call the doctor", "make appointment"),
-                new Task("pay bills", "telephone, cable, water")
-        );
-
-        when(todoService.getTasks()).thenReturn(tasksList);
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.get("/tasks"))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andExpect(jsonPath("$.size()",
-                        is(tasksList.size())));
-    }
 
     @Test
     @DisplayName("delete an existing task")
