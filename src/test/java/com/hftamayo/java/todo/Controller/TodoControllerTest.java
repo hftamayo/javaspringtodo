@@ -23,8 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,18 +44,34 @@ public class TodoControllerTest {
 
     @Test
     @DisplayName("saving a task successfully")
-    public void givenValidValues_whenNewTask_thenSaveTask() throws Exception {
-        Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
-        when(todoService.newTask(any())).thenReturn(Boolean.TRUE);
+    public void givenValidValues_whenNewTask_thenSaveTaskSuccessfully() throws Exception {
+        Task newTask = Task.builder()
+                .title("pay salaries")
+                .description("don't be a stupid and pay salaries to the employees")
+                .build();
+        given(todoService.newTask(any(Task.class))).willAnswer((invocation)->invocation.getArgument(0));
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/savetask")
-                        .content(asJsonString(newTask))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
-                .andExpect(status().isOk())
-                .andExpect(content().string("Task saved"));
+        ResultActions response = mockMvc.perform(post("/savetask")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newTask)));
+
+        response.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title", is(newTask.getTitle())))
+                .andExpect(jsonPath("$.description", is(newTask.getDescription())))
+                .andDo(print());
+
+//        Task newTask = new Task("go to the supermarket", "cheese, fruits, veggies");
+//        when(todoService.newTask(any())).thenReturn(Boolean.TRUE);
+//
+//        mockMvc.perform(
+//                MockMvcRequestBuilders.post("/savetask")
+//                        .content(asJsonString(newTask))
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .accept(MediaType.APPLICATION_JSON)
+//        )
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("Task saved"));
     }
 
     @Test
@@ -66,7 +81,7 @@ public class TodoControllerTest {
         when(todoService.newTask(any())).thenReturn(Boolean.FALSE);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/savetask")
+                post("/savetask")
                         .content(asJsonString(newTask))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -111,7 +126,7 @@ public class TodoControllerTest {
         long taskId = 1L;
         Task savedTask = Task.builder()
                 .title("study history")
-                .description("History of Matin Luther King")
+                .description("History of Martin Luther King")
                 .build();
 
         Task updatedTask = Task.builder()
