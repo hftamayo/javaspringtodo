@@ -62,8 +62,8 @@ public class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("seaching and finding a task")
-    public void givenExistingTitle_whenSearchTask_thenReturnExistingTask(){
+    @DisplayName("searching and finding a task")
+    public void givenExistingTitle_whenSearchTask_thenFindAndReturnExistingTask(){
         Task newTask = new Task();
         newTask.setTitle("buy medicine");
         newTask.setDescription("this is an existing task");
@@ -75,7 +75,18 @@ public class TodoServiceTest {
         assertThat(fetchedTasks.size()).isGreaterThan(0);
     }
 
+    @Test
+    @DisplayName("searching and finding a task")
+    public void givenNonExistingTitle_whenSearchTask_thenExistingTaskFailed(){
+        Task newTask = new Task();
+        newTask.setTitle("buy medicine part2");
+        newTask.setDescription("this is a non existing task");
+        List<Task> taskList = new ArrayList<>();
+        taskList.add(newTask);
 
+        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
+        assertThat(fetchedTasks.size()).isEqualTo(0);
+    }
 
 
 }
