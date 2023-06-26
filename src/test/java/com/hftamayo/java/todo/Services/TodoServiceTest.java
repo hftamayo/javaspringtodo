@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -17,19 +19,34 @@ public class TodoServiceTest {
     @Mock
     private TodoRepository todoRepository;
 
-    Task task;
+    TodoService todoService;
+
+    @Test
+    @DisplayName("retrieve all existing task")
+    public void givenRequest_whenGetTasks_thenReturnAllAvailableTasks(){
+        List<Task> fetchedTasks = todoService.getTasks();
+        assertThat(fetchedTasks.size()).isGreaterThan(0);
+    }
+
 
     @Test
     @DisplayName("saving a task successfully")
     public void givenValidValues_whenNewTask_thenSaveTaskSuccessfully(){
         Task newTask = new Task();
+        //sustituir por el metodo de Builder de Lombok
         newTask.setTitle("buy medicine");
         newTask.setDescription("dont forget your client id number");
+
+        // aca estoy probando el repositorio cuando considero debería ser el servicio
 
         when(todoRepository.save(any(Task.class))).thenReturn(newTask);
         Task savedTask = todoRepository.save(newTask);
         assertThat(savedTask.getTitle()).isNotNull();
     }
+
+
+
+    //test de casos de uso especiales que tendrán total cobertura en siguientes version
 
     @Test
     @DisplayName("failing saving a task due existing name")
@@ -42,6 +59,8 @@ public class TodoServiceTest {
         Boolean isSaveSuccess = todoService.createTask(newTask);
         assertThat(isSaveSuccess).isEqualTo(false);
     }
+
+
 
 
 }
