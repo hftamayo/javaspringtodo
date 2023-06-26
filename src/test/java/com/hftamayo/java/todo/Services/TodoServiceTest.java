@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +59,20 @@ public class TodoServiceTest {
         when(todoRepository.countAllByTitle(newTask.getTitle())).thenReturn(1L);
         Boolean isSaveSuccess = todoService.createTask(newTask);
         assertThat(isSaveSuccess).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("seaching and finding a task")
+    public void givenExistingTitle_whenSearchTask_thenReturnExistingTask(){
+        Task newTask = new Task();
+        newTask.setTitle("buy medicine");
+        newTask.setDescription("this is an existing task");
+        List<Task> taskList = new ArrayList<>();
+        taskList.add(newTask);
+
+        when(todoRepository.findTaskByTitle(newTask.getTitle())).thenReturn(taskList);
+        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
+        assertThat(fetchedTasks.size()).isGreaterThan(0);
     }
 
 
