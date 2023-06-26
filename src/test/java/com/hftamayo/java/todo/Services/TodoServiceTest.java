@@ -30,4 +30,18 @@ public class TodoServiceTest {
         Task savedTask = todoRepository.save(newTask);
         assertThat(savedTask.getTitle()).isNotNull();
     }
+
+    @Test
+    @DisplayName("failing saving a task due existing name")
+    public void givenExistingTitle_whenNewTask_thenSaveTaskFailed(){
+        Task newTask = new Task();
+        newTask.setTitle("buy medicine");
+        newTask.setDescription("this is an existing task");
+
+        when(todoRepository.countAllByTitle(newTask.getTitle())).thenReturn(1L);
+        Boolean isSaveSuccess = todoService.createTask(newTask);
+        assertThat(isSaveSuccess).isEqualTo(false);
+    }
+
+
 }
