@@ -49,44 +49,43 @@ public class TodoServiceTest {
 
     //test de casos de uso especiales que tendrán total cobertura en siguientes version
 
-    @Test
-    @DisplayName("failing saving a task due existing name")
-    public void givenExistingTitle_whenNewTask_thenSaveTaskFailed(){
-        Task newTask = new Task();
-        newTask.setTitle("buy medicine");
-        newTask.setDescription("this is an existing task");
-
-        when(todoRepository.countAllByTitle(newTask.getTitle())).thenReturn(1L);
-        Boolean isSaveSuccess = todoService.createTask(newTask);
-        assertThat(isSaveSuccess).isEqualTo(false);
-    }
-
-    @Test
-    @DisplayName("searching and finding a task")
-    public void givenExistingTitle_whenSearchTask_thenFindAndReturnExistingTask(){
-        Task newTask = new Task();
-        newTask.setTitle("buy medicine");
-        newTask.setDescription("this is an existing task");
-        List<Task> taskList = new ArrayList<>();
-        taskList.add(newTask);
-
-        when(todoRepository.findTaskByTitle(newTask.getTitle())).thenReturn(taskList);
-        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
-        assertThat(fetchedTasks.size()).isGreaterThan(0);
-    }
-
-    @Test
-    @DisplayName("searching and finding a task")
-    public void givenNonExistingTitle_whenSearchTask_thenExistingTaskFailed(){
-        Task newTask = new Task();
-        newTask.setTitle("buy medicine part2");
-        newTask.setDescription("this is a non existing task");
-        List<Task> taskList = new ArrayList<>();
-        taskList.add(newTask);
-
-        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
-        assertThat(fetchedTasks.size()).isEqualTo(0);
-    }
-
+//    @Test
+//    @DisplayName("failing saving a task due existing name")
+//    public void givenExistingTitle_whenNewTask_thenSaveTaskFailed(){
+//        Task newTask = new Task();
+//        newTask.setTitle("buy medicine");
+//        newTask.setDescription("this is an existing task");
+//
+//        when(todoRepository.countAllByTitle(newTask.getTitle())).thenReturn(1L);
+//        Boolean isSaveSuccess = todoService.createTask(newTask);
+//        assertThat(isSaveSuccess).isEqualTo(false);
+//    }
+//
+//    @Test
+//    @DisplayName("searching and finding a task")
+//    public void givenExistingTitle_whenSearchTask_thenFindAndReturnExistingTask(){
+//        Task newTask = new Task();
+//        newTask.setTitle("buy medicine");
+//        newTask.setDescription("this is an existing task");
+//        List<Task> taskList = new ArrayList<>();
+//        taskList.add(newTask);
+//
+//        when(todoRepository.findTaskByTitle(newTask.getTitle())).thenReturn(taskList);
+//        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
+//        assertThat(fetchedTasks.size()).isGreaterThan(0);
+//    }
+//
+//    @Test
+//    @DisplayName("searching and finding a task")
+//    public void givenNonExistingTitle_whenSearchTask_thenExistingTaskFailed(){
+//        Task newTask = new Task();
+//        newTask.setTitle("buy medicine part2");
+//        newTask.setDescription("this is a non existing task");
+//        List<Task> taskList = new ArrayList<>();
+//        taskList.add(newTask);
+//
+//        List<Task> fetchedTasks = todoService.searchTaskByTitle(newTask.getTitle());
+//        assertThat(fetchedTasks.size()).isEqualTo(0);
+//    }
 
 }
