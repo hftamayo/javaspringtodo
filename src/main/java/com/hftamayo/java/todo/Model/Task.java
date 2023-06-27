@@ -20,16 +20,20 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, name = "task_title", nullable = false)
+    @Column(unique = true, name = "task_title")
+    @NonNull
     private String title;
 
-    @Column(name = "task_description", nullable = false)
+    @Column(name = "task_description")
+    @NonNull
     private String description;
 
-    @Column(nullable = false)
+    @Column
+    @NonNull
     private LocalDateTime dateAdded;
 
-    @Column(nullable = false)
+    @Column
+    @NonNull
     private LocalDateTime dateUpdated;
 
     /* for the next release
