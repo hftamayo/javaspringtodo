@@ -7,9 +7,10 @@ import java.util.Optional;
 
 public interface TodoService {
     List<Task> getTasks();
-    Optional<Task> getTaskById(long taskId);
-    List<Task> findTaskByTitle(String title) throws TitleNotFoundException;
-    List<Task> countAllTasksByStatus(boolean isActive);
+    Task getTaskById(long taskId);
+    Task getTaskByTitle(String title);
+    long countAllTaskByStatus(boolean isActive);
+    List<Task> getAllTasksByStatus(boolean isActive);
 
     Task saveTask(Task newTask);
     Task updateTask(Task updatedTask);
