@@ -38,7 +38,7 @@ public class Task {
 
     /* for the next release
     @Column(name = "owner_id", nullable = false)
-    private long createdBy;
+    private long taskOwner;
 
     @Column
     private boolean isActive = Boolean.TRUE;
