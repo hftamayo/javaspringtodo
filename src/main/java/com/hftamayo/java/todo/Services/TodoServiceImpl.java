@@ -6,7 +6,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TodoServiceImpl implements TodoService{
@@ -26,6 +25,14 @@ public class TodoServiceImpl implements TodoService{
 
     public Task getTaskByTitle(String taskTitle){
         return todoRepository.findByTitle(taskTitle);
+    }
+
+    public List<Task> getAllTasksByStatus(boolean taskStatus){
+        return todoRepository.findAllByStatus(taskStatus);
+    }
+
+    public long countAllTaskByStatus(boolean taskStatus){
+        return todoRepository.countAllByStatus(taskStatus);
     }
 
     public Task saveTask(Task task){
