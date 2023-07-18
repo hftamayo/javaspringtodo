@@ -24,13 +24,13 @@ public class TodoController {
 
     @PostMapping(value = "/savetask")
     public String saveTask(@RequestBody Task task){
-        todoService.newTask(task);
+        todoService.saveTask(task);
         return "Task saved";
     }
 
     @PutMapping(value="/updatetask/{taskId}")
     public String updateTask(@PathVariable long taskId, @RequestBody Task task){
-        todoService.updateTask(taskId, task);
+        todoService.updateTask(task);
         return "data updated";
     }
 
