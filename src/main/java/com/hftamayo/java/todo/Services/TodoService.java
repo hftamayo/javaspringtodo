@@ -3,7 +3,6 @@ package com.hftamayo.java.todo.Services;
 import com.hftamayo.java.todo.Model.Task;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TodoService {
     List<Task> getTasks();
