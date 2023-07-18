@@ -1,55 +1,19 @@
 package com.hftamayo.java.todo.Services;
 
 import com.hftamayo.java.todo.Model.Task;
-import com.hftamayo.java.todo.Repository.TodoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class TodoService {
+public interface TodoService {
+    List<Task> getTasks();
+    Task getTaskById(long taskId);
+    Task getTaskByTitle(String title);
+    long countAllTaskByStatus(boolean isActive);
+    List<Task> getAllTasksByStatus(boolean isActive);
 
-    private final TodoRepository todoRepository;
-
-    @Autowired
-    public TodoService(TodoRepository todoRepository){
-        this.todoRepository = todoRepository;
-    }
-
-    public List<Task> getTasks(){
-        return todoRepository.findAll();
-    }
-
-    public void newTask(Task task){
-        Optional<Task> requestedTask = todoRepository.findTaskByTitle(task.getTitle());
-        if(requestedTask.isPresent()){
-            throw new IllegalStateException("Title already exists");
-        }
-        todoRepository.save(task);
-    }
-
-    public void deleteTask(long id) {
-        boolean recordExists = this.todoRepository.existsById(id);
-        if(recordExists){
-            todoRepository.deleteById(id);
-        }
-    }
-
-    public void updateTask(long id, Task task) {
-        Task requestedTask = todoRepository.findById(id).get();
-        requestedTask.setTitle(task.getTitle());
-        requestedTask.setDescription(task.getDescription());
-
-        todoRepository.save(requestedTask);
-    }
-
-//    public void ApiResponse updateTask(long id, Task task){
-//        Task requestedTask = todoRepository.findById(id).get();
-//        requestedTask.setTitle(task.getTitle());
-//        requestedTask.setDescription(task.getDescription());
-//        todoRepository.save(requestedTask);
-//        return new ApiResponse(HttpStatus.OK.value), "task updated");
-//    }
+    Task saveTask(Task newTask);
+    Task updateTask(Task updatedTask);
+    void deleteTask(long taskId);
 }
+

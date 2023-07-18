@@ -1,9 +1,16 @@
 package com.hftamayo.java.todo.Model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 
 @Entity
 @Table(schema = "tasks")
@@ -13,43 +20,31 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, name = "task_title")
+    @NonNull
     private String title;
 
-    @Column(nullable = false)
+    @Column(name = "task_description")
+    @NonNull
     private String description;
 
-    @Column(nullable = false)
+    @Column
+    @NonNull
     private LocalDateTime dateAdded;
 
-    /* for the next release
-    @Column(nullable = false)
-    private long createdBy;
-     */
-
-    @Column(nullable = false)
+    @Column
+    @NonNull
     private LocalDateTime dateUpdated;
 
     /* for the next release
-    @Column
-    private long updatedBy;
-     */
-
-    /*
+    @Column(name = "owner_id", nullable = false)
+    private long taskOwner;
 
     @Column
     private boolean isActive = Boolean.TRUE;
-    GENERAR GETTERS Y SETTERS PARA LAS NUEVAS PROPIEDADES
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
+
      */
-    public Task() {
-
-    }
-
-    public Task(String title, String description) {
-        this.title = title;
-        this.description = description;
-    }
 
     @PrePersist
     protected void onCreate(){
@@ -62,34 +57,6 @@ public class Task {
     protected void onUpdate(){
         dateUpdated = LocalDateTime.now();
         //updatedBy = LoggedUser.getId();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getDateAdded() {
-        return dateAdded;
-    }
-
-    public LocalDateTime getDateUpdated() {
-        return dateUpdated;
     }
 
     public long getDaysAdded(){
