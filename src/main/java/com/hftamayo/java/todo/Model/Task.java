@@ -36,12 +36,13 @@ public class Task {
     @NonNull
     private LocalDateTime dateUpdated;
 
+    @Column
+    private boolean isActive = Boolean.TRUE;
+
     /* for the next release
     @Column(name = "owner_id", nullable = false)
     private long taskOwner;
 
-    @Column
-    private boolean isActive = Boolean.TRUE;
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
 
      */
