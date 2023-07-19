@@ -38,7 +38,7 @@ public class Task {
 
     @Column(name = "status")
     @NonNull
-    private boolean isActive = Boolean.TRUE;
+    private boolean status = Boolean.TRUE;
 
     /* for the next release
     @Column(name = "owner_id", nullable = false)
