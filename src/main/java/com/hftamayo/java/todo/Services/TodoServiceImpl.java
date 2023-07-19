@@ -37,7 +37,7 @@ public class TodoServiceImpl implements TodoService{
 
     public Task saveTask(Task task){
         Task requestedTask = todoRepository.findByTitle(task.getTitle());
-        if(requestedTask.getId()>0){
+        if(requestedTask != null && requestedTask.getId()>0){
             throw new IllegalStateException("Title already exists");
         }
         return todoRepository.save(task);
