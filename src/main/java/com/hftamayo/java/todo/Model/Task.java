@@ -36,7 +36,8 @@ public class Task {
     @NonNull
     private LocalDateTime dateUpdated;
 
-    @Column
+    @Column(name = "status")
+    @NonNull
     private boolean isActive = Boolean.TRUE;
 
     /* for the next release
