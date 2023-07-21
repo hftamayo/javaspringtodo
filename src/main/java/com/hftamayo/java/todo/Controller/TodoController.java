@@ -24,7 +24,7 @@ public class TodoController {
 
     @PostMapping(value = "/savetask")
     public String saveTask(@RequestBody Task task){
-        todoService.newTask(task);
+        todoService.saveTask(task);
         return "Task saved";
     }
 

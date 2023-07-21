@@ -6,7 +6,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TodoServiceImpl implements TodoService{
@@ -28,19 +27,35 @@ public class TodoServiceImpl implements TodoService{
         return todoRepository.findByTitle(taskTitle);
     }
 
+    public List<Task> getAllTasksByStatus(boolean taskStatus){
+        return todoRepository.findAllByStatus(taskStatus);
+    }
+
+    public long countAllTaskByStatus(boolean taskStatus){
+        return todoRepository.countAllByStatus(taskStatus);
+    }
+
     public Task saveTask(Task task){
         Task requestedTask = todoRepository.findByTitle(task.getTitle());
-        if(requestedTask.getId()>0){
+        if(requestedTask != null && requestedTask.getId()>0){
             throw new IllegalStateException("Title already exists");
         }
         return todoRepository.save(task);
     }
 
-    public Task updateTask(Task task){
-        return todoRepository.save(task);
+    public Task updateTask(long taskId, Task task) {
+        Task requestedTask = todoRepository.findById(taskId).get();
+        requestedTask.setTitle(task.getTitle());
+        requestedTask.setDescription(task.getDescription());
+
+        return todoRepository.save(requestedTask);
     }
 
     // ejemplos a evaluar para metodos PUT y POST
+//    public Task updateTask(Task task){
+//        return todoRepository.save(task);
+//    }
+
 //    public void updateTask(long id, Task task) {
 //        Task requestedTask = todoRepository.findById(id).get();
 //        requestedTask.setTitle(task.getTitle());
