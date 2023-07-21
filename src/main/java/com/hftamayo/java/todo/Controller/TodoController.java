@@ -30,7 +30,7 @@ public class TodoController {
 
     @PutMapping(value="/updatetask/{taskId}")
     public String updateTask(@PathVariable long taskId, @RequestBody Task task){
-        todoService.updateTask(task);
+        todoService.updateTask(taskId, task);
         return "data updated";
     }
 

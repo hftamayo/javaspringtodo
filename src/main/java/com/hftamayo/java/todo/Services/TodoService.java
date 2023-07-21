@@ -12,7 +12,7 @@ public interface TodoService {
     long countAllTaskByStatus(boolean isActive);
 
     Task saveTask(Task newTask);
-    Task updateTask(Task updatedTask);
+    Task updateTask(long taskId, Task updatedTask);
     void deleteTask(long taskId);
 }
 
