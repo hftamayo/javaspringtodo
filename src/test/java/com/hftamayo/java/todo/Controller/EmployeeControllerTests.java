@@ -55,6 +55,25 @@ public class EmployeeControllerTests {
 
     }
 
+    @Test
+    @DisplayName("get a task by id")
+    public void givenTaskId_whenGetTaskById_thenRetunTaskObject() throws Exception{
+
+        long taskId = 1L;
+        Task task = Task.builder()
+                .title("listen Cybersec podcast")
+                .description("Hackermacker or TCM")
+                .build();
+        given(todoService.getTaskById(taskId)).willReturn(Optional.of(task));
+
+        ResultActions response = mockMvc.perform(get("/task/{id}", taskId));
+
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.title", is(task.getTitle())))
+                .andExpect(jsonPath("$.description", is(task.getDescription())));
+    }
+
 
 
 
