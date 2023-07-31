@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import org.springframework.beans.factory.annotation.Value;
 
 @Setter
 @Getter
@@ -38,7 +39,8 @@ public class Task {
 
     @Column(name = "status")
     @NonNull
-    private boolean status = Boolean.TRUE;
+    @Value("true")
+    private boolean status;
 
     /* for the next release
     @Column(name = "owner_id", nullable = false)
