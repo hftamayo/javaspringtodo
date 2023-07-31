@@ -3,6 +3,7 @@ package com.hftamayo.java.todo.Controller;
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Services.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,23 +19,27 @@ public class TodoController {
 
 
     @GetMapping(value = "/tasks")
+    @ResponseStatus(HttpStatus.OK)
     public List<Task> getTasks(){
         return todoService.getTasks();
     }
 
     @PostMapping(value = "/savetask")
+    @ResponseStatus(HttpStatus.CREATED)
     public String saveTask(@RequestBody Task task){
         todoService.saveTask(task);
         return "Task saved";
     }
 
     @PutMapping(value="/updatetask/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
     public String updateTask(@PathVariable long taskId, @RequestBody Task task){
         todoService.updateTask(taskId, task);
         return "data updated";
     }
 
     @DeleteMapping(value="/deletetask/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
     public String deleteTask(@PathVariable long taskId){
         todoService.deleteTask(taskId);
         return "data deleted";
