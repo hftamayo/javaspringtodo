@@ -20,8 +20,8 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -101,6 +101,17 @@ public class EmployeeControllerTests {
         ;
     }
 
+    @Test
+    @DisplayName("delete a task successfully")
+    public void givenTaskId_whenDeleteTask_thenReturnOK() throws Exception{
+        long taskId = 1L;
+        willDoNothing().given(todoService).deleteTask(taskId);
+
+        ResultActions response = mockMvc.perform(delete("/deletetask/{taskId}", taskId));
+
+        response.andExpect(status().isOk())
+                .andDo(print());
+    }
 
 //    @Test
 //    @DisplayName("get a task by id")
