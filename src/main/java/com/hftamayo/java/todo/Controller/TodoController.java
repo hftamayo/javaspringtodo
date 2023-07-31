@@ -26,9 +26,8 @@ public class TodoController {
 
     @PostMapping(value = "/savetask")
     @ResponseStatus(HttpStatus.CREATED)
-    public String saveTask(@RequestBody Task task){
-        todoService.saveTask(task);
-        return "Task saved";
+    public Task saveTask(@RequestBody Task task){
+        return todoService.saveTask(task);
     }
 
     @PutMapping(value="/updatetask/{taskId}")
