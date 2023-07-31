@@ -48,12 +48,14 @@ public class EmployeeControllerTests {
                 .description("R & B PlayList")
                 .dateAdded(LocalDateTime.now())
                 .dateUpdated(LocalDateTime.now())
+                .status(true)
                 .build());
         listOfTasks.add(Task.builder()
                 .title("listen Spotify Playlist")
                 .description("New Age PlayList")
                 .dateAdded(LocalDateTime.now())
                 .dateUpdated(LocalDateTime.now())
+                .status(true)
                 .build());
         given(todoService.getTasks()).willReturn(listOfTasks);
 
