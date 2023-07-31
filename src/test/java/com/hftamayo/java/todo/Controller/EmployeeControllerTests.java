@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,11 +76,12 @@ public class EmployeeControllerTests {
     @Test
     @DisplayName("insert a non-existent task")
     public void givenTaskObject_whenCreateTask_thenReturnSavedTask() throws Exception{
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
         Task task = Task.builder()
                 .title("Go to the Medician")
                 .description("keep working on your health")
-                .dateAdded(LocalDateTime.now())
-                .dateUpdated(LocalDateTime.now())
+                .dateAdded(LocalDateTime.of(2023, 07, 01, 12, 0))
+                .dateUpdated(LocalDateTime.of(2023, 07, 01, 12, 0))
                 .status(true)
                 .build();
         given(todoService.saveTask(any(Task.class)))
