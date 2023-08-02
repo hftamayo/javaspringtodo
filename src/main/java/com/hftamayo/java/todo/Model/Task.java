@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.Model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,10 +32,12 @@ public class Task {
 
     @Column
     @NonNull
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
     @NonNull
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
     @Column(name = "status")
