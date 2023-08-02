@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -99,6 +99,41 @@ public class EmployeeControllerTests {
                 .andExpect(jsonPath("$.dateUpdated", is(task.getDateUpdated().format(dateFormatter))))
                 .andExpect(jsonPath("$.status", is(task.isStatus())))
         ;
+    }
+
+    @Test
+    @DisplayName("update a task successfully")
+    public void givenUpdatedTask_whenUpdateTask_thenReturnUpdateTaskObject() throws Exception{
+        long taskId = 1L;
+
+        Task savedTask = Task.builder()
+                .title("Go to the Medician")
+                .description("keep working on your health")
+                .dateAdded(LocalDateTime.of(2023, 07, 01, 12, 0))
+                .dateUpdated(LocalDateTime.of(2023, 07, 01, 12, 0))
+                .status(true)
+                .build();
+
+        Task updatedTask = Task.builder()
+                .title("Go to the Dentist")
+                .description("dont forget to keep calm")
+                .dateAdded(LocalDateTime.of(2023, 07, 01, 12, 0))
+                .dateUpdated(LocalDateTime.of(2023, 07, 01, 14, 0))
+                .status(true)
+                .build();
+        given(todoService.getTaskById(taskId)).willReturn(savedTask);
+        given(todoService.updateTask(anyInt(), any(Task.class)))
+                .willAnswer((invocation)-> invocation.getArgument(0));
+
+        ResultActions response = mockMvc.perform(put("/updatetask/{taskId}", taskId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedTask)));
+
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.title", is(updatedTask.getTitle())))
+                .andExpect(jsonPath("$.description", is(updatedTask.getDescription())))
+                .andExpect(jsonPath("$.dateUpdated", is(updatedTask.getDateUpdated())));
     }
 
     @Test
