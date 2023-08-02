@@ -76,7 +76,7 @@ public class EmployeeControllerTests {
     @Test
     @DisplayName("insert a non-existent task")
     public void givenTaskObject_whenCreateTask_thenReturnSavedTask() throws Exception{
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm");
         Task task = Task.builder()
                 .title("Go to the Medician")
                 .description("keep working on your health")
@@ -95,8 +95,8 @@ public class EmployeeControllerTests {
                 andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title", is(task.getTitle())))
                 .andExpect(jsonPath("$.description", is(task.getDescription())))
-                .andExpect(jsonPath("$.dateAdded", is(task.getDateAdded())))
-                .andExpect(jsonPath("$.dateUpdated", is(task.getDateUpdated())))
+                .andExpect(jsonPath("$.dateAdded", is(task.getDateAdded().format(dateFormatter))))
+                .andExpect(jsonPath("$.dateUpdated", is(task.getDateUpdated().format(dateFormatter))))
                 .andExpect(jsonPath("$.status", is(task.isStatus())))
         ;
     }
