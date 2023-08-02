@@ -32,9 +32,8 @@ public class TodoController {
 
     @PutMapping(value="/updatetask/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public String updateTask(@PathVariable long taskId, @RequestBody Task task){
-        todoService.updateTask(taskId, task);
-        return "data updated";
+    public Task updateTask(@PathVariable long taskId, @RequestBody Task task){
+        return todoService.updateTask(taskId, task);
     }
 
     @DeleteMapping(value="/deletetask/{taskId}")
