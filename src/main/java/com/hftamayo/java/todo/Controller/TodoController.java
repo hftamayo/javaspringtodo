@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Services.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +32,9 @@ public class TodoController {
     }
 
     @PutMapping(value="/updatetask/{taskId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Task updateTask(@PathVariable long taskId, @RequestBody Task task){
-        return todoService.updateTask(taskId, task);
+    public ResponseEntity<Task> updateTask(@PathVariable long taskId, @RequestBody Task task){
+        Task updatedTask = todoService.updateTask(taskId, task);
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
     @DeleteMapping(value="/deletetask/{taskId}")
