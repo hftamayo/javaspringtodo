@@ -137,6 +137,39 @@ public class EmployeeControllerTests {
 //                .andExpect(jsonPath("$.dateUpdated").value("01-07-2023 14:00"));
     }
 
+//    @Test
+//    @DisplayName("update a task and return 404")
+//    public void givenUpdatedTask_whenUpdateTask_thenReturn404() throws Exception {
+//        long taskId = 1L;
+//        Task savedTask = Task.builder()
+//                .title("Go to the Medician")
+//                .description("keep working on your health")
+//                .dateAdded(LocalDateTime.of(2023, 07, 01, 12, 0))
+//                .dateUpdated(LocalDateTime.of(2023, 07, 01, 12, 0))
+//                .status(true)
+//                .build();
+//
+//        Task updatedTask = Task.builder()
+//                .title("Go to the Dentist")
+//                .description("dont forget to keep calm")
+//                .dateAdded(LocalDateTime.of(2023, 07, 01, 12, 0))
+//                .dateUpdated(LocalDateTime.of(2023, 07, 01, 14, 0))
+//                .status(true)
+//                .build();
+//
+//        given(todoService.getTaskById(taskId)).willReturn(null);
+//        given(todoService.updateTask(anyInt(), any(Task.class)))
+//                .willAnswer((invocation)-> invocation.getArgument(0));
+//
+//        ResultActions response = mockMvc.perform(put("/updatetask/{taskId}", taskId)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(objectMapper.writeValueAsString(updatedTask)));
+//
+//        response.andExpect(status().isNotFound())
+//                .andDo(print());
+//
+//    }
+
     @Test
     @DisplayName("delete a task successfully")
     public void givenTaskId_whenDeleteTask_thenReturnOK() throws Exception{
