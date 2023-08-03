@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static javax.management.Query.value;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -131,9 +132,9 @@ public class EmployeeControllerTests {
 
         response.andExpect(status().isOk())
                 .andDo(print());
-//                .andExpect(jsonPath("$.title", is(updatedTask.getTitle())))
-//                .andExpect(jsonPath("$.description", is(updatedTask.getDescription())))
-//                .andExpect(jsonPath("$.dateUpdated", is(updatedTask.getDateUpdated().format(dateFormatter))));
+//                .andExpect(jsonPath("$.title").value("Go to the Dentist"))
+//                .andExpect(jsonPath("$.description").value("dont forget to keep calm"))
+//                .andExpect(jsonPath("$.dateUpdated").value("01-07-2023 14:00"));
     }
 
     @Test
