@@ -132,9 +132,9 @@ public class EmployeeControllerTests {
 
         response.andExpect(status().isOk())
                 .andDo(print());
-//                .andExpect(jsonPath("$.title").value("Go to the Dentist"))
-//                .andExpect(jsonPath("$.description").value("dont forget to keep calm"))
-//                .andExpect(jsonPath("$.dateUpdated").value("01-07-2023 14:00"));
+//                .andExpect(jsonPath("$.title", is(updatedTask.getTitle())))
+//                .andExpect(jsonPath("$.description", is(updatedTask.getDescription())))
+//                .andExpect(jsonPath("$.dateUpdated", is(updatedTask.getDateUpdated())));
     }
 
 //    @Test
