@@ -1,45 +1,46 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Model.Task;
-import com.hftamayo.java.todo.Repository.TodoRepository;
+import com.hftamayo.java.todo.Services.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 public class TodoController {
+    private final TodoService todoService;
+
     @Autowired
-    private TodoRepository todoRepository;
-    @GetMapping(value = "/saludo")
-    public String holaMundo(){
-        return "Hola Mundo";
+    public TodoController(TodoService todoService){
+        this.todoService = todoService;
     }
 
+
     @GetMapping(value = "/tasks")
+    @ResponseStatus(HttpStatus.OK)
     public List<Task> getTasks(){
-        return todoRepository.findAll();
+        return todoService.getTasks();
     }
 
     @PostMapping(value = "/savetask")
-    public String saveTask(@RequestBody Task task){
-        todoRepository.save(task);
-        return "Task saved";
+    @ResponseStatus(HttpStatus.CREATED)
+    public Task saveTask(@RequestBody Task task){
+        return todoService.saveTask(task);
     }
 
-    @PutMapping(value="/updatetask/{id}")
-    public String updateTask(@PathVariable long id, @RequestBody Task task){
-        Task updatedTask = todoRepository.findById(id).get();
-        updatedTask.setTitle(task.getTitle());
-        updatedTask.setDescription(task.getDescription());
-        todoRepository.save(updatedTask);
-        return "data updated";
+    @PutMapping(value="/updatetask/{taskId}")
+    public ResponseEntity<Task> updateTask(@PathVariable long taskId, @RequestBody Task task){
+        Task updatedTask = todoService.updateTask(taskId, task);
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
-    @DeleteMapping(value="/deletetask/{id}")
-    public String deleteTask(@PathVariable long id){
-        Task deletedTask = todoRepository.findById(id).get();
-        todoRepository.delete(deletedTask);
+    @DeleteMapping(value="/deletetask/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteTask(@PathVariable long taskId){
+        todoService.deleteTask(taskId);
         return "data deleted";
     }
 }
