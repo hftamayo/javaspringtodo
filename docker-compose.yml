@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   db:
-    image: mysql:8.0.23
+    image: mysql:8.1.0
     restart: always
     environment:
       MYSQL_DATABASE: 'jspringtodo'
@@ -22,11 +22,11 @@ services:
     networks:
       - jsbtodorest
     volumes:
-      - jspringtodo-mysqlvol: /var/lib/mysql
+      - jspringtodo-mysqlvol:/var/lib/mysql
 
 volumes:
   jspringtodo-mysqlvol:
 
 networks:
   jsbtodorest:
-  driver: bridge
+    driver: bridge
