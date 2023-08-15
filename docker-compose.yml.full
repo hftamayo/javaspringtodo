@@ -1,6 +1,17 @@
 version: '3.3'
 
 services:
+  jspring-todorest:
+    build:
+      context:
+      dockerfile: Dockerfile
+    depends-on:
+      - db
+    ports:
+      - "8002:8080"
+    networks:
+      - jsbtodorest
+
   db:
     image: mysql:8.0.23
     restart: always
