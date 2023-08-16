@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.springframework.beans.factory.annotation.Value;
 
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -23,20 +22,18 @@ public class Task {
     private long id;
 
     @Column(unique = true, name = "task_title")
-    @NonNull
+    @NotBlank
     private String title;
 
     @Column(name = "task_description")
-    @NonNull
+    @NotBlank
     private String description;
 
     @Column
-    @NonNull
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @NonNull
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
@@ -48,6 +45,25 @@ public class Task {
     /* for the next release
     @Column(name = "owner_id", nullable = false)
     private long taskOwner;
+
+    @Column
+    @CreatedDate
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    private LocalDateTime dateAdded;
+
+    @Column
+    @CreatedBy
+    User owner
+
+    @Column
+    @LastModifiedDate
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    private LocalDateTime dateUpdated;
+
+    @Column
+    @LastModifiedBy
+    User modifiedBy
+
 
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
 
