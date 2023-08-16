@@ -22,11 +22,11 @@ public class Task {
     private long id;
 
     @Column(unique = true, name = "task_title")
-    @NotBlank
+    @NonNull
     private String title;
 
     @Column(name = "task_description")
-    @NotBlank
+    @NonNull
     private String description;
 
     @Column
@@ -39,8 +39,8 @@ public class Task {
 
     @Column(name = "status")
     @NonNull
-    @Value("true")
-    private boolean status;
+    @Builder.Default
+    private boolean status = true;
 
     /* for the next release
     @Column(name = "owner_id", nullable = false)
