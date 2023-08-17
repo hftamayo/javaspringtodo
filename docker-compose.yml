@@ -1,6 +1,6 @@
-version: '3.3'
+version: '3.8'
 
-services:
+services:     
   db:
     image: mysql:8.1.0
     restart: always
@@ -8,9 +8,9 @@ services:
       MYSQL_DATABASE: 'jspringtodo'
       MYSQL_USER: 'javaspringtodo'
         #double $$ for escaping $ character
-      MYSQL_PASSWORD: 'jspringT0D0$$'
+      MYSQL_PASSWORD: /run/secrets/dba_mysql
       # Password for root access
-      MYSQL_ROOT_PASSWORD: 'db43uskAdY11'
+      MYSQL_ROOT_PASSWORD: /run/secrets/admin_mysql
     ports:
       # <Port exposed> : <MySQL Port running inside container>
       - '13306:3306'
@@ -23,9 +23,29 @@ services:
       - jsbtodorest
     volumes:
       - jspringtodo-mysqlvol:/var/lib/mysql
+    secrets:
+      - dba_mysql
+      - admin_mysql
+
+  springboot-todorest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8080"
+    networks:
+      - jsbtodorest
+    depends_on:
+      - db
 
 volumes:
   jspringtodo-mysqlvol:
+
+secrets:
+  dba_mysql:
+    file: ./dba_mysql.txt
+  admin_mysql:
+    file: ./admin_mysql.txt
 
 networks:
   jsbtodorest:
