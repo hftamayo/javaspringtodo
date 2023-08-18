@@ -15,6 +15,7 @@
 	<description>CRUD todo project demo</description>
 	<properties>
 		<java.version>17</java.version>
+		<start-class>com.hftamayo.java.todo.TodoApplication</start-class>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -81,6 +82,17 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.hftamayo.java.todo.TodoApplication</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
