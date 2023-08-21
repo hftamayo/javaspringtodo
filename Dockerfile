@@ -4,7 +4,6 @@ COPY enviro.properties /enviro.properties
 ENV JAVA_OPTS=""
 CMD java \
 	-Dspring.config.location=/enviro.properties \
-	-Djava.security.egd=file:/dev/ ./random \
 	$JAVA_OPTS \
 	-jar /todo001.jar
 
