@@ -18,7 +18,7 @@ services:
       # Opens port 3306 on the container
       - '3306'
       # Where our data will be persisted
-    container_name: mysql-docker-local
+    container_name: mysqldocker
     networks:
       - jsbtodorest
     volumes:
@@ -33,15 +33,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8002:8080"
+    container_name: jsbtodorestdocker
     networks:
       - jsbtodorest
     depends_on:
       - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:13306/jspringtodo
-      SPRING_DATASOURCE_USERNAME: javaspringtodo
-      SPRING_DATASOURCE_PASSWORD: jspringT0D0$$
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        #environment:
+      #SPRING_DATASOURCE_URL: jdbc:mysql://localhost:13306/jspringtodo?allowPublicKeyRetrieval=true&useSSL=false
+      #SPRING_DATASOURCE_USERNAME: javaspringtodo
+      #SPRING_DATASOURCE_PASSWORD: jspringT0D0$$
+      #SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   jspringtodo-mysqlvol:
