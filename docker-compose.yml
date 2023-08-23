@@ -37,6 +37,11 @@ services:
       - jsbtodorest
     depends_on:
       - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:13306/jspringtodo
+      SPRING_DATASOURCE_USERNAME: javaspringtodo
+      SPRING_DATASOURCE_PASSWORD: jspringT0D0$$
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   jspringtodo-mysqlvol:
