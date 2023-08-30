@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  mysqldocker:
+  dbmysqldocker:
     image: mysql:8.1.0
     restart: always
     env_file:
       - ./dockerinit/.envmysql
     ports:
       # <Port exposed> : <MySQL Port running inside container>
-      - '13306:3306'
+      - '3306:3306'
     container_name: mysqldocker
     networks:
       - mysqldockernetwork
@@ -26,7 +26,7 @@ services:
     networks:
       - mysqldockernetwork
     depends_on:
-      - mysqldocker
+      - dbmysqldocker
 
 volumes:
   jsbtododata:
@@ -34,3 +34,4 @@ volumes:
 networks:
   mysqldockernetwork:
     name: mysqldockernetwork
+    driver: bridge
