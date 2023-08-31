@@ -69,3 +69,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### docker ###
+.env
+/dockerinit/*.sql
