@@ -24,7 +24,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    restart: on-failure
+        #restart: on-failure
 
     #.env is expected as name and located in root folder
     env_file: ./.env
