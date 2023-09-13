@@ -72,4 +72,4 @@ build/
 
 ### docker ###
 .env
-/dockerinit/*.sql
+dockerinit/*sql
