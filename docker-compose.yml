@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   mysqldb:
+    container_name: mysqldb
     image: mysql:8.1.0
     restart: on-failure
     #.env is expected as name and located in root folder
@@ -21,6 +22,7 @@ services:
       - jsbtodorestnetwork
 
   jsbtodorest:
+    container_name: jsbtodorest
     depends_on:
       - mysqldb
     build:
