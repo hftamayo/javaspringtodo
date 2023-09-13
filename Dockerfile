@@ -1,6 +1,6 @@
 FROM openjdk:17
-
-WORKDIR /todo
+#directorio de trabajo dentro del contenedor
+WORKDIR /opt/hftamayo/todo
 #RUN mvn clean install
 COPY target/todo-0.0.1-SNAPSHOT.jar todo001.jar
 ENTRYPOINT ["java", "-jar", "todo001.jar"]
