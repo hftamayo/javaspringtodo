@@ -38,3 +38,4 @@ Please refer to the Issues section in this repository
 https://www.bezkoder.com/docker-compose-spring-boot-mysql/
 https://stackoverflow.com/questions/76513868/mysql-docker-spring-boot-connection-issue-communications-link-failure
 https://stackoverflow.com/questions/42567475/docker-compose-check-if-mysql-connection-is-ready
+health check routine: https://www.appsloveworld.com/docker/100/78/docker-compose-healthcheck-mysql
