@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.9"
 
 services:
   mysqldb:
@@ -13,6 +13,11 @@ services:
       - MYSQL_USER=$MYSQL_USER
       - MYSQL_PASSWORD=$MYSQL_PASSWORD
       - MYSQL_DATABASE=$MYSQL_DATABASE
+    healthcheck:
+      test: mysql ${MYSQL_DATABASE} --user=${MYSQL_USER} --password='${MYSQL_PASSWORD}' --silent --execute "SELECT 1;"
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - $MYSQL_LOCAL_PORT:$MYSQL_DOCKER_PORT
     volumes:
@@ -24,7 +29,8 @@ services:
   jsbtodorest:
     container_name: jsbtodorest
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
     build:
       context: ./
       dockerfile: Dockerfile
