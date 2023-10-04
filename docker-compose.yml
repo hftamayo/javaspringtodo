@@ -29,14 +29,12 @@ services:
   app:
     container_name: jsbtodorest
     depends_on:
-      mysqldb:
+      db:
         condition: service_healthy
     restart: always
     build:
       context: ./
       dockerfile: Dockerfile
-        #restart: on-failure
-
     #.env is expected as name and located in root folder
     env_file: ./.env
     ports:
