@@ -56,7 +56,7 @@ target
 secrets.yml
 .gradletasknamecache
 .sts4-cache
-enviro.properties
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -70,6 +70,9 @@ build/
 ### VS Code ###
 .vscode/
 
-### docker ###
+### hftamayo ###
+enviro.properties
+src/main/resources/*.properties
+
 .env
 dockerinit/*sql

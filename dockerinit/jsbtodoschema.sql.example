@@ -1,6 +1,0 @@
-CREATE USER 'dba'@'localhost' IDENTIFIED BY 'dbapassword';
-GRANT ALL PRIVILEGES ON * . * TO 'dba'@'localhost'; 
-CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'appuserpword';
-CREATE DATABASE appdb;
-GRANT ALL PRIVILEGES ON appdb.* TO 'appuser'@'localhost';
-FLUSH PRIVILEGES;
