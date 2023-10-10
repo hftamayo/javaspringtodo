@@ -1,0 +1,7 @@
+spring.datasource.url=jdbc:mysql://<host>:<port>/<database>?allowPublicKeyRetrieval=true&useSSL=false
+spring.datasource.username=<app_user>
+spring.datasource.password=<app_user_password>
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+spring.jpa.generate-ddl=true
+spring.jpa.hibernate.ddl-auto=update
+server.port=<app port>
