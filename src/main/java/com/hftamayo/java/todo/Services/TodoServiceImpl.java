@@ -2,7 +2,6 @@ package com.hftamayo.java.todo.Services;
 
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TodoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +19,8 @@ public class TodoServiceImpl implements TodoService{
     }
 
     public Task getTaskById(long taskId){
-        return todoRepository.findById(taskId).orElseThrow(EntityNotFoundException::new);
+        return todoRepository.findById(taskId).get();
+        //return todoRepository.findById(taskId).orElseThrow(EntityNotFoundException::new);
     }
 
     public Task getTaskByTitle(String taskTitle){
@@ -50,19 +50,6 @@ public class TodoServiceImpl implements TodoService{
 
         return todoRepository.save(requestedTask);
     }
-
-    // ejemplos a evaluar para metodos PUT y POST
-//    public Task updateTask(Task task){
-//        return todoRepository.save(task);
-//    }
-
-//    public void updateTask(long id, Task task) {
-//        Task requestedTask = todoRepository.findById(id).get();
-//        requestedTask.setTitle(task.getTitle());
-//        requestedTask.setDescription(task.getDescription());
-//
-//        todoRepository.save(requestedTask);
-//    }
 
 //    public void ApiResponse updateTask(long id, Task task){
 //        Task requestedTask = todoRepository.findById(id).get();

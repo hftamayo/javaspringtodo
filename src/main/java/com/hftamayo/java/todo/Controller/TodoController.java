@@ -25,6 +25,14 @@ public class TodoController {
         return todoService.getTasks();
     }
 
+    @GetMapping(value = "/todos/gettask/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Task getTask(@PathVariable long taskId){
+        return todoService.getTaskById(taskId);
+    }
+
+
+
     @PostMapping(value = "/todos/savetask")
     @ResponseStatus(HttpStatus.CREATED)
     public Task saveTask(@RequestBody Task task){
