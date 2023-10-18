@@ -18,6 +18,14 @@ public class TodoServiceImpl implements TodoService{
         return todoRepository.findAll();
     }
 
+    public List<Task> getAllTasksByStatus(boolean taskStatus){
+        return todoRepository.findAllByStatus(taskStatus);
+    }
+
+    public long countAllTaskByStatus(boolean taskStatus){
+        return todoRepository.countAllByStatus(taskStatus);
+    }
+
     public Task getTaskById(long taskId){
         return todoRepository.findById(taskId).get();
         //return todoRepository.findById(taskId).orElseThrow(EntityNotFoundException::new);
@@ -25,16 +33,6 @@ public class TodoServiceImpl implements TodoService{
 
     public Task getTaskByTitle(String taskTitle){
         return todoRepository.findByTitle(taskTitle);
-    }
-
-
-
-    public List<Task> getAllTasksByStatus(boolean taskStatus){
-        return todoRepository.findAllByStatus(taskStatus);
-    }
-
-    public long countAllTaskByStatus(boolean taskStatus){
-        return todoRepository.countAllByStatus(taskStatus);
     }
 
     public Task saveTask(Task task){
