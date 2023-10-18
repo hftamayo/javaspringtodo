@@ -27,6 +27,8 @@ public class TodoServiceImpl implements TodoService{
         return todoRepository.findByTitle(taskTitle);
     }
 
+
+
     public List<Task> getAllTasksByStatus(boolean taskStatus){
         return todoRepository.findAllByStatus(taskStatus);
     }
