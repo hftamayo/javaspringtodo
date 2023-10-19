@@ -13,7 +13,6 @@ public interface TodoRepository extends JpaRepository<Task, Long> {
     List<Task> findAll();
     List <Task> findAllByStatus(boolean isActive);
     Task findByTitle(String title);
-
     long countAllByStatus(boolean isActive);
 
     //for next release

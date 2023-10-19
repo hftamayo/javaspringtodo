@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface TodoService {
     List<Task> getTasks();
+    List<Task> getAllTasksByStatus(boolean isActive);
     Task getTaskById(long taskId);
     Task getTaskByTitle(String title);
-    List<Task> getAllTasksByStatus(boolean isActive);
     long countAllTaskByStatus(boolean isActive);
 
     Task saveTask(Task newTask);
