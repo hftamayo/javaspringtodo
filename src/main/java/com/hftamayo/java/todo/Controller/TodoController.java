@@ -25,25 +25,25 @@ public class TodoController {
         return todoService.getTasks();
     }
 
-    @GetMapping(value = "/todos/gettask/{taskId}")
+    @GetMapping(value = "/todos/gettaskbyid/{taskId}")
     @ResponseStatus(HttpStatus.OK)
     public Task getTask(@PathVariable long taskId){
         return todoService.getTaskById(taskId);
     }
 
-    @GetMapping(value = "/todos/gettask/{taskTitle}")
+    @GetMapping(value = "/todos/gettaskbytitle/{taskTitle}")
     @ResponseStatus(HttpStatus.OK)
     public Task getTaskByTitle(@PathVariable String taskTitle){
         return todoService.getTaskByTitle(taskTitle);
     }
 
-    @GetMapping(value = "/todos/gettasks/{status}")
+    @GetMapping(value = "/todos/gettasksbystatus/{status}")
     @ResponseStatus(HttpStatus.OK)
     public List<Task> getTasksByStatus(@PathVariable boolean status){
         return todoService.getAllTasksByStatus(status);
     }
 
-    @GetMapping(value = "/todos/gettasks/{status}")
+    @GetMapping(value = "/todos/counttasksbystatus/{status}")
     @ResponseStatus(HttpStatus.OK)
     public long countTasksByStatus(@PathVariable boolean status){
         return todoService.countAllTaskByStatus(status);
