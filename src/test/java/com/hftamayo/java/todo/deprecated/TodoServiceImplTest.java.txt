@@ -1,7 +1,8 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.deprecated;
 
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TodoRepository;
+import com.hftamayo.java.todo.Services.TodoServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
