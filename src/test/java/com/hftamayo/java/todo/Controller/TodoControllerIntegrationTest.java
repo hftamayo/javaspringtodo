@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TodoRepository;
 import com.hftamayo.java.todo.Services.TodoService;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -118,9 +120,12 @@ public class TodoControllerIntegrationTest {
     public void testSaveTask() throws Exception {
         Task newTask = new Task(1L, "New Task", "Description", LocalDateTime.now(), LocalDateTime.now(), true);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
         mockMvc.perform(MockMvcRequestBuilders.post("/todos/savetask")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(newTask)))
+                        .content(objectMapper.writeValueAsString(newTask)))
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("New Task"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Description"))
@@ -144,9 +149,12 @@ public class TodoControllerIntegrationTest {
 
         savedTask.setTitle("Updated Task");
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
         mockMvc.perform(MockMvcRequestBuilders.put("/todos/updatetask/" + savedTask.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(savedTask)))
+                        .content(objectMapper.writeValueAsString(savedTask)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Updated Task"));
     }
