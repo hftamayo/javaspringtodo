@@ -1,54 +1,54 @@
 package com.hftamayo.java.todo.Services;
 
 import com.hftamayo.java.todo.Model.Task;
-import com.hftamayo.java.todo.Repository.TodoRepository;
+import com.hftamayo.java.todo.Repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TodoServiceImpl implements TodoService{
-    private final TodoRepository todoRepository;
+public class TaskServiceImpl implements TaskService {
+    private final TaskRepository taskRepository;
 
-    public TodoServiceImpl(TodoRepository todoRepository) {
-        this.todoRepository = todoRepository;
+    public TaskServiceImpl(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     public List<Task> getTasks(){
-        return todoRepository.findAll();
+        return taskRepository.findAll();
     }
 
     public List<Task> getAllTasksByStatus(boolean taskStatus){
-        return todoRepository.findAllByStatus(taskStatus);
+        return taskRepository.findAllByStatus(taskStatus);
     }
 
     public long countAllTaskByStatus(boolean taskStatus){
-        return todoRepository.countAllByStatus(taskStatus);
+        return taskRepository.countAllByStatus(taskStatus);
     }
 
     public Task getTaskById(long taskId){
-        return todoRepository.findById(taskId).get();
+        return taskRepository.findById(taskId).get();
         //return todoRepository.findById(taskId).orElseThrow(EntityNotFoundException::new);
     }
 
     public Task getTaskByTitle(String taskTitle){
-        return todoRepository.findByTitle(taskTitle);
+        return taskRepository.findByTitle(taskTitle);
     }
 
     public Task saveTask(Task task){
-        Task requestedTask = todoRepository.findByTitle(task.getTitle());
+        Task requestedTask = taskRepository.findByTitle(task.getTitle());
         if(requestedTask != null && requestedTask.getId()>0){
             throw new IllegalStateException("Title already exists");
         }
-        return todoRepository.save(task);
+        return taskRepository.save(task);
     }
 
     public Task updateTask(long taskId, Task task) {
-        Task requestedTask = todoRepository.findById(taskId).get();
+        Task requestedTask = taskRepository.findById(taskId).get();
         requestedTask.setTitle(task.getTitle());
         requestedTask.setDescription(task.getDescription());
 
-        return todoRepository.save(requestedTask);
+        return taskRepository.save(requestedTask);
     }
 
 //    public void ApiResponse updateTask(long id, Task task){
@@ -60,9 +60,9 @@ public class TodoServiceImpl implements TodoService{
 //    }
 
     public void deleteTask(long id) {
-        boolean recordExists = this.todoRepository.existsById(id);
+        boolean recordExists = this.taskRepository.existsById(id);
         if(recordExists){
-            todoRepository.deleteById(id);
+            taskRepository.deleteById(id);
         }
     }
     

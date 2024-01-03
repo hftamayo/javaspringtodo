@@ -4,7 +4,7 @@ import com.hftamayo.java.todo.Model.Task;
 
 import java.util.List;
 
-public interface TodoService {
+public interface TaskService {
     List<Task> getTasks();
     List<Task> getAllTasksByStatus(boolean isActive);
     Task getTaskById(long taskId);
