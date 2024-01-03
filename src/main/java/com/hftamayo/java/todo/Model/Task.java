@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import org.springframework.beans.factory.annotation.Value;
 
 @Data
 @AllArgsConstructor
@@ -60,13 +59,7 @@ public class Task {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @Column
-    @LastModifiedBy
-    User modifiedBy
-
-
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
-
      */
 
     @PrePersist

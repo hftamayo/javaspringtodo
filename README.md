@@ -10,6 +10,10 @@ This is a fully functional ToDo Application built on Kotlin for the Frontend and
 - Write unit, functional and integration tests
 - Evaluate the potential security holes of the application
 
+## Status ##
+- oldstable: Task Crud(01-03-2024)
+- experimental: User Login 
+
 ## Version 1 specs ##
 
 ### Technical Stack ###

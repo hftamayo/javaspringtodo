@@ -19,25 +19,50 @@ public class TodoController {
     }
 
 
-    @GetMapping(value = "/tasks")
+    @GetMapping(value = "/todos/alltasks")
     @ResponseStatus(HttpStatus.OK)
     public List<Task> getTasks(){
         return todoService.getTasks();
     }
 
-    @PostMapping(value = "/savetask")
+    @GetMapping(value = "/todos/gettaskbyid/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Task getTask(@PathVariable long taskId){
+        return todoService.getTaskById(taskId);
+    }
+
+    @GetMapping(value = "/todos/gettaskbytitle/{taskTitle}")
+    @ResponseStatus(HttpStatus.OK)
+    public Task getTaskByTitle(@PathVariable String taskTitle){
+        return todoService.getTaskByTitle(taskTitle);
+    }
+
+    @GetMapping(value = "/todos/gettasksbystatus/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Task> getTasksByStatus(@PathVariable boolean status){
+        return todoService.getAllTasksByStatus(status);
+    }
+
+    @GetMapping(value = "/todos/counttasksbystatus/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public long countTasksByStatus(@PathVariable boolean status){
+        return todoService.countAllTaskByStatus(status);
+    }
+
+
+    @PostMapping(value = "/todos/savetask")
     @ResponseStatus(HttpStatus.CREATED)
     public Task saveTask(@RequestBody Task task){
         return todoService.saveTask(task);
     }
 
-    @PutMapping(value="/updatetask/{taskId}")
+    @PutMapping(value="/todos/updatetask/{taskId}")
     public ResponseEntity<Task> updateTask(@PathVariable long taskId, @RequestBody Task task){
         Task updatedTask = todoService.updateTask(taskId, task);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
-    @DeleteMapping(value="/deletetask/{taskId}")
+    @DeleteMapping(value="/todos/deletetask/{taskId}")
     @ResponseStatus(HttpStatus.OK)
     public String deleteTask(@PathVariable long taskId){
         todoService.deleteTask(taskId);
