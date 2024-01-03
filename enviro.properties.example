@@ -1,0 +1,5 @@
+#use this file only if it's necessary
+DATABASE=<db_name>
+DB_USERNAME=<db_user>
+DB_PASSWORD=<db_user_password>
+DOCKER_HOST=<host>
