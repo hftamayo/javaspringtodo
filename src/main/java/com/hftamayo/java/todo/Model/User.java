@@ -38,12 +38,12 @@ public class User {
 
     @Column(name = "user_isadmin")
     @NonNull
-    private boolean isadmin = false;
+    private boolean isAdmin = false;
 
     @Column(name = "status")
     @NonNull
     @Builder.Default
-    private boolean status = true;
+    private boolean userStatus = true;
 
     @Column
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
