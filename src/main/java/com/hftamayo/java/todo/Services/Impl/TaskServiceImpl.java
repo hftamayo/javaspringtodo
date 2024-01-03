@@ -1,7 +1,8 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.Services.Impl;
 
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Repository.TaskRepository;
+import com.hftamayo.java.todo.Services.TaskService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
