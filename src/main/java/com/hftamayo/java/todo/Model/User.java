@@ -40,7 +40,7 @@ public class User {
     @NonNull
     private boolean isAdmin = false;
 
-    @Column(name = "status")
+    @Column(name = "user_status")
     @NonNull
     @Builder.Default
     private boolean userStatus = true;
