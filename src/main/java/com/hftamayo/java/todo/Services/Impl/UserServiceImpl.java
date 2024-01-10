@@ -63,11 +63,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(long userId, User updatedUser) {
-        return null;
+        User requestedUser = userRepository.findById(userId).get();
+        if(requestedUser != null){
+            requestedUser.setName(updatedUser.getName());
+            requestedUser.setEmail(updatedUser.getEmail());
+            requestedUser.setPassword(updatedUser.getPassword());
+            requestedUser.setAge(updatedUser.getAge());
+            requestedUser.setAdmin(updatedUser.isAdmin());
+            requestedUser.setUserStatus(updatedUser.isUserStatus());
+            return userRepository.save(requestedUser);
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 
     @Override
     public void deleteUser(long userId) {
+        boolean userExists = userRepository.existsById(userId);
+        if(userExists){
+            userRepository.deleteById(userId);
+        } else {
+            throw new RuntimeException("User not found");
+        }
 
     }
 }
