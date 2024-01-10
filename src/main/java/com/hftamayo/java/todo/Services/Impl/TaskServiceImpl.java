@@ -46,10 +46,13 @@ public class TaskServiceImpl implements TaskService {
 
     public Task updateTask(long taskId, Task task) {
         Task requestedTask = taskRepository.findById(taskId).get();
-        requestedTask.setTitle(task.getTitle());
-        requestedTask.setDescription(task.getDescription());
-
-        return taskRepository.save(requestedTask);
+        if(requestedTask != null){
+            requestedTask.setTitle(task.getTitle());
+            requestedTask.setDescription(task.getDescription());
+            return taskRepository.save(requestedTask);
+        } else {
+            throw new IllegalStateException("Task does not exist");
+        }
     }
 
 //    public void ApiResponse updateTask(long id, Task task){
