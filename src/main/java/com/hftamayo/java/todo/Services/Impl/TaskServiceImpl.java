@@ -55,14 +55,6 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-//    public void ApiResponse updateTask(long id, Task task){
-//        Task requestedTask = todoRepository.findById(id).get();
-//        requestedTask.setTitle(task.getTitle());
-//        requestedTask.setDescription(task.getDescription());
-//        todoRepository.save(requestedTask);
-//        return new ApiResponse(HttpStatus.OK.value), "task updated");
-//    }
-
     public void deleteTask(long id) {
         boolean recordExists = this.taskRepository.existsById(id);
         if(recordExists){
