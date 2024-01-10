@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Model.Task;
 import com.hftamayo.java.todo.Services.TaskService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,8 +65,16 @@ public class TaskController {
 
     @DeleteMapping(value="/todos/deletetask/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteTask(@PathVariable long taskId){
-        taskService.deleteTask(taskId);
-        return "data deleted";
+    public ResponseEntity<?> deleteTask(@PathVariable long taskId){
+        try {
+            taskService.deleteTask(taskId);
+            return ResponseEntity.ok().build();
+        }catch (EntityNotFoundException enf){
+            return new ResponseEntity<>(enf.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
+
 }
