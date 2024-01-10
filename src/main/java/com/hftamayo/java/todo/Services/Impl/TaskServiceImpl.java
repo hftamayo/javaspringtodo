@@ -59,6 +59,8 @@ public class TaskServiceImpl implements TaskService {
         boolean recordExists = this.taskRepository.existsById(id);
         if(recordExists){
             taskRepository.deleteById(id);
+        } else {
+            throw new IllegalStateException("Task does not exist");
         }
     }
     
