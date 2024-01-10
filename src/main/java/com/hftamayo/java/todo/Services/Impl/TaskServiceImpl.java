@@ -40,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
     public Task saveTask(Task task){
         Task requestedTask = taskRepository.findByTitle(task.getTitle());
         if(requestedTask != null && requestedTask.getId()>0){
-            throw new IllegalStateException("Title already exists");
+            throw new RuntimeException("Title already exists");
         }
         return taskRepository.save(task);
     }
@@ -53,7 +53,7 @@ public class TaskServiceImpl implements TaskService {
             requestedTask.setDescription(task.getDescription());
             return taskRepository.save(requestedTask);
         } else {
-            throw new IllegalStateException("Task does not exist");
+            throw new RuntimeException("Task does not exist");
         }
     }
 
@@ -63,7 +63,7 @@ public class TaskServiceImpl implements TaskService {
         if(recordExists){
             taskRepository.deleteById(id);
         } else {
-            throw new IllegalStateException("Task does not exist");
+            throw new RuntimeException("Task does not exist");
         }
     }
     
