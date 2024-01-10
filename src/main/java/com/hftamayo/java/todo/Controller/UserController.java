@@ -2,12 +2,11 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -68,5 +67,28 @@ public class UserController {
         return userService.countAllUserByEmail(email);
     }
 
+    @PostMapping(value = "/users/saveuser")
+    @ResponseStatus(HttpStatus.CREATED)
+    public User saveUser(@RequestBody User user){
+        return userService.saveUser(user);
+    }
 
+    @PutMapping(value="/users/updateuser/{userId}")
+    public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user){
+        User updatedUser = userService.updateUser(userId, user);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value="/users/deleteuser/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> deleteUser(@PathVariable long userId){
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.ok().build();
+        }catch (EntityNotFoundException enf){
+            return new ResponseEntity<>(enf.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
