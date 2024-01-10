@@ -36,6 +36,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findByTitle(taskTitle);
     }
 
+    @Override
     public Task saveTask(Task task){
         Task requestedTask = taskRepository.findByTitle(task.getTitle());
         if(requestedTask != null && requestedTask.getId()>0){
@@ -44,6 +45,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.save(task);
     }
 
+    @Override
     public Task updateTask(long taskId, Task task) {
         Task requestedTask = taskRepository.findById(taskId).get();
         if(requestedTask != null){
@@ -55,6 +57,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
     public void deleteTask(long id) {
         boolean recordExists = this.taskRepository.existsById(id);
         if(recordExists){
