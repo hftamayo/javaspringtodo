@@ -3,8 +3,8 @@ package com.hftamayo.java.todo.Repository;
 import com.hftamayo.java.todo.Model.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface RolesRepository extends JpaRepository<Roles, Long> {
-    Optional<Roles> findByName(String name);
+    Roles findByRoleName(String name);
 }
