@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -50,6 +51,15 @@ public class User {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_roles",
+            schema = "users",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Roles> roles;
+
 //    @PrePersist
 //    protected void onCreate() {
 //        dateAdded = LocalDateTime.now();
@@ -60,7 +70,4 @@ public class User {
 //    protected void onUpdate() {
 //        dateUpdated = LocalDateTime.now();
 //    }
-
-
-
 }
