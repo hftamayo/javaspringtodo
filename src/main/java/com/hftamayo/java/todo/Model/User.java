@@ -3,6 +3,8 @@ package com.hftamayo.java.todo.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -39,23 +41,25 @@ public class User {
     private boolean userStatus = true;
 
     @Column
+    @CreatedDate
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
+    @LastModifiedDate
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @PrePersist
-    protected void onCreate() {
-        dateAdded = LocalDateTime.now();
-        dateUpdated = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        dateUpdated = LocalDateTime.now();
-    }
+//    @PrePersist
+//    protected void onCreate() {
+//        dateAdded = LocalDateTime.now();
+//        dateUpdated = LocalDateTime.now();
+//    }
+//
+//    @PreUpdate
+//    protected void onUpdate() {
+//        dateUpdated = LocalDateTime.now();
+//    }
 
 
 

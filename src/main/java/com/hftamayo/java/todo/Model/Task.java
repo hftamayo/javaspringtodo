@@ -56,18 +56,18 @@ public class Task {
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
      */
 
-    @PrePersist
-    protected void onCreate(){
-        dateAdded = LocalDateTime.now();
-        dateUpdated = LocalDateTime.now();
-        //createdBy = LoggedUser.getId();
-    }
-
-    @PreUpdate
-    protected void onUpdate(){
-        dateUpdated = LocalDateTime.now();
-        //updatedBy = LoggedUser.getId();
-    }
+//    @PrePersist
+//    protected void onCreate(){
+//        dateAdded = LocalDateTime.now();
+//        dateUpdated = LocalDateTime.now();
+//        //createdBy = LoggedUser.getId();
+//    }
+//
+//    @PreUpdate
+//    protected void onUpdate(){
+//        dateUpdated = LocalDateTime.now();
+//        //updatedBy = LoggedUser.getId();
+//    }
 
     public long getDaysAdded(){
         return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDateTime.now());
