@@ -20,28 +20,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, name = "user_name")
-    @NonNull
+    @Column(nullable = false, unique = true, name = "user_name")
     private String name;
 
-    @Column(name = "user_email")
-    @NonNull
+    @Column(nullable = false, unique = true, name = "user_email")
     private String email;
 
-    @Column(name = "user_password")
-    @NonNull
+    @Column(nullable = false, name = "user_password")
     private String password;
 
-    @Column(name = "user_age")
-    @NonNull
+    @Column(nullable = false, name = "user_age")
     private int age;
 
-    @Column(name = "user_isadmin")
-    @NonNull
+    @Column(nullable = false, name = "user_isadmin")
     private boolean isAdmin = false;
 
-    @Column(name = "user_status")
-    @NonNull
+    @Column(nullable = false, name = "user_status")
     @Builder.Default
     private boolean userStatus = true;
 
@@ -63,5 +57,7 @@ public class User {
     protected void onUpdate() {
         dateUpdated = LocalDateTime.now();
     }
+
+
 
 }
