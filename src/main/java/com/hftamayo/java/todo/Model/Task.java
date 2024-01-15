@@ -3,6 +3,8 @@ package com.hftamayo.java.todo.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -29,10 +31,12 @@ public class Task {
     private String description;
 
     @Column
+    @CreatedDate
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
+    @LastModifiedDate
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
@@ -46,18 +50,8 @@ public class Task {
     private long taskOwner;
 
     @Column
-    @CreatedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
-    private LocalDateTime dateAdded;
-
-    @Column
     @CreatedBy
     User owner
-
-    @Column
-    @LastModifiedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
-    private LocalDateTime dateUpdated;
 
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
      */
