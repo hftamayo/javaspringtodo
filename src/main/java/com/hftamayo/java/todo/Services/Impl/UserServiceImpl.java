@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<User> getAllUsersByStatus(boolean isActive){
-        return userRepository.findAllByActive(isActive);
+        return userRepository.findAllByStatus(isActive);
     }
 
     public User getUserById(long userId){
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public User getUserByUsername(String username){
-        return userRepository.findByUsername(username);
+        return userRepository.findByName(username);
     }
 
     public User getUserByEmail(String email){
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public User getUserByUsernameAndPassword(String username, String password){
-        return userRepository.findByUsernameAndPassword(username, password);
+        return userRepository.findByNameAndPassword(username, password);
     }
 
     public User getUserByEmailAndPassword(String email, String password){
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public long countAllUserByUsername(String username){
-        return userRepository.countAllByUsername(username);
+        return userRepository.countAllByName(username);
     }
 
     public long countAllUserByEmail(String email){
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
             requestedUser.setPassword(updatedUser.getPassword());
             requestedUser.setAge(updatedUser.getAge());
             requestedUser.setAdmin(updatedUser.isAdmin());
-            requestedUser.setUserStatus(updatedUser.isUserStatus());
+            requestedUser.setStatus(updatedUser.isStatus());
             return userRepository.save(requestedUser);
         } else {
             throw new RuntimeException("User not found");

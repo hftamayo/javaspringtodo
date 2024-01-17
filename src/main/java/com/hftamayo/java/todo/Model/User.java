@@ -39,7 +39,7 @@ public class User {
 
     @Column(nullable = false, name = "user_status")
     @Builder.Default
-    private boolean userStatus = true;
+    private boolean status = true;
 
     @Column
     @CreatedDate

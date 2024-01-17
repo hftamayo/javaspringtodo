@@ -20,12 +20,12 @@ public class RolesServiceImpl implements RolesService {
     }
 
     public Roles getRoleByName(String name){
-        return rolesRepository.findByRoleName(name);
+        return rolesRepository.findByName(name);
     }
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Roles requestedRole = rolesRepository.findByRoleName(newRole.getName());
+        Roles requestedRole = rolesRepository.findByName(newRole.getName());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {

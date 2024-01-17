@@ -10,12 +10,12 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long>{
     @Override
     List<User> findAll();
-    List<User> findAllByActive(boolean isActive);
-    User findByUsername(String username);
+    List<User> findAllByStatus(boolean isActive);
+    User findByName(String username);
     User findByEmail(String email);
-    User findByUsernameAndPassword(String username, String password);
+    User findByNameAndPassword(String username, String password);
     User findByEmailAndPassword(String email, String password);
-    long countAllByUsername(String username);
+    long countAllByName(String username);
     long countAllByEmail(String email);
 
 }

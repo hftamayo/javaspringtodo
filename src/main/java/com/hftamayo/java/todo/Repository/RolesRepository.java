@@ -8,5 +8,5 @@ import java.util.List;
 public interface RolesRepository extends JpaRepository<Roles, Long> {
     @Override
     List<Roles> findAll();
-    Roles findByRoleName(String name);
+    Roles findByName(String name);
 }
