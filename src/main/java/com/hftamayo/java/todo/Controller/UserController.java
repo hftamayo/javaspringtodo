@@ -75,8 +75,14 @@ public class UserController {
 
     @PutMapping(value="/users/updateuser/{userId}")
     public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user){
+        try{
         User updatedUser = userService.updateUser(userId, user);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        }catch (EntityNotFoundException enf){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping(value="/users/deleteuser/{userId}")
