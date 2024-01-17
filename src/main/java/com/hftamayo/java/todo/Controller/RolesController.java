@@ -2,11 +2,11 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Model.Roles;
 import com.hftamayo.java.todo.Services.RolesService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,5 +23,42 @@ public class RolesController {
     @ResponseStatus(HttpStatus.OK)
     public List<Roles> getRoles(){
         return rolesService.getRoles();
+    }
+
+    @GetMapping(value = "/roles/getrolebyname/{roleName}")
+    @ResponseStatus(HttpStatus.OK)
+    public Roles getRoleByName(@PathVariable String roleName){
+        return rolesService.getRoleByName(roleName);
+    }
+
+    @PostMapping(value = "/roles/saverole")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Roles saveRole(@RequestBody Roles role){
+        return rolesService.saveRole(role);
+    }
+
+    @PutMapping(value="/roles/updaterole/{roleId}")
+    public ResponseEntity<Roles> updateRole(@PathVariable long roleId, @RequestBody Roles role){
+        try{
+            Roles updatedRole = rolesService.updateRole(roleId, role);
+            return new ResponseEntity<>(updatedRole, HttpStatus.OK);
+        }catch (EntityNotFoundException enf){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping(value="/roles/deleterole/{roleId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> deleteRole(@PathVariable long roleId){
+        try{
+            rolesService.deleteRole(roleId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (EntityNotFoundException enf){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

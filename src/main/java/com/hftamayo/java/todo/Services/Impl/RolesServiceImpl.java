@@ -3,9 +3,11 @@ package com.hftamayo.java.todo.Services.Impl;
 import com.hftamayo.java.todo.Model.Roles;
 import com.hftamayo.java.todo.Repository.RolesRepository;
 import com.hftamayo.java.todo.Services.RolesService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class RolesServiceImpl implements RolesService {
     private final RolesRepository rolesRepository;
 
