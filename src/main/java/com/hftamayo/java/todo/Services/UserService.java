@@ -12,6 +12,7 @@ public interface UserService {
     User getUserByEmail(String email);
     User getUserByUsernameAndPassword(String username, String password);
     User getUserByEmailAndPassword(String email, String password);
+    User getUserByUsernameOrEmail(String username, String email);
     long countAllUserByUsername(String username);
     long countAllUserByEmail(String email);
 
