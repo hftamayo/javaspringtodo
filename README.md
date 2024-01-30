@@ -44,4 +44,4 @@ https://stackoverflow.com/questions/76513868/mysql-docker-spring-boot-connection
 https://stackoverflow.com/questions/42567475/docker-compose-check-if-mysql-connection-is-ready
 health check routine: https://www.appsloveworld.com/docker/100/78/docker-compose-healthcheck-mysql
 official mysql docker documentation: https://hub.docker.com/_/mysql/
-
+[JWT Implementation](https://www.javaguides.net/2023/05/spring-boot-spring-security-jwt-mysql.html)
