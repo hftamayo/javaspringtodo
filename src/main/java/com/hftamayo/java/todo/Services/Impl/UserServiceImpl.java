@@ -6,6 +6,7 @@ import com.hftamayo.java.todo.Services.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId).get();
     }
 
-    public User getUserByUsername(String username){
+    public Optional<User> getUserByUsername(String username){
         return userRepository.findByName(username);
     }
 
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByNameAndPassword(username, password);
     }
 
-    public User getUserByUsernameOrEmail(String username, String email){
+    public Optional<User> getUserByUsernameOrEmail(String username, String email){
         return userRepository.findByUsernameOrEmail(username, email);
     }
 

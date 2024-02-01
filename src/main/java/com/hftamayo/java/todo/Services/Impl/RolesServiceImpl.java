@@ -6,6 +6,7 @@ import com.hftamayo.java.todo.Services.RolesService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RolesServiceImpl implements RolesService {
@@ -19,13 +20,13 @@ public class RolesServiceImpl implements RolesService {
         return rolesRepository.findAll();
     }
 
-    public Roles getRoleByName(String name){
+    public Optional<Roles> getRoleByName(String name){
         return rolesRepository.findByName(name);
     }
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Roles requestedRole = rolesRepository.findByName(newRole.getName());
+        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getName());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {
