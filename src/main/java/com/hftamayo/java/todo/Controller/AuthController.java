@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
-import com.hftamayo.java.todo.Security.JwtAuthResponse;
+import com.hftamayo.java.todo.Dto.JwtAuthResponse;
 import com.hftamayo.java.todo.Services.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
