@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class RolesController {
@@ -27,7 +28,7 @@ public class RolesController {
 
     @GetMapping(value = "/roles/getrolebyname/{roleName}")
     @ResponseStatus(HttpStatus.OK)
-    public Roles getRoleByName(@PathVariable String roleName){
+    public Optional<Roles> getRoleByName(@PathVariable String roleName){
         return rolesService.getRoleByName(roleName);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -33,7 +34,7 @@ public class UserController {
 
     @GetMapping(value = "/users/getuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserByUsername(@PathVariable String username){
+    public Optional<User> getUserByUsername(@PathVariable String username){
         return userService.getUserByUsername(username);
     }
 
