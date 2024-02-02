@@ -16,7 +16,7 @@ import java.util.Date;
 public class JwtTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${app.jwtSecret}")
+    @Value("${app.jwt-secret}")
     private String jwtSecret;
 
     @Value("${app-jwt-expiration-milliseconds}")
