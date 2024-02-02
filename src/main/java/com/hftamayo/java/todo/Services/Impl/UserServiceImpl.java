@@ -40,8 +40,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByNameAndPassword(username, password);
     }
 
-    public Optional<User> getUserByUsernameOrEmail(String username, String email){
-        return userRepository.findByUsernameOrEmail(username, email);
+    public Optional<User> getUserByNameOrEmail(String username, String email){
+        return userRepository.findByNameOrEmail(username, email);
     }
 
     public User getUserByEmailAndPassword(String email, String password){
