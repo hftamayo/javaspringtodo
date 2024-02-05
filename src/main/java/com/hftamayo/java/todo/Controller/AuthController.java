@@ -2,19 +2,21 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.JwtAuthResponse;
+import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
+import com.hftamayo.java.todo.Services.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private AuthService authService;
+    private UserService userService;
+
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> authenticate(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
@@ -23,5 +25,11 @@ public class AuthController {
         jwtAuthResponse.setAccessToken(token);
 
         return ResponseEntity.ok(jwtAuthResponse);
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public User register(@RequestBody User user) {
+        return userService.saveUser(user);
     }
 }
