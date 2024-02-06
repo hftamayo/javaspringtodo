@@ -10,10 +10,9 @@ public interface UserService {
     List<User> getAllUsersByStatus(boolean isActive);
     User getUserById(long userId);
     Optional<User> getUserByUsername(String username);
-    User getUserByEmail(String email);
+    Optional<User> getUserByEmail(String email);
     User getUserByUsernameAndPassword(String username, String password);
     User getUserByEmailAndPassword(String email, String password);
-    Optional<User> getUserByNameOrEmail(String username, String email);
     long countAllUserByUsername(String username);
     long countAllUserByEmail(String email);
 

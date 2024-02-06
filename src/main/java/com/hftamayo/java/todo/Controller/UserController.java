@@ -40,7 +40,7 @@ public class UserController {
 
     @GetMapping(value = "/users/getuserbyemail/{email}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserByEmail(@PathVariable String email){
+    public Optional<User> getUserByEmail(@PathVariable String email){
         return userService.getUserByEmail(email);
     }
 

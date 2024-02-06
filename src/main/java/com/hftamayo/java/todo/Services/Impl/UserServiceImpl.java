@@ -32,16 +32,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByName(username);
     }
 
-    public User getUserByEmail(String email){
+    public Optional<User> getUserByEmail(String email){
         return userRepository.findByEmail(email);
     }
 
     public User getUserByUsernameAndPassword(String username, String password){
         return userRepository.findByNameAndPassword(username, password);
-    }
-
-    public Optional<User> getUserByNameOrEmail(String username, String email){
-        return userRepository.findByNameOrEmail(username, email);
     }
 
     public User getUserByEmailAndPassword(String email, String password){
@@ -58,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User newUser) {
-        User requestedUser = userRepository.findByEmail(newUser.getEmail());
+        Optional<User> requestedUser = userRepository.findByEmail(newUser.getEmail());
         if(requestedUser == null){
             return userRepository.save(newUser);
         } else {
