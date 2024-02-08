@@ -19,57 +19,58 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return userRepository.findAll();
     }
 
-    public List<User> getAllUsersByStatus(boolean isActive){
+    public List<User> getAllUsersByStatus(boolean isActive) {
         return userRepository.findAllByStatus(isActive);
     }
 
-    public User getUserById(long userId){
+    public User getUserById(long userId) {
         return userRepository.findById(userId).get();
     }
 
-    public Optional<User> getUserByUsername(String username){
+    public Optional<User> getUserByUsername(String username) {
         return userRepository.findByName(username);
     }
 
-    public Optional<User> getUserByEmail(String email){
+    public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public User getUserByUsernameAndPassword(String username, String password){
+    public User getUserByUsernameAndPassword(String username, String password) {
         return userRepository.findByNameAndPassword(username, password);
     }
 
-    public User getUserByEmailAndPassword(String email, String password){
+    public User getUserByEmailAndPassword(String email, String password) {
         return userRepository.findByEmailAndPassword(email, password);
     }
 
-    public long countAllUserByUsername(String username){
+    public long countAllUserByUsername(String username) {
         return userRepository.countAllByName(username);
     }
 
-    public long countAllUserByEmail(String email){
+    public long countAllUserByEmail(String email) {
         return userRepository.countAllByEmail(email);
     }
 
     @Override
     public User saveUser(User newUser) {
         Optional<User> requestedUser = userRepository.findByEmail(newUser.getEmail());
-        if(requestedUser == null){
+        if (!requestedUser.isPresent()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             return userRepository.save(newUser);
         } else {
-            throw new RuntimeException("User already exists");
+            throw new RuntimeException("The email is already registered by this user: " +
+                    requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
         }
     }
 
     @Override
     public User updateUser(long userId, User updatedUser) {
         User requestedUser = userRepository.findById(userId).get();
-        if(requestedUser != null){
+        if (requestedUser != null) {
             requestedUser.setName(updatedUser.getName());
             requestedUser.setEmail(updatedUser.getEmail());
             requestedUser.setPassword(updatedUser.getPassword());
@@ -85,7 +86,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long userId) {
         boolean userExists = userRepository.existsById(userId);
-        if(userExists){
+        if (userExists) {
             userRepository.deleteById(userId);
         } else {
             throw new RuntimeException("User not found");
