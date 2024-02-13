@@ -4,12 +4,14 @@ import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Repository.UserRepository;
 import com.hftamayo.java.todo.Security.JwtTokenProvider;
 import com.hftamayo.java.todo.Services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -37,5 +39,20 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
         return token;
+    }
+
+    @Override
+    public String extractTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    @Override
+    public void invalidateToken(String token) {
+
+        jwtTokenProvider.invalidateToken(token);
     }
 }
