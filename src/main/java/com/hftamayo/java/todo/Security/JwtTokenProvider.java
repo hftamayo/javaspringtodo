@@ -69,4 +69,25 @@ public class JwtTokenProvider {
         }
         return false;
     }
+
+    public boolean invalidateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key())
+                    .build()
+                    .parseClaimsJws(token);
+            return false;
+        } catch (MalformedJwtException mfe) {
+            logger.error("Invalid JWT token: {}", mfe.getMessage());
+        } catch (ExpiredJwtException eje) {
+            logger.error("JWT token is expired: {}", eje.getMessage());
+        } catch (UnsupportedJwtException uje) {
+            logger.error("JWT token is unsupported: {}", uje.getMessage());
+        } catch (IllegalArgumentException iae) {
+            logger.error("JWT claims string is empty: {}", iae.getMessage());
+        }
+        return true;
+    }
+
+
 }
