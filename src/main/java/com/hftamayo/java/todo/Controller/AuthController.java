@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.Dto.JwtAuthResponse;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public User register(@RequestBody User user) {
         return userService.saveUser(user);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = authService.extractTokenFromRequest(request);
+        authService.invalidateToken(token);
+        return ResponseEntity.ok("Logout successful");
     }
 }
