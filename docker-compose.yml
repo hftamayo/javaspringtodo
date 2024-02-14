@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   db:
-    container_name: mysqldb
+    container_name: jsbtodoproddata
     image: mysql:8.1.0
     restart: on-failure
     #.env is expected as name and located in root folder
@@ -21,10 +21,10 @@ services:
     ports:
       - $MYSQL_LOCAL_PORT:$MYSQL_DOCKER_PORT
     volumes:
-      - jsbtododata:/var/lib/mysql
+      - jsbtodoproddatavol:/var/lib/mysql
         #- ./dockerinit/jsbtodoschema.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - jsbtodorestnetwork
+      - jsbtodoproddatanetwork
 
   app:
     container_name: jsbtodorest
@@ -40,15 +40,15 @@ services:
     ports:
       - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
     environment:
-      MYSQL_HOST: mysqldb
+      MYSQL_HOST: jsbtodoproddata
       MYSQL_PORT: $MYSQL_DOCKER_PORT
       MYSQL_USER: $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
     networks:
-      - jsbtodorestnetwork
+      - jsbtodoproddatanetwork
 
 volumes:
-  jsbtododata:
+  jsbtodoproddatavol:
 
 networks:
-  jsbtodorestnetwork:
+  jsbtodoproddatanetwork:
