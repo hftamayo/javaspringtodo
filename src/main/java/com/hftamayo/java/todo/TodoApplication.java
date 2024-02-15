@@ -16,7 +16,7 @@ public class TodoApplication {
 	@Bean
 	public CommandLineRunner seedUser(UserSeeder userSeeder) {
 		return args -> {
-			userSeeder.seedDevelopment();
+			userSeeder.onApplicationEvent(null);
 		};
 	}
 
