@@ -38,6 +38,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        deleteExistingData();
         setRoles();
 
         if (seedDevelopment) {
@@ -46,6 +47,11 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
         if (seedProduction) {
             seedProduction();
         }
+    }
+
+    private void deleteExistingData() {
+        userRepository.deleteAll();
+        rolesRepository.deleteAll();
     }
 
     private void setRoles() {
