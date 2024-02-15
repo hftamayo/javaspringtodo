@@ -38,35 +38,55 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        deleteExistingData();
-        setRoles();
+        try {
+            if (seedDevelopment || seedProduction) {
+                deleteExistingData();
+                rolesRepository.resetAutoIncrement();
+                userRepository.resetAutoIncrement();
+                setRoles();
+            }
 
-        if (seedDevelopment) {
-            seedDevelopment();
-        }
-        if (seedProduction) {
-            seedProduction();
+            if (seedDevelopment) {
+                seedDevelopment();
+            }
+            if (seedProduction) {
+                seedProduction();
+            }
+        } catch (Exception e) {
+            System.out.println("Error seeding data: " + e.getMessage());
         }
     }
 
     private void deleteExistingData() {
-        userRepository.deleteAll();
-        rolesRepository.deleteAll();
+        long userCount = userRepository.count();
+        long rolesCount = rolesRepository.count();
+
+        if (userCount > 0) {
+            userRepository.deleteAll();
+            System.out.println("Deleted " + userCount + " users");
+        } else {
+            System.out.println("No users to delete");
+        }
+
+        if (rolesCount > 0) {
+            rolesRepository.deleteAll();
+            System.out.println("Deleted " + rolesCount + " roles");
+        } else {
+            System.out.println("No roles to delete");
+        }
     }
 
     private void setRoles() {
-        if (rolesRepository.count() == 0) {
-            adminRole = new Roles(1, "ADMIN", "Admin Role", true,
-                    LocalDateTime.now(), LocalDateTime.now());
-            supervisorRole = new Roles(2, "SUPERVISOR", "Supervisor Role", true,
-                    LocalDateTime.now(), LocalDateTime.now());
-            operatorRole = new Roles(3, "OPERATOR", "Operator Role", true,
-                    LocalDateTime.now(), LocalDateTime.now());
+        adminRole = new Roles(1, "ADMIN", "Admin Role", true,
+                LocalDateTime.now(), LocalDateTime.now());
+        supervisorRole = new Roles(2, "SUPERVISOR", "Supervisor Role", true,
+                LocalDateTime.now(), LocalDateTime.now());
+        operatorRole = new Roles(3, "OPERATOR", "Operator Role", true,
+                LocalDateTime.now(), LocalDateTime.now());
 
-            rolesRepository.save(adminRole);
-            rolesRepository.save(supervisorRole);
-            rolesRepository.save(operatorRole);
-        }
+        rolesRepository.save(adminRole);
+        rolesRepository.save(supervisorRole);
+        rolesRepository.save(operatorRole);
     }
 
     private void seedDevelopment() {
