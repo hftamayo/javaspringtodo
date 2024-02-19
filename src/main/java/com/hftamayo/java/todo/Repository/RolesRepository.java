@@ -11,9 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface RolesRepository extends JpaRepository<Roles, Long> {
-    @Modifying
-    @Query(value = "ALTER TABLE roles AUTO_INCREMENT = 1" , nativeQuery = true)
-    void resetAutoIncrement();
 
     @Override
     List<Roles> findAll();

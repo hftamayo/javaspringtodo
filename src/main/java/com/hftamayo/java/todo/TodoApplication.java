@@ -9,15 +9,14 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class TodoApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TodoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TodoApplication.class, args);
+    }
 
-	@Bean
-	public CommandLineRunner seedUser(UserSeeder userSeeder) {
-		return args -> {
-			userSeeder.onApplicationEvent(null);
-		};
-	}
+    @Bean
+    public CommandLineRunner seedUser(UserSeeder userSeeder) {
+        return args -> {
+        };
+    }
 
 }
