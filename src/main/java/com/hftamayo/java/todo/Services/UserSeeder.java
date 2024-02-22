@@ -39,7 +39,9 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
         try {
-            setRoles();
+            if (seedDevelopment || seedProduction) {
+                setRoles();
+            }
 
             if (seedDevelopment) {
                 seedDevelopment();
@@ -51,7 +53,6 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
             System.out.println("Error seeding data: " + e.getMessage());
         }
     }
-
 
     private void setRoles() {
         System.out.println("Seeding roles");
