@@ -20,11 +20,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SpringSecurityConfig {
     private UserDetailsService userDetailsService;
 
-    @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
-    @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler   ;
+//    @Autowired
+//    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+//
+//    @Autowired
+//    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler   ;
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -38,11 +38,11 @@ public class SpringSecurityConfig {
                     authorize.requestMatchers("/api/auth/**").permitAll();
                     authorize.anyRequest().authenticated();
                         });
-        http.formLogin()
-                .loginPage("/api/auth/login")
-                .successHandler(customAuthenticationSuccessHandler)
-                .failureHandler(customAuthenticationFailureHandler)
-                .permitAll();
+//        http.formLogin()
+//                .loginPage("/api/auth/login")
+//                .successHandler(customAuthenticationSuccessHandler)
+//                .failureHandler(customAuthenticationFailureHandler)
+//                .permitAll();
 
 
         return http.build();
