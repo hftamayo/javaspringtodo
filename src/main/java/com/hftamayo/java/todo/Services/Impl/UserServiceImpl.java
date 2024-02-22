@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.Repository.UserRepository;
 import com.hftamayo.java.todo.Services.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.countAllByEmail(email);
     }
 
+    @Transactional
     @Override
     public User saveUser(User newUser) {
         Optional<User> requestedUser = userRepository.findByEmail(newUser.getEmail());
@@ -67,6 +69,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
     @Override
     public User updateUser(long userId, User updatedUser) {
         User requestedUser = userRepository.findById(userId).get();
@@ -83,6 +86,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteUser(long userId) {
         boolean userExists = userRepository.existsById(userId);
