@@ -54,6 +54,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
 
     private void setRoles() {
+        System.out.println("Seeding roles");
         adminRole = new Roles(1, "ADMIN", "Admin Role", true,
                 LocalDateTime.now(), LocalDateTime.now());
         supervisorRole = new Roles(2, "SUPERVISOR", "Supervisor Role", true,
@@ -67,6 +68,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void seedDevelopment() {
+        System.out.println("Seeding user for development environment");
         User adminUser = new User(1, "Herbert Tamayo", "hftamayo@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
                 true, LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
@@ -84,6 +86,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void seedProduction() {
+        System.out.println("Seeding user for production environment");
         User adminUser = new User(1, "Administrator", "administrator@localhost.com",
                 passwordEncoder.encode("password123"), 25, true,
                 true, LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));

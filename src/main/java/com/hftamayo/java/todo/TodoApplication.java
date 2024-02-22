@@ -17,7 +17,6 @@ public class TodoApplication {
     @Bean
     public CommandLineRunner seedData(UserSeeder userSeeder) {
         return args -> {
-            System.out.println("Seeding data...");
             userSeeder.onApplicationEvent(null);
         };
     }
