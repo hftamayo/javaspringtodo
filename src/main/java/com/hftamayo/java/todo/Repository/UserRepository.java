@@ -11,10 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
-    @Modifying
-    @Query(value = "ALTER TABLE user AUTO_INCREMENT = 1" , nativeQuery = true)
-    void resetAutoIncrement();
-
     @Override
     List<User> findAll();
     List<User> findAllByStatus(boolean isActive);
