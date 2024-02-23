@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.JwtAuthResponse;
+import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
@@ -30,8 +31,17 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public User register(@RequestBody User user) {
-        return userService.saveUser(user);
+    public UserResponseDto saveUser(@RequestBody User user){
+        User savedUser = userService.saveUser(user);
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setId(savedUser.getId());
+        userResponseDto.setName(savedUser.getName());
+        userResponseDto.setEmail(savedUser.getEmail());
+        userResponseDto.setAge(savedUser.getAge());
+        userResponseDto.setAdmin(savedUser.isAdmin());
+        userResponseDto.setStatus(savedUser.isStatus());
+
+        return userResponseDto;
     }
 
     @PostMapping("/logout")
