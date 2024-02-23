@@ -2,12 +2,14 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.JwtAuthResponse;
+import com.hftamayo.java.todo.Dto.TokenResponseDto;
 import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +22,15 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponse> authenticate(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<String> authenticate(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
 
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
+        TokenResponseDto tokenResponseDto = new TokenResponseDto();
+        tokenResponseDto.setAccessToken(token);
+        tokenResponseDto.setTokenType("Bearer");
+        tokenResponseDto.setExpiresIn(3600);
 
-        return ResponseEntity.ok(jwtAuthResponse);
+        return ResponseEntity.ok("Login successful, welcome: " + loginDto.getEmail() + "!");
     }
 
     @PostMapping("/register")
