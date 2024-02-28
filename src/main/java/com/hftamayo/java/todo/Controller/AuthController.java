@@ -30,6 +30,9 @@ public class AuthController {
         tokenResponseDto.setTokenType("Bearer");
         tokenResponseDto.setExpiresIn(3600);
 
+        System.out.println("token: " + tokenResponseDto.getAccessToken() + " type: " +
+                tokenResponseDto.getTokenType() + " expires in: " + tokenResponseDto.getExpiresIn());
+
         return ResponseEntity.ok("Login successful, welcome: " + loginDto.getEmail() + "!");
     }
 
