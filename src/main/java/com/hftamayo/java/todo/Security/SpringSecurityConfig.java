@@ -1,54 +1,52 @@
 package com.hftamayo.java.todo.Security;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 
 @Configuration
-@AllArgsConstructor
-@EnableWebSecurity
-public class SpringSecurityConfig {
+public class SpringSecurityConfig extends SecurityConfigurerAdapter
+        <DefaultSecurityFilterChain, HttpSecurity> {
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
     private UserDetailsService userDetailsService;
 
-//    @Autowired
-//    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-//
-//    @Autowired
-//    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler   ;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
-    public static PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests((authorize) -> {
                     authorize.requestMatchers("/api/auth/**").permitAll();
                     authorize.anyRequest().authenticated();
-                        });
-//        http.formLogin()
-//                .loginPage("/api/auth/login")
-//                .successHandler(customAuthenticationSuccessHandler)
-//                .failureHandler(customAuthenticationFailureHandler)
-//                .permitAll();
-
-
-        return http.build();
+                })
+                .addFilter(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService))
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(
-            AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                new AuthenticationManagerBuilder(null);
+        authenticationManagerBuilder.userDetailsService(userDetailsService);
+        return authenticationManagerBuilder.build();
     }
 }
