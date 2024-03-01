@@ -4,7 +4,9 @@ import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Repository.UserRepository;
 import com.hftamayo.java.todo.Security.JwtTokenProvider;
 import com.hftamayo.java.todo.Services.AuthService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
+@DependsOn("springSecurityConfig")
 public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
