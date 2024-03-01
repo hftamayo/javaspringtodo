@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SpringSecurityConfig extends SecurityConfigurerAdapter
         <DefaultSecurityFilterChain, HttpSecurity> {
 
@@ -24,11 +27,16 @@ public class SpringSecurityConfig extends SecurityConfigurerAdapter
     private UserDetailsService userDetailsService;
 
     @Autowired
+    private AuthenticationManagerBuilder authenticationManagerBuilder;
+
     private PasswordEncoder passwordEncoder;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        if (passwordEncoder == null) {
+            passwordEncoder = new BCryptPasswordEncoder();
+        }
+        return passwordEncoder;
     }
 
     @Override
@@ -40,13 +48,16 @@ public class SpringSecurityConfig extends SecurityConfigurerAdapter
                 })
                 .addFilter(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authenticationProvider((AuthenticationProvider) authenticationManagerBean());
     }
 
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                new AuthenticationManagerBuilder(null);
-        authenticationManagerBuilder.userDetailsService(userDetailsService);
-        return authenticationManagerBuilder.build();
+        return authenticationManagerBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .build();
     }
 }
