@@ -17,28 +17,13 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SpringSecurityConfig extends SecurityConfigurerAdapter
-        <DefaultSecurityFilterChain, HttpSecurity> {
+public class SpringSecurityConfig extends SecurityConfigurerAdapter {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    private PasswordEncoder passwordEncoder;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        if (passwordEncoder == null) {
-            passwordEncoder = new BCryptPasswordEncoder();
-        }
-        return passwordEncoder;
-    }
-
+    private AuthenticationManager authenticationManager;
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -46,18 +31,8 @@ public class SpringSecurityConfig extends SecurityConfigurerAdapter
                     authorize.requestMatchers("/api/auth/**").permitAll();
                     authorize.anyRequest().authenticated();
                 })
-                .addFilter(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService))
+                .addFilter(new JwtAuthenticationFilter(jwtTokenProvider, authenticationManager))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.authenticationProvider((AuthenticationProvider) authenticationManagerBean());
     }
 
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
-                .and()
-                .build();
-    }
 }
