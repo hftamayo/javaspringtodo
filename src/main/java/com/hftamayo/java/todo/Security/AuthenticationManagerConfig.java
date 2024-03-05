@@ -14,13 +14,18 @@ public class AuthenticationManagerConfig {
 
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
+    public AuthenticationManagerConfig(UserDetailsService userDetailsService,
+                                       AuthenticationManagerBuilder authenticationManagerBuilder) {
+        this.userDetailsService = userDetailsService;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+    }
+
+    private PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
