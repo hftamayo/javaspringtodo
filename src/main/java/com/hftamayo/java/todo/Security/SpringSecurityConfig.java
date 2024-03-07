@@ -12,9 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -24,7 +21,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
