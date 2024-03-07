@@ -3,7 +3,6 @@ package com.hftamayo.java.todo.Services.Impl;
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Repository.UserRepository;
 import com.hftamayo.java.todo.Security.JwtTokenProvider;
-import com.hftamayo.java.todo.Security.SpringSecurityConfig;
 import com.hftamayo.java.todo.Services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.DependsOn;
@@ -18,7 +17,6 @@ import org.springframework.util.StringUtils;
 @Service
 @DependsOn("springSecurityConfig")
 public class AuthServiceImpl implements AuthService {
-    private SpringSecurityConfig springSecurityConfig;
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
@@ -28,8 +26,8 @@ public class AuthServiceImpl implements AuthService {
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            SpringSecurityConfig springSecurityConfig) {
-        this.springSecurityConfig = springSecurityConfig;
+            AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -37,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String login(LoginDto loginDto) {
-        Authentication authentication = springSecurityConfig.getAuthenticationManager().authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
