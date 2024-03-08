@@ -1,9 +1,9 @@
-package com.hftamayo.java.todo.Services.Impl;
+package com.hftamayo.java.todo.security.services.impl;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Repository.UserRepository;
-import com.hftamayo.java.todo.Security.JwtTokenProvider;
-import com.hftamayo.java.todo.Services.AuthService;
+import com.hftamayo.java.todo.security.jwt.TokenProvider;
+import com.hftamayo.java.todo.security.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,17 +20,17 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
-    private JwtTokenProvider jwtTokenProvider;
+    private TokenProvider tokenProvider;
 
     public AuthServiceImpl(
-            JwtTokenProvider jwtTokenProvider,
+            TokenProvider tokenProvider,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtTokenProvider.generateToken(authentication);
+        String token = tokenProvider.generateToken(authentication);
         return token;
     }
 
@@ -55,6 +55,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void invalidateToken(String token) {
 
-        jwtTokenProvider.invalidateToken(token);
+        tokenProvider.invalidateToken(token);
     }
 }

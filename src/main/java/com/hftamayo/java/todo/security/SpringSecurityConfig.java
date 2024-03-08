@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Security;
+package com.hftamayo.java.todo.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.SecurityConfigurer;

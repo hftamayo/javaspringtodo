@@ -1,15 +1,13 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
-import com.hftamayo.java.todo.Dto.JwtAuthResponse;
 import com.hftamayo.java.todo.Dto.TokenResponseDto;
 import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Services.AuthService;
+import com.hftamayo.java.todo.security.services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

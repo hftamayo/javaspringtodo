@@ -1,6 +1,6 @@
-package com.hftamayo.java.todo.Security;
+package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.Services.CustomUserDetailsService;
+import com.hftamayo.java.todo.security.services.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.security.services.impl;
 
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Repository.UserRepository;

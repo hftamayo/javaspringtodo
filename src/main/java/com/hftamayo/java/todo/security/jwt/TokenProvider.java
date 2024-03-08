@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Security;
+package com.hftamayo.java.todo.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -13,8 +13,8 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-public class JwtTokenProvider {
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+public class TokenProvider {
+    private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
     @Value("${app.jwt-secret}")
     private String jwtSecret;
