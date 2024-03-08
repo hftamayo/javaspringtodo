@@ -2,7 +2,8 @@ package com.hftamayo.java.todo.security.services.impl;
 
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Repository.UserRepository;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,11 +15,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
-    private UserRepository userRepository;
+public class UserDetailsServiceImpl implements UserDetailsService {
+    @Autowired
+    UserRepository userRepository;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException(
