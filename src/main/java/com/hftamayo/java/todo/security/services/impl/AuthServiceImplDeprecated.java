@@ -16,13 +16,13 @@ import org.springframework.util.StringUtils;
 
 @Service
 @DependsOn("springSecurityConfig")
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceImplDeprecated implements AuthService {
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private TokenProvider tokenProvider;
 
-    public AuthServiceImpl(
+    public AuthServiceImplDeprecated(
             TokenProvider tokenProvider,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
