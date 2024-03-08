@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
+import com.hftamayo.java.todo.security.jwt.AuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfig {
     @Autowired
 
-    private AuthenticationFilter jwtAuthenticationFilter;
+    private AuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
     @Bean
-    public FilterRegistrationBean<AuthenticationFilter> jwtFilterRegistrationBean() {
-        FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(jwtAuthenticationFilter);
+    public FilterRegistrationBean<AuthenticationTokenFilter> jwtFilterRegistrationBean() {
+        FilterRegistrationBean<AuthenticationTokenFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(jwtAuthenticationTokenFilter);
         registrationBean.setOrder(1); // set order here
         return registrationBean;
     }

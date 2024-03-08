@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.security.services.impl.CustomUserDetailsService;
+import com.hftamayo.java.todo.security.services.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,21 +14,21 @@ public class AuthenticationManagerConfig {
 
 
     @Autowired
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Autowired
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public AuthenticationManagerConfig(CustomUserDetailsService customUserDetailsService,
+    public AuthenticationManagerConfig(UserDetailsServiceImpl userDetailsServiceImpl,
                                        AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.customUserDetailsService = customUserDetailsService;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         authenticationManagerBuilder
-                .userDetailsService(customUserDetailsService)
+                .userDetailsService(userDetailsServiceImpl)
                 .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
     }

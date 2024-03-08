@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
-import com.hftamayo.java.todo.security.services.impl.CustomUserDetailsService;
+import com.hftamayo.java.todo.security.services.impl.UserDetailsServiceImpl;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,14 +19,14 @@ import java.io.IOException;
 @Component
 public class AuthenticationTokenFilter extends OncePerRequestFilter {
     private TokenProvider tokenProvider;
-    private CustomUserDetailsService customUserDetailsService;
+    private UserDetailsServiceImpl userDetailsServiceImpl;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationTokenFilter.class);
 
     public AuthenticationTokenFilter(TokenProvider tokenProvider,
-                                     CustomUserDetailsService customUserDetailsService) {
+                                     UserDetailsServiceImpl userDetailsServiceImpl) {
         this.tokenProvider = tokenProvider;
-        this.customUserDetailsService = customUserDetailsService;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
             String token = getTokenFromRequest(request);
             if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
                 String username = tokenProvider.getUserName(token);
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
