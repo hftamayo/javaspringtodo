@@ -1,15 +1,20 @@
 package com.hftamayo.java.todo.security;
 
+import com.hftamayo.java.todo.security.jwt.AuthenticationEntryPoint;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @Configuration
 @EnableWebSecurity
-public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityFilterChain, HttpSecurity> {
+public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityFilterChain,
+        HttpSecurity> {
 
     @Override
     public void init(HttpSecurity httpSecurity) throws Exception {
@@ -20,7 +25,23 @@ public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityF
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/home")
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint())
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
     }
 
     @Override
