@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hftamayo.java.todo.Model.User;
 import org.hibernate.sql.ast.tree.expression.Collation;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -19,12 +20,6 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String email, String password) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-    }
-
     public UserDetailsImpl(Long id, String email, String password,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -35,7 +30,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new Collation(role.getName().name()))
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
         return new UserDetailsImpl(
                 user.getId(),
