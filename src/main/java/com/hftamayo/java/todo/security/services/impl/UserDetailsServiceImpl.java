@@ -26,14 +26,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found by Email using this criteria: " + usernameOrEmail));
 
-        Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map((role) -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toSet());
+        return UserDetailsImpl.build(user);
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                authorities
-        );
+//        Set<GrantedAuthority> authorities = user.getRoles().stream()
+//                .map((role) -> new SimpleGrantedAuthority(role.getName().name()))
+//                .collect(Collectors.toSet());
+//
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getEmail(),
+//                user.getPassword(),
+//                authorities
+//        );
     }
 }
