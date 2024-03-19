@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.security.jwt.AuthenticationEntryPoint;
+import com.hftamayo.java.todo.security.jwt.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -40,7 +40,7 @@ public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityF
     }
 
     @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
+    public CustomAuthenticationEntryPoint authenticationEntryPoint() {
         return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
     }
 
