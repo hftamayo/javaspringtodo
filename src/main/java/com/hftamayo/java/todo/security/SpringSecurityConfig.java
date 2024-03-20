@@ -1,28 +1,47 @@
 package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.security.jwt.CustomAuthenticationEntryPoint;
+import com.hftamayo.java.todo.security.jwt.AuthenticationTokenFilter;
+import com.hftamayo.java.todo.security.services.impl.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.SecurityConfigurer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityFilterChain,
-        HttpSecurity> {
+public class SpringSecurityConfig {
 
-    @Override
-    public void init(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private FilterRegistrationBean<AuthenticationTokenFilter> jwtFilterRegistrationBean;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/user/**").hasRole("USER")
-                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/user/**").hasRole("USER")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -30,21 +49,33 @@ public class SpringSecurityConfig implements SecurityConfigurer<DefaultSecurityF
                 .defaultSuccessUrl("/home")
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint())
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requiresChannel()
                 .anyRequest()
                 .requiresSecure();
+
+        httpSecurity
+                .addFilterBefore(jwtFilterRegistrationBean.getFilter(), UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider());
+
+        return httpSecurity.build();
     }
 
     @Bean
-    public CustomAuthenticationEntryPoint authenticationEntryPoint() {
-        return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsServiceImpl();
     }
+
 }
