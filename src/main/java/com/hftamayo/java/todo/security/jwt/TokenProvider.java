@@ -16,10 +16,10 @@ import java.util.Date;
 public class TokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
-    @Value("${app.jwt-secret}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwt-expiration-milliseconds}")
+    @Value("${jwt.expiration-milliseconds}")
     private int jwtExpirationDate;
 
     public String generateToken(Authentication authentication) {
