@@ -41,7 +41,6 @@ public class Task {
     private LocalDateTime dateUpdated;
 
     @Column(name = "status")
-    @NonNull
     @Builder.Default
     private boolean status = true;
 
