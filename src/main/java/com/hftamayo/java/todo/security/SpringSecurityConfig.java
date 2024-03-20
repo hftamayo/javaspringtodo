@@ -59,8 +59,9 @@ public class SpringSecurityConfig {
                 .requiresSecure();
 
         httpSecurity
-                .addFilterBefore(jwtFilterRegistrationBean.getFilter(), UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(authenticationProvider());
+                .addFilterBefore(jwtFilterRegistrationBean.getFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        httpSecurity.authenticationProvider(authenticationProvider());
 
         return httpSecurity.build();
     }
