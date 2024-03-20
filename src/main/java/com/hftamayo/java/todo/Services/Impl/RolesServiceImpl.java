@@ -26,7 +26,7 @@ public class RolesServiceImpl implements RolesService {
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getName());
+        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getName().toString());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {
