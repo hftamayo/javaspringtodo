@@ -35,6 +35,7 @@ public class User {
     private int age;
 
     @Column(nullable = false, name = "user_isadmin")
+    @Builder.Default
     private boolean isAdmin = false;
 
     @Column(nullable = false, name = "user_status")
