@@ -37,6 +37,6 @@ logging.level.org.springframework.web.client.RestTemplate=DEBUG
 # JWT Security setup
 #JWT secret key for signing the token
 #generate a tring with at least 256 bits
-jwt.secret=<expecting a generated key>
+jwt-secret=<expecting a generated key>
 #8 hours
-jwt.expiration=28800000
+jwt-expiration-milliseconds=28800000
