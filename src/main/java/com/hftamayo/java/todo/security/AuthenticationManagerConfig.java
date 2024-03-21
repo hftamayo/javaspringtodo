@@ -1,6 +1,8 @@
 package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.services.impl.UserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AuthenticationManagerConfig {
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationManagerConfig.class);
 
     @Autowired
     private final UserDetailsServiceImpl userDetailsServiceImpl;
@@ -29,6 +32,7 @@ public class AuthenticationManagerConfig {
         authenticationManagerBuilder
                 .userDetailsService(userDetailsServiceImpl)
                 .passwordEncoder(passwordEncoder());
+        logger.info("building AuthenticationManager");
         return authenticationManagerBuilder.build();
     }
 
