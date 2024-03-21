@@ -2,6 +2,8 @@ package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.jwt.AuthenticationTokenFilter;
 import com.hftamayo.java.todo.security.services.impl.UserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -47,30 +51,32 @@ public class SpringSecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                    .formLogin()
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/home")
-                    .failureUrl("/login?error=true")
-                    .permitAll()
+                .formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/home")
+                .failureUrl("/login?error=true")
+                .permitAll()
                 .and()
-                    .exceptionHandling()
-                    .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .exceptionHandling()
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                    .requiresChannel()
-                    .anyRequest()
-                    .requiresSecure()
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure()
                 .and()
-                    .logout()
-                    .logoutUrl("/logout")
-                    .logoutSuccessUrl("/login?logout=true")
-                    .permitAll();
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll();
 
         httpSecurity
                 .addFilterBefore(jwtFilterRegistrationBean.getFilter(), UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.authenticationProvider(authenticationProvider());
+
+        logger.info("building SpringSecConfig SecurityFilterChain bean...");
 
         return httpSecurity.build();
     }

@@ -32,7 +32,7 @@ public class AuthenticationManagerConfig {
         authenticationManagerBuilder
                 .userDetailsService(userDetailsServiceImpl)
                 .passwordEncoder(passwordEncoder());
-        logger.info("building AuthenticationManager");
+        logger.info("building AuthenticationManagerConfig bean...");
         return authenticationManagerBuilder.build();
     }
 
