@@ -4,7 +4,7 @@ import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.TokenResponseDto;
 import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.security.services.AuthService;
+import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
