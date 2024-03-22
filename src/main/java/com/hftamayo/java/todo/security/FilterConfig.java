@@ -4,11 +4,13 @@ import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -25,9 +27,38 @@ public class FilterConfig {
                 .csrf(csrf ->
                         csrf.disable())
                 .authorizeRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .anyRequest().authenticated()
+                        {
+                            try {
+                                authorizeRequests
+                                        .requestMatchers("/api/auth/**").permitAll()
+                                        .requestMatchers("/api/user/**").hasRole("ROLE_USER")
+                                        .requestMatchers("/api/supervisor/**").hasRole("ROLE_SUPERVISOR")
+                                        .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
+                                        .anyRequest().authenticated()
+                                        .and()
+                                        .formLogin()
+                                        .loginPage("/login")
+                                        .defaultSuccessUrl("/home")
+                                        .failureUrl("/login?error=true")
+                                        .permitAll()
+                                        .and()
+                                        .exceptionHandling()
+                                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                                        .and()
+                                        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                        .and()
+                                        .requiresChannel()
+                                        .anyRequest()
+                                        .requiresSecure()
+                                        .and()
+                                        .logout()
+                                        .logoutUrl("/logout")
+                                        .logoutSuccessUrl("/login?logout=true")
+                                        .permitAll();
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
                 )
                 .sessionManagement(sessionManager ->
                         sessionManager
