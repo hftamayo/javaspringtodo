@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider tokenProvider;
+    private final CustomTokenProvider customTokenProvider;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -33,11 +33,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        username = tokenProvider.getUsernameFromToken(token);
+        username = customTokenProvider.getUsernameFromToken(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (tokenProvider.isTokenValid(token, userDetails)) {
+            if (customTokenProvider.isTokenValid(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null,
                                 userDetails.getAuthorities());
