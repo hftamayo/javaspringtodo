@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class TokenProvider {
-    private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
+public class CustomTokenProvider {
+    private static final Logger logger = LoggerFactory.getLogger(CustomTokenProvider.class);
 
     @Value("${jwt.secret}")
     private String jwtSecret;
