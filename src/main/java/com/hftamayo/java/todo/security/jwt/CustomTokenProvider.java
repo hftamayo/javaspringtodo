@@ -15,6 +15,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
@@ -31,7 +32,7 @@ public class CustomTokenProvider {
         return getToken(new HashMap<>(), userDetails);
     }
 
-    private String getToken(Map<String,Object> extraClaims, UserDetails userDetails) {
+    private String getToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -45,6 +46,10 @@ public class CustomTokenProvider {
     private Key getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String getTokenType() {
+        return "Bearer";
     }
 
     public String getUsernameFromToken(String token) {
@@ -65,7 +70,7 @@ public class CustomTokenProvider {
                 .getBody();
     }
 
-    public <T> T getClaim(String token, Function<Claims,T> claimsResolver) {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
@@ -74,11 +79,17 @@ public class CustomTokenProvider {
         return getClaim(token, Claims::getExpiration);
     }
 
+    public long getRemainingExpirationTime(String token) {
+        Date expirationDate = getExpirationDateFromToken(token);
+        long diffInMillies = Math.abs(expirationDate.getTime() - new Date().getTime());
+        long diffInHours = TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        return diffInHours;
+    }
+
     private boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
-
 
 
 }
