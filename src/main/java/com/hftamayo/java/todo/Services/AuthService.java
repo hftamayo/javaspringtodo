@@ -1,11 +1,13 @@
 package com.hftamayo.java.todo.Services;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.hftamayo.java.todo.Dto.LoginDto;
+import com.hftamayo.java.todo.Dto.TokenResponseDto;
+import com.hftamayo.java.todo.Dto.UserResponseDto;
 
 public interface AuthService {
 
-    AuthResponse login(LoginRequest loginRequest);
+    TokenResponseDto login(LoginDto loginRequest);
 
-    AuthResponse register(RegisterRequest registerRequest);
+//    UserResponseDto register(RegisterRequest registerRequest);
 
 }
