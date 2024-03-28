@@ -8,6 +8,8 @@ public interface AuthService {
 
     TokenResponseDto login(LoginDto loginRequest);
 
+    void invalidateToken();
+
 //    UserResponseDto register(RegisterRequest registerRequest);
 
 }

@@ -39,8 +39,15 @@ public class AuthServiceImpl implements AuthService {
 
 
         String token = customTokenProvider.getToken(userDetails);
-        return new TokenResponseDto(token, customTokenProvider.getTokenType(),
-                customTokenProvider.getRemainingExpirationTime(token));
+        String tokenType = customTokenProvider.getTokenType();
+        long expiresIn = customTokenProvider.getRemainingExpirationTime(token);
+
+        return new TokenResponseDto(token, tokenType, expiresIn);
+    }
+
+    @Override
+    public void invalidateToken() {
+        customTokenProvider.invalidateToken();
     }
 
 //    @Override
