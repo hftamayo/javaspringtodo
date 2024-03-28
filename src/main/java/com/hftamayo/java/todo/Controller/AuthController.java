@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.Controller;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.TokenResponseDto;
+import com.hftamayo.java.todo.Dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
@@ -21,12 +22,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(@RequestBody LoginDto loginDto) {
-        String token = authService.login(loginDto);
-
-        TokenResponseDto tokenResponseDto = new TokenResponseDto();
-        tokenResponseDto.setAccessToken(token);
-        tokenResponseDto.setTokenType("Bearer");
-        tokenResponseDto.setExpiresIn(3600);
+        TokenResponseDto tokenResponseDto = authService.login(loginDto);
 
         System.out.println("token: " + tokenResponseDto.getAccessToken() + " type: " +
                 tokenResponseDto.getTokenType() + " expires in: " + tokenResponseDto.getExpiresIn());
@@ -51,8 +47,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String token = authService.extractTokenFromRequest(request);
-        authService.invalidateToken(token);
+        authService.invalidateToken();
         return ResponseEntity.ok("Logout successful");
     }
 }
