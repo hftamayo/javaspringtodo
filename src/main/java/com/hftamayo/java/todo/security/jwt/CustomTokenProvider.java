@@ -15,6 +15,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -28,11 +29,14 @@ public class CustomTokenProvider {
     @Value("${jwt.expiration-milliseconds}")
     private int jwtExpirationDate;
 
+    public String sessionIdentifier = UUID.randomUUID().toString();
+
     public String getToken(UserDetails userDetails) {
         return getToken(new HashMap<>(), userDetails);
     }
 
     private String getToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        extraClaims.put("sessionIdentifier", sessionIdentifier);
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -58,7 +62,10 @@ public class CustomTokenProvider {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        final String tokenSessionIdentifier = getClaim(token,
+                claims -> claims.get("sessionIdentifier", String.class));
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token)
+                && sessionIdentifier.equals(tokenSessionIdentifier);
     }
 
     private Claims getAllClaimsFromToken(String token) {
@@ -89,6 +96,10 @@ public class CustomTokenProvider {
     private boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
+    }
+
+    public void invalidateToken() {
+        sessionIdentifier = UUID.randomUUID().toString();
     }
 
 
