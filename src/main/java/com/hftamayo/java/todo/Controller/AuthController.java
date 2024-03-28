@@ -6,7 +6,6 @@ import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout() {
         authService.invalidateToken();
         return ResponseEntity.ok("Logout successful");
     }
