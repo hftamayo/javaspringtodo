@@ -16,11 +16,4 @@ public class TodoApplication {
         SpringApplication.run(TodoApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner seedData(UserSeeder userSeeder) {
-        return args -> {
-            userSeeder.onApplicationEvent(null);
-        };
-    }
-
 }
