@@ -43,14 +43,22 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
         try {
             if (seedDevelopment || seedProduction) {
                 setRoles();
+            } else {
+                System.out.println("No roles seeding required");
             }
 
             if (seedDevelopment) {
                 seedDevelopment();
+            } else {
+                System.out.println("No seeding required on Development environment");
+
             }
             if (seedProduction) {
                 seedProduction();
+            } else {
+                System.out.println("No seeding required on Production environment");
             }
+
         } catch (Exception e) {
             System.out.println("Error seeding data: " + e.getMessage());
         }
@@ -69,7 +77,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void seedDevelopment() {
-        System.out.println("Seeding user for development environment");
+        System.out.println("Seeding data for development started");
 
         User adminUser = new User(1, "Herbert Tamayo", "hftamayo@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
@@ -85,14 +93,17 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
                 passwordEncoder.encode("password123"), 20, false,
                 true, LocalDateTime.now(), LocalDateTime.now(), Set.of(userRole));
         userRepository.save(operatorUser);
+
+        System.out.println("Seeding data for development completed");
     }
 
     private void seedProduction() {
-        System.out.println("Seeding user for production environment");
+        System.out.println("Seeding data for production environment started");
         User adminUser = new User(1, "Administrator", "administrator@localhost.com",
                 passwordEncoder.encode("password123"), 25, true,
                 true, LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
         userRepository.save(adminUser);
+        System.out.println("Seeding data for production environment completed");
 
     }
 }
