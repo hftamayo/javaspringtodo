@@ -31,9 +31,9 @@ public class FilterConfig {
                             try {
                                 authorizeRequests
                                         .requestMatchers("/api/auth/**").permitAll()
-                                        .requestMatchers("/api/user/**").hasRole("ROLE_USER")
-                                        .requestMatchers("/api/supervisor/**").hasRole("ROLE_SUPERVISOR")
-                                        .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
+                                        .requestMatchers("/api/user/**").hasRole("USER")
+                                        .requestMatchers("/api/supervisor/**").hasRole("SUPERVISOR")
+                                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
                                         .and()
                                         .formLogin()
