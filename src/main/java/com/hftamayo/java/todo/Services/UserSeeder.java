@@ -44,19 +44,19 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
             if (seedDevelopment || seedProduction) {
                 setRoles();
             } else {
-                System.out.println("No roles seeding required");
+                System.out.println("No data seeding required for Roles");
             }
 
             if (seedDevelopment) {
                 seedDevelopment();
             } else {
-                System.out.println("No seeding required on Development environment");
+                System.out.println("No data seeding required on Development environment");
 
             }
             if (seedProduction) {
                 seedProduction();
             } else {
-                System.out.println("No seeding required on Production environment");
+                System.out.println("No data seeding required on Production environment");
             }
 
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void setRoles() {
-        System.out.println("Seeding roles");
+        System.out.println("Seeding roles started");
         userRole = new Roles(1, ERole.ROLE_USER, "User role", true, LocalDateTime.now(), LocalDateTime.now());
         rolesRepository.save(userRole);
 
@@ -74,10 +74,13 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
         adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true, LocalDateTime.now(), LocalDateTime.now());
         rolesRepository.save(adminRole);
+
+        System.out.println("Seeding roles completed");
+
     }
 
     private void seedDevelopment() {
-        System.out.println("Seeding data for development started");
+        System.out.println("Seeding data for development environment started");
 
         User adminUser = new User(1, "Herbert Tamayo", "hftamayo@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
@@ -94,7 +97,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
                 true, LocalDateTime.now(), LocalDateTime.now(), Set.of(userRole));
         userRepository.save(operatorUser);
 
-        System.out.println("Seeding data for development completed");
+        System.out.println("Seeding data for development environment completed");
     }
 
     private void seedProduction() {
