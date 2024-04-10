@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.utilities;
 
 import com.hftamayo.java.todo.Model.ERole;
 import com.hftamayo.java.todo.Model.Roles;
@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 @Component
