@@ -2,6 +2,8 @@ package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class FilterConfig {
     private final AuthenticationFilter authenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+    private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        logger.info("Confuguring Security Filter Chain");
         return httpSecurity
                 .csrf(csrf ->
                         csrf.disable())
