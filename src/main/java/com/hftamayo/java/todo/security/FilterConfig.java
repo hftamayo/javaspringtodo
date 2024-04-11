@@ -26,7 +26,7 @@ public class FilterConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        logger.info("Confuguring Security Filter Chain");
+        logger.info("Configuring Security Filter Chain");
         return httpSecurity
                 .csrf(csrf ->
                         csrf.disable())
@@ -39,27 +39,7 @@ public class FilterConfig {
                                         .requestMatchers("/api/user/**").hasRole("USER")
                                         .requestMatchers("/api/supervisor/**").hasRole("SUPERVISOR")
                                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                        .anyRequest().authenticated()
-                                        .and()
-                                        .formLogin()
-                                        .loginPage("/login")
-                                        .defaultSuccessUrl("/home")
-                                        .failureUrl("/login?error=true")
-                                        .permitAll()
-                                        .and()
-                                        .exceptionHandling()
-                                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                                        .and()
-                                        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                                        .and()
-                                        .requiresChannel()
-                                        .anyRequest()
-                                        .requiresSecure()
-                                        .and()
-                                        .logout()
-                                        .logoutUrl("/logout")
-                                        .logoutSuccessUrl("/login?logout=true")
-                                        .permitAll();
+                                        .anyRequest().authenticated();
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
