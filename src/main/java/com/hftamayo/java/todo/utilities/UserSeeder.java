@@ -80,20 +80,22 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void seedDevelopment() {
         System.out.println("Seeding data for development environment started");
-
-        User adminUser = new User(1, "Herbert Tamayo", "hftamayo@gmail.com",
+        User adminUser = new User(1L, "Herbert Tamayo", "hftamayo@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
-                true, LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
         userRepository.save(adminUser);
 
-        User supervisorUser = new User(2, "Sebastian Fernandez", "sebas@gmail.com",
+        User supervisorUser = new User(2L, "Sebastian Fernandez", "sebas@gmail.com",
                 passwordEncoder.encode("password123"), 20, false,
-                true, LocalDateTime.now(), LocalDateTime.now(), Set.of(supervisorRole));
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), Set.of(supervisorRole));
         userRepository.save(supervisorUser);
 
-        User operatorUser = new User(3, "Milu Martinez", "milu@gmail.com",
-                passwordEncoder.encode("password123"), 20, false,
-                true, LocalDateTime.now(), LocalDateTime.now(), Set.of(userRole));
+        User operatorUser = new User(3L, "Milu Martinez", "milu@gmail.com",
+                passwordEncoder.encode("password123"), 18, false,
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), Set.of(userRole));
         userRepository.save(operatorUser);
 
         System.out.println("Seeding data for development environment completed");
@@ -101,9 +103,11 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void seedProduction() {
         System.out.println("Seeding data for production environment started");
-        User adminUser = new User(1, "Administrator", "administrator@localhost.com",
+        User adminUser = new User(1L, "Administrator", "administrator@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
-                true, LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
+
         userRepository.save(adminUser);
         System.out.println("Seeding data for production environment completed");
 
