@@ -5,12 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +32,18 @@ public class CustomTokenProvider {
     @Value("${jwt.expiration-milliseconds}")
     private int jwtExpirationDate;
 
+    @Autowired
+    private JwtConfig jwtConfig;
+
     public String sessionIdentifier = UUID.randomUUID().toString();
+
+    private SecretKey secretKey;
+
+    @PostConstruct
+    public void init() {
+        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
+
 
     public String getToken(UserDetails userDetails) {
         return getToken(new HashMap<>(), userDetails);
@@ -47,9 +61,13 @@ public class CustomTokenProvider {
                 .compact();
     }
 
+//    private Key getKey() {
+//        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+//        return Keys.hmacShaKeyFor(keyBytes);
+//    }
+
     private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return secretKey;
     }
 
     public String getTokenType() {
