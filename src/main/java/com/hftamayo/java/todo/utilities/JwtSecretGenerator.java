@@ -1,11 +1,14 @@
 package com.hftamayo.java.todo.utilities;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 public class JwtSecretGenerator {
     public static String generateSecret() {
         SecureRandom random = new SecureRandom();
-        return new BigInteger(256, random).toString(32);
+        byte[] key = new byte[64];
+        random.nextBytes(key);
+        String secret = Base64.getEncoder().encodeToString(key);
+        return secret;
     }
 }
