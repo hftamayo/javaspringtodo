@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.Model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hftamayo.java.todo.security.interfaces.RoleGrantedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -108,10 +110,10 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return (Collection<? extends GrantedAuthority>) this.roles;
+        return roles.stream()
+                .map(RoleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
-
-
 
 //    @PrePersist
 //    protected void onCreate() {
