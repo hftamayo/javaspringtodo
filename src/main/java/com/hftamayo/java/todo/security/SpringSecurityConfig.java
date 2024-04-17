@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.Repository.UserRepository;
+import com.hftamayo.java.todo.security.jwt.JwtConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,11 @@ public class SpringSecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
     private final UserRepository userRepository;
+
+    @Bean
+    public JwtConfig jwtConfig() {
+        return new JwtConfig();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
