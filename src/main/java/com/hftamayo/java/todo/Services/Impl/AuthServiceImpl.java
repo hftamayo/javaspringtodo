@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.Services.Impl;
 
 import com.hftamayo.java.todo.Dto.LoginDto;
 import com.hftamayo.java.todo.Dto.TokenResponseDto;
+import com.hftamayo.java.todo.Exceptions.UnauthorizedException;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Repository.UserRepository;
 import com.hftamayo.java.todo.Services.AuthService;
@@ -10,10 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 @Service
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final CustomTokenProvider customTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public TokenResponseDto login(LoginDto loginRequest) {
@@ -43,6 +46,18 @@ public class AuthServiceImpl implements AuthService {
         long expiresIn = customTokenProvider.getRemainingExpirationTime(token);
 
         return new TokenResponseDto(token, tokenType, expiresIn);
+    }
+
+    @Override
+    public void logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7); // Remove "Bearer " prefix
+        String username = customTokenProvider.getUsernameFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        if (!customTokenProvider.isTokenValid(token, userDetails)) {
+            throw new UnauthorizedException("Invalid token: the session is not valid");
+        }
+        customTokenProvider.invalidateToken();
     }
 
     @Override
