@@ -6,12 +6,15 @@ import com.hftamayo.java.todo.Dto.UserResponseDto;
 import com.hftamayo.java.todo.Model.User;
 import com.hftamayo.java.todo.Services.AuthService;
 import com.hftamayo.java.todo.Services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 
 @AllArgsConstructor
 @RestController
@@ -55,8 +58,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        authService.invalidateToken();
-        return ResponseEntity.ok("Logout successful");
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        try {
+            authService.logout(request);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Logout successful"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during logout: " + e.getMessage());
+        }
     }
 }
