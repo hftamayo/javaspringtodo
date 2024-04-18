@@ -61,6 +61,7 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         try {
             authService.logout(request);
+            logger.info("Session destroyed, logout successful");
             return ResponseEntity.ok(Collections.singletonMap("message", "Session destroyed as expected, logout successful, have a nice day"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during logout: " + e.getMessage());
