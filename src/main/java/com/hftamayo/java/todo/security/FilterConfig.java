@@ -36,8 +36,8 @@ public class FilterConfig {
                                 authorizeRequests
                                         .requestMatchers("/api/auth/**").permitAll()
                                         .requestMatchers("/api/health/**").permitAll()
-                                        .requestMatchers("/api/user/**").hasRole("USER")
-                                        .requestMatchers("/api/supervisor/**").hasRole("SUPERVISOR")
+                                        .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
+                                        .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
                                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                         .anyRequest().authenticated();
                             } catch (Exception e) {
