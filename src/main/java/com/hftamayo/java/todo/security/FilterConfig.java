@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security;
 
+import com.hftamayo.java.todo.Exceptions.CustomAccessDeniedHandler;
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class FilterConfig {
     private final AuthenticationFilter authenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
     @Bean
@@ -45,6 +47,9 @@ public class FilterConfig {
                             }
                         }
                 )
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(sessionManager ->
                         sessionManager
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
