@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.LoginRequestDto;
 import com.hftamayo.java.todo.dto.TokenResponseDto;
-import com.hftamayo.java.todo.dto.UserResponseDto;
+import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
@@ -45,17 +45,17 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto saveUser(@RequestBody User user){
+    public RegisterUserResponseDto saveUser(@RequestBody User user){
         User savedUser = userService.saveUser(user);
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setId(savedUser.getId());
-        userResponseDto.setName(savedUser.getName());
-        userResponseDto.setEmail(savedUser.getEmail());
-        userResponseDto.setAge(savedUser.getAge());
-        userResponseDto.setAdmin(savedUser.isAdmin());
-        userResponseDto.setStatus(savedUser.isStatus());
+        RegisterUserResponseDto registerUserResponseDto = new RegisterUserResponseDto();
+        registerUserResponseDto.setId(savedUser.getId());
+        registerUserResponseDto.setName(savedUser.getName());
+        registerUserResponseDto.setEmail(savedUser.getEmail());
+        registerUserResponseDto.setAge(savedUser.getAge());
+        registerUserResponseDto.setAdmin(savedUser.isAdmin());
+        registerUserResponseDto.setStatus(savedUser.isStatus());
 
-        return userResponseDto;
+        return registerUserResponseDto;
     }
 
     @PostMapping("/logout")
