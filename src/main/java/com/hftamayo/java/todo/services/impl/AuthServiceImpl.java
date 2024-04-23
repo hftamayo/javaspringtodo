@@ -10,13 +10,17 @@ import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +44,17 @@ public class AuthServiceImpl implements AuthService {
                 .authorities(new ArrayList<>())
                 .build();
 
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
+        String username = user.getUsername();
+        String email = user.getEmail();
         String token = customTokenProvider.getToken(userDetails);
         String tokenType = customTokenProvider.getTokenType();
         long expiresIn = customTokenProvider.getRemainingExpirationTime(token);
 
-        return new ActiveSessionResponseDto(token, tokenType, expiresIn);
+        return new ActiveSessionResponseDto(username, email, roles, token, tokenType, expiresIn);
     }
 
     @Override
