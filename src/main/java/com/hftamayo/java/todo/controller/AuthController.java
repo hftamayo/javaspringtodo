@@ -30,13 +30,15 @@ public class AuthController {
         try {
             ActiveSessionResponseDto activeSessionResponseDto = authService.login(loginRequestDto);
 
-            logger.info("Login successful, welcome: " + loginRequestDto.getEmail() + "!");
+            logger.info("Login successful, welcome: " + loginRequestDto.getEmail() +
+                    "!, assigned roles: " + activeSessionResponseDto.getRoles());
 
-            System.out.println("token: " + activeSessionResponseDto.getAccessToken() + " type: " +
-                    activeSessionResponseDto.getTokenType() + " expires in: " + activeSessionResponseDto.getExpiresIn() + "hours");
+            logger.info("token: " + activeSessionResponseDto.getAccessToken() + " type: " +
+                    activeSessionResponseDto.getTokenType() + " expires in: " +
+                    activeSessionResponseDto.getExpiresIn() + " hours");
 
-            return ResponseEntity.ok("Login successful, welcome: " + loginRequestDto.getEmail() + "!"+
-                    ", your role is: "+ activeSessionResponseDto.getRoles());
+            return ResponseEntity.ok("Login successful, welcome: " + loginRequestDto.getEmail() + "!" +
+                    ", your role is: " + activeSessionResponseDto.getRoles());
         } catch (Exception e) {
             logger.error("Error in login: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
@@ -45,7 +47,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterUserResponseDto saveUser(@RequestBody User user){
+    public RegisterUserResponseDto saveUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
         RegisterUserResponseDto registerUserResponseDto = new RegisterUserResponseDto();
         registerUserResponseDto.setId(savedUser.getId());
