@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.LoginRequestDto;
-import com.hftamayo.java.todo.dto.TokenResponseDto;
+import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserDetailsService userDetailsService;
 
     @Override
-    public TokenResponseDto login(LoginRequestDto loginRequest) {
+    public ActiveSessionResponseDto login(LoginRequestDto loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getEmail(), loginRequest.getPassword()));
         User user = userRepository.findByEmail(loginRequest.getEmail())
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
         String tokenType = customTokenProvider.getTokenType();
         long expiresIn = customTokenProvider.getRemainingExpirationTime(token);
 
-        return new TokenResponseDto(token, tokenType, expiresIn);
+        return new ActiveSessionResponseDto(token, tokenType, expiresIn);
     }
 
     @Override
