@@ -1,10 +1,10 @@
 package com.hftamayo.java.todo.utilities;
 
-import com.hftamayo.java.todo.Model.ERole;
-import com.hftamayo.java.todo.Model.Roles;
-import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Repository.RolesRepository;
-import com.hftamayo.java.todo.Repository.UserRepository;
+import com.hftamayo.java.todo.model.ERole;
+import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;

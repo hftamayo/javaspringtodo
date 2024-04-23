@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Dto;
+package com.hftamayo.java.todo.dto;
 
 
 import lombok.*;

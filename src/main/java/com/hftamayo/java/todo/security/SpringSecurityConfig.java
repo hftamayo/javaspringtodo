@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security;
 
-import com.hftamayo.java.todo.Repository.UserRepository;
+import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.security.jwt.JwtConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
