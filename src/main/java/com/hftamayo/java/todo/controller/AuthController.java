@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.LoginDto;
+import com.hftamayo.java.todo.dto.LoginRequestDto;
 import com.hftamayo.java.todo.dto.TokenResponseDto;
 import com.hftamayo.java.todo.dto.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
@@ -25,17 +25,18 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody LoginDto loginDto) {
-        logger.info("Login attempt: " + loginDto.getEmail() + " " + loginDto.getPassword());
+    public ResponseEntity<String> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
+        logger.info("Login attempt: " + loginRequestDto.getEmail() + " " + loginRequestDto.getPassword());
         try {
-            TokenResponseDto tokenResponseDto = authService.login(loginDto);
+            TokenResponseDto tokenResponseDto = authService.login(loginRequestDto);
 
-            logger.info("Login successful, welcome: " + loginDto.getEmail() + "!");
+            logger.info("Login successful, welcome: " + loginRequestDto.getEmail() + "!");
 
             System.out.println("token: " + tokenResponseDto.getAccessToken() + " type: " +
                     tokenResponseDto.getTokenType() + " expires in: " + tokenResponseDto.getExpiresIn() + "hours");
 
-            return ResponseEntity.ok("Login successful, welcome: " + loginDto.getEmail() + "!");
+            return ResponseEntity.ok("Login successful, welcome: " + loginRequestDto.getEmail() + "!"+
+                    ", your role is: "+tokenResponseDto.getRole());
         } catch (Exception e) {
             logger.error("Error in login: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
