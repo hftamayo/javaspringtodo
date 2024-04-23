@@ -1,8 +1,6 @@
 package com.hftamayo.java.todo.dto;
 
-
 import lombok.*;
-
 import java.util.Date;
 import java.util.List;
 
