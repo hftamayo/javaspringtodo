@@ -10,14 +10,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class TokenResponseDto {
+public class ActiveSessionResponseDto {
     private String accessToken;
     private String tokenType;
     private boolean isTokenValid;
     private Date expiresAt;
     private long expiresIn;
 
-    public TokenResponseDto(String accessToken, String tokenType, long expiresIn) {
+    public ActiveSessionResponseDto(String accessToken, String tokenType, long expiresIn) {
         this.accessToken = accessToken;
         this.tokenType = tokenType;
         this.expiresIn = expiresIn;
