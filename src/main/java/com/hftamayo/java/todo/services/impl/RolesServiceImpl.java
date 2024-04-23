@@ -1,8 +1,8 @@
-package com.hftamayo.java.todo.Services.Impl;
+package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.Model.Roles;
-import com.hftamayo.java.todo.Repository.RolesRepository;
-import com.hftamayo.java.todo.Services.RolesService;
+import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.services.RolesService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

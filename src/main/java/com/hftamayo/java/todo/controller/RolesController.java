@@ -1,7 +1,7 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.Model.Roles;
-import com.hftamayo.java.todo.Services.RolesService;
+import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.services.RolesService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

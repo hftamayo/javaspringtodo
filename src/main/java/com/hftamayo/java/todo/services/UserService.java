@@ -1,6 +1,6 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.Model.User;
+import com.hftamayo.java.todo.model.User;
 
 import java.util.List;
 import java.util.Optional;

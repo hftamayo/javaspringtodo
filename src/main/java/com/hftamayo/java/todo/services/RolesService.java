@@ -1,6 +1,6 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.Model.Roles;
+import com.hftamayo.java.todo.model.Roles;
 
 import java.util.List;
 import java.util.Optional;

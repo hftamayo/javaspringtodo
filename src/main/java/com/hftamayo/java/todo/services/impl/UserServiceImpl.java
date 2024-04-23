@@ -1,8 +1,8 @@
-package com.hftamayo.java.todo.Services.Impl;
+package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Repository.UserRepository;
-import com.hftamayo.java.todo.Services.UserService;
+import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.repository.UserRepository;
+import com.hftamayo.java.todo.services.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

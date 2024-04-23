@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Exceptions;
+package com.hftamayo.java.todo.exceptions;
 
 public class UnauthorizedException extends RuntimeException{
     public UnauthorizedException(String message){

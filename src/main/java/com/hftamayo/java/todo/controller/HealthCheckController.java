@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

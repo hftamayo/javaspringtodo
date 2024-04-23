@@ -1,11 +1,11 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.Dto.LoginDto;
-import com.hftamayo.java.todo.Dto.TokenResponseDto;
-import com.hftamayo.java.todo.Dto.UserResponseDto;
-import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Services.AuthService;
-import com.hftamayo.java.todo.Services.UserService;
+import com.hftamayo.java.todo.dto.LoginDto;
+import com.hftamayo.java.todo.dto.TokenResponseDto;
+import com.hftamayo.java.todo.dto.UserResponseDto;
+import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.services.AuthService;
+import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class AuthController {
             logger.info("Login successful, welcome: " + loginDto.getEmail() + "!");
 
             System.out.println("token: " + tokenResponseDto.getAccessToken() + " type: " +
-                    tokenResponseDto.getTokenType() + " expires in: " + tokenResponseDto.getExpiresIn());
+                    tokenResponseDto.getTokenType() + " expires in: " + tokenResponseDto.getExpiresIn() + "hours");
 
             return ResponseEntity.ok("Login successful, welcome: " + loginDto.getEmail() + "!");
         } catch (Exception e) {

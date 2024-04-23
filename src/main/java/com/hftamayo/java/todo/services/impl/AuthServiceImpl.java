@@ -1,11 +1,11 @@
-package com.hftamayo.java.todo.Services.Impl;
+package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.Dto.LoginDto;
-import com.hftamayo.java.todo.Dto.TokenResponseDto;
-import com.hftamayo.java.todo.Exceptions.UnauthorizedException;
-import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Repository.UserRepository;
-import com.hftamayo.java.todo.Services.AuthService;
+import com.hftamayo.java.todo.dto.LoginDto;
+import com.hftamayo.java.todo.dto.TokenResponseDto;
+import com.hftamayo.java.todo.exceptions.UnauthorizedException;
+import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.repository.UserRepository;
+import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

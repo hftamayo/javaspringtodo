@@ -1,7 +1,7 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.Model.Task;
-import com.hftamayo.java.todo.Services.TaskService;
+import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.services.TaskService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

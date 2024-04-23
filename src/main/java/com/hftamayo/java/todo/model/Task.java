@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Model;
+package com.hftamayo.java.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;

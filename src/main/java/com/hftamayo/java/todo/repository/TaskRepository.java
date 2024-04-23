@@ -1,6 +1,6 @@
-package com.hftamayo.java.todo.Repository;
+package com.hftamayo.java.todo.repository;
 
-import com.hftamayo.java.todo.Model.Task;
+import com.hftamayo.java.todo.model.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

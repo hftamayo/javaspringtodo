@@ -1,6 +1,6 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.Model.Task;
+import com.hftamayo.java.todo.model.Task;
 
 import java.util.List;
 

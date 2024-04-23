@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Exceptions;
+package com.hftamayo.java.todo.exceptions;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

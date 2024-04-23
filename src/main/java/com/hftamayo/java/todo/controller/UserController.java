@@ -1,8 +1,8 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.Dto.UserResponseDto;
-import com.hftamayo.java.todo.Model.User;
-import com.hftamayo.java.todo.Services.UserService;
+import com.hftamayo.java.todo.dto.UserResponseDto;
+import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

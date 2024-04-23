@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.Model;
+package com.hftamayo.java.todo.model;
 
 public enum ERole {
     ROLE_USER,
