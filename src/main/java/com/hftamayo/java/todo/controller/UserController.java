@@ -1,7 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
+import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,12 @@ import java.util.Optional;
 @RestController
 public class UserController {
     private final UserService userService;
+    private final RolesService roleService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RolesService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping(value = "/users/allusers")
@@ -111,6 +115,32 @@ public class UserController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PatchMapping(value = "/users/updatestatusandrole/{userId}/{status}/{roleName}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
+    public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
+                                                        @PathVariable boolean status,
+                                                        @PathVariable String roleName) {
+        try {
+            User user = userService.getUserById(userId);
+            user.setStatus(status);
+
+            // Fetch the role by name and add it to the user's roles
+            Optional<Roles> roleOptional = roleService.getRoleByName(roleName);
+            if (!roleOptional.isPresent()) {
+                throw new EntityNotFoundException("Role not found");
+            }
+            user.getRoles().add(roleOptional.get());
+
+            User updatedUser = userService.updateUser(userId, user);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (EntityNotFoundException enf) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @DeleteMapping(value = "/users/deleteuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
