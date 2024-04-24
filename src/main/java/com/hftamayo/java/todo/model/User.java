@@ -57,7 +57,7 @@ public class User implements UserDetails {
 
     @Column(nullable = false, name = "user_status")
     @Builder.Default
-    private boolean status = true;
+    private boolean status = false;
 
     @Column
     @CreatedDate
