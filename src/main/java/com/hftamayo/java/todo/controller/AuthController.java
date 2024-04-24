@@ -26,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
-        logger.info("Login attempt: " + loginRequestDto.getEmail() + " " + loginRequestDto.getPassword());
+        logger.info("Login attempt: " + loginRequestDto.getEmail());
         try {
             ActiveSessionResponseDto activeSessionResponseDto = authService.login(loginRequestDto);
 
