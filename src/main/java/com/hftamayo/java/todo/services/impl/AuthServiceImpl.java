@@ -3,6 +3,8 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dto.LoginRequestDto;
 import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
+import com.hftamayo.java.todo.model.ERole;
+import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.AuthService;
@@ -44,8 +46,8 @@ public class AuthServiceImpl implements AuthService {
                 .authorities(new ArrayList<>())
                 .build();
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+        List<String> roles = user.getRoles().stream()
+                .map(role -> role.getName().name())
                 .collect(Collectors.toList());
 
         String username = user.getUsername();
