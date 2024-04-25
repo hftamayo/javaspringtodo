@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/supervisor")
 public class UserController {
     private final UserService userService;
     private final RolesService roleService;
@@ -102,7 +103,6 @@ public class UserController {
     }
 
     @PatchMapping(value = "/users/updatestatus/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<User> updateUserStatus(@PathVariable long userId, @RequestParam boolean status) {
         try {
             User user = userService.getUserById(userId);
@@ -117,7 +117,6 @@ public class UserController {
     }
 
     @PatchMapping(value = "/users/updatestatusandrole/{userId}/{status}/{roleName}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
                                                         @PathVariable boolean status,
                                                         @PathVariable String roleName) {
