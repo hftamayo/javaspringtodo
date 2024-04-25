@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -116,12 +117,16 @@ public class UserController {
         }
     }
 
-    @PatchMapping(value = "/users/updatestatusandrole/{userId}/{status}/{roleName}")
+    @PatchMapping(value = "/users/updatestatusandrole/{userId}")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
-                                                        @PathVariable boolean status,
-                                                        @PathVariable String roleName) {
+                                                        @RequestBody Map<String, Object> updates) {
         try {
             User user = userService.getUserById(userId);
+
+            // Fetch the status and role from the updates map
+            boolean status = (boolean) updates.get("status");
+            String roleName = (String) updates.get("roleName");
+
             user.setStatus(status);
 
             // Fetch the role by name and add it to the user's roles
