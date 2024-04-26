@@ -24,7 +24,7 @@ public class Roles {
     private long id;
 
     @Column(nullable = false, unique = true, name = "role_name")
-    private ERole name;
+    private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "role_enum")
