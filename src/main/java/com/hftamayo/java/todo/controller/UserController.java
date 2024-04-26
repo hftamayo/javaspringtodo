@@ -1,11 +1,14 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
+import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import java.util.Optional;
 public class UserController {
     private final UserService userService;
     private final RolesService roleService;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public UserController(UserService userService, RolesService roleService) {
@@ -119,28 +123,40 @@ public class UserController {
 
     @PatchMapping(value = "/users/updatestatusandrole/{userId}")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
-                                                        @RequestParam boolean status,
-                                                        @RequestParam String roleName) {
+                                                        @RequestBody Map<String, Object> updates) {
         try {
+            logger.info("Updating user status and role for ID: " + userId);
             User user = userService.getUserById(userId);
+
+            // Fetch the status and role from the updates map
+            logger.info("fetching params from request");
+            boolean status = (boolean) updates.get("status");
+            String roleName = (String) updates.get("roleName");
+            logger.info("status: " + status + " role: " + roleName);
+
             user.setStatus(status);
 
+            // Convert the roleName to an ERole value
+            ERole roleEnum = ERole.valueOf(roleName);
+
             // Fetch the role by name and add it to the user's roles
-            Optional<Roles> roleOptional = roleService.getRoleByName(roleName);
+            logger.info("searching if the role exists");
+            Optional<Roles> roleOptional = roleService.getRoleByName(String.valueOf(roleEnum));
             if (!roleOptional.isPresent()) {
                 throw new EntityNotFoundException("Role not found");
             }
             user.getRoles().add(roleOptional.get());
 
+            logger.info("updating user");
             User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            logger.error("unexpected error: ", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @DeleteMapping(value = "/users/deleteuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
