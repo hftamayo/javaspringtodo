@@ -119,14 +119,10 @@ public class UserController {
 
     @PatchMapping(value = "/users/updatestatusandrole/{userId}")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
-                                                        @RequestBody Map<String, Object> updates) {
+                                                        @RequestParam boolean status,
+                                                        @RequestParam String roleName) {
         try {
             User user = userService.getUserById(userId);
-
-            // Fetch the status and role from the updates map
-            boolean status = (boolean) updates.get("status");
-            String roleName = (String) updates.get("roleName");
-
             user.setStatus(status);
 
             // Fetch the role by name and add it to the user's roles
