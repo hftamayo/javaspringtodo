@@ -3,8 +3,6 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dto.LoginRequestDto;
 import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
-import com.hftamayo.java.todo.model.ERole;
-import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.AuthService;
@@ -12,7 +10,6 @@ import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         List<String> roles = user.getRoles().stream()
-                .map(role -> role.getName().name())
+                .map(role -> role.getName())
                 .collect(Collectors.toList());
 
         String username = user.getUsername();
