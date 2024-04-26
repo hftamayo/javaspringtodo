@@ -65,13 +65,13 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void setRoles() {
         System.out.println("Seeding roles started");
-        userRole = new Roles(1, ERole.ROLE_USER, "User role", true, LocalDateTime.now(), LocalDateTime.now());
+        userRole = new Roles(1, "USER", ERole.ROLE_USER, "User role", true, LocalDateTime.now(), LocalDateTime.now());
         rolesRepository.save(userRole);
 
-        supervisorRole = new Roles(2, ERole.ROLE_SUPERVISOR, "Supervisor role", true, LocalDateTime.now(), LocalDateTime.now());
+        supervisorRole = new Roles(2, "SUPERVISOR", ERole.ROLE_SUPERVISOR, "Supervisor role", true, LocalDateTime.now(), LocalDateTime.now());
         rolesRepository.save(supervisorRole);
 
-        adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true, LocalDateTime.now(), LocalDateTime.now());
+        adminRole = new Roles(3, "ADMIN", ERole.ROLE_ADMIN, "Admin role", true, LocalDateTime.now(), LocalDateTime.now());
         rolesRepository.save(adminRole);
 
         System.out.println("Seeding roles completed");
