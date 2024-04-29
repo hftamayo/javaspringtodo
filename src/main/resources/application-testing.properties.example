@@ -33,6 +33,7 @@ seed.production=false
 # Logging
 logging.level.com.bytestree.restful=DEBUG
 logging.level.org.springframework.web.client.RestTemplate=DEBUG
+logging.level.org.springframework.security=DEBUG
 
 # JWT Security setup
 #JWT secret key for signing the token
