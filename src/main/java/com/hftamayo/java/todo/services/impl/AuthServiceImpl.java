@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         List<String> roles = user.getRoles().stream()
-                .map(role -> "ROLE_" + role.getName().toUpperCase())
+                .map(role ->  role.getRoleEnum().name())
                 .collect(Collectors.toList());
 
         String username = user.getUsername();
