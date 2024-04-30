@@ -34,6 +34,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             final String username;
 
             if (token == null) {
+                logger.info("No token found in request");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -48,6 +49,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                                     userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.info("User authenticated successfully");
                 }
             }
             filterChain.doFilter(request, response);
