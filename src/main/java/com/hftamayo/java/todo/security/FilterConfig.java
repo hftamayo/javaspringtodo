@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.exceptions.CustomAccessDeniedHandler;
+import com.hftamayo.java.todo.security.managers.CustomAccessDecisionManager;
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class FilterConfig {
     private final AuthenticationFilter authenticationFilter;
     private final AuthenticationProvider authenticationProvider;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAccessDecisionManager customAccessDecisionManager;
     private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
     @Bean
@@ -30,21 +32,16 @@ public class FilterConfig {
         return httpSecurity
                 .csrf(csrf ->
                         csrf.disable())
-                .authorizeRequests(authorizeRequests ->
-                        {
-                            try {
-                                authorizeRequests
-                                        .requestMatchers("/api/auth/**").permitAll()
-                                        .requestMatchers("/api/health/**").permitAll()
-                                        .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
-                                        .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
-                                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                        .anyRequest().authenticated();
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                )
+                .authorizeRequests(authorizeRequests -> {
+                    authorizeRequests
+                            .requestMatchers("/api/auth/**").permitAll()
+                            .requestMatchers("/api/health/**").permitAll()
+                            .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
+                            .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .anyRequest().authenticated()
+                            .accessDecisionManager(customAccessDecisionManager);
+                })
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .accessDeniedHandler(accessDeniedHandler))
