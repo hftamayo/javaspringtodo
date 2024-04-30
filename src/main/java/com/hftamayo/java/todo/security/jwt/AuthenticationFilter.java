@@ -29,6 +29,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             final String token = getTokenFromRequest(request);
             final String username;
@@ -56,6 +62,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             logger.error("Error in AuthenticationFilter: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            logger.error("message from Authentication Filter workflow: Unauthorized access");
             response.getWriter().write("A problem ocurred during the authentication process. Please try again.");
         }
     }
