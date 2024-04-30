@@ -30,8 +30,11 @@ public class FilterConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         logger.info("Configuring Security Filter Chain");
         return httpSecurity
-                .csrf(csrf ->
-                        csrf.disable())
+                .csrf(csrf -> {
+                    csrf.disable();
+                    logger.info("CSRF is disabled");
+                })
+
                 .authorizeRequests(authorizeRequests -> {
                     authorizeRequests
                             .requestMatchers("/api/auth/**").permitAll()
@@ -41,13 +44,18 @@ public class FilterConfig {
                             .requestMatchers("/api/admin/**").hasRole("ADMIN")
                             .anyRequest().authenticated()
                             .accessDecisionManager(customAccessDecisionManager);
+                    logger.info("Authorization requests configured");
                 })
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .accessDeniedHandler(accessDeniedHandler))
-                .sessionManagement(sessionManager ->
-                        sessionManager
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling -> {
+                    exceptionHandling
+                            .accessDeniedHandler(accessDeniedHandler);
+                    logger.info("Exception handling configured");
+                })
+                .sessionManagement(sessionManager -> {
+                    sessionManager
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    logger.info("Session management configured");
+                })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
