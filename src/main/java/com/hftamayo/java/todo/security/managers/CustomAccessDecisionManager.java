@@ -15,6 +15,10 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
+        if (configAttributes == null) {
+            throw new AccessDeniedException("Access Denied: No required roles found");
+        }
+
         String requiredRole = configAttributes.stream()
                 .map(ConfigAttribute::getAttribute)
                 .findFirst()
