@@ -38,7 +38,7 @@ public class FilterConfig {
                 .authorizeRequests(authorizeRequests -> {
                     try {
                         authorizeRequests
-                                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**").permitAll()
+                                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
                                 .requestMatchers("/api/health/**").permitAll()
                                 .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
                                 .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
@@ -48,7 +48,7 @@ public class FilterConfig {
                                 .and()
                                 .logout()
                                 .logoutUrl("/api/auth/logout")
-                                .logoutSuccessUrl("/api/auth/login")
+                                .logoutSuccessUrl("/api/auth/logged-out")
                                 .permitAll();
                     } catch (Exception e) {
                         logger.error("Error in authorization: " + e.getMessage());
