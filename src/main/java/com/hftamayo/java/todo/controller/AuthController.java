@@ -72,7 +72,7 @@ public class AuthController {
     }
 
     @GetMapping("/logged-out")
-    public ResponseEntity<?> loggedOut() {
-        return ResponseEntity.ok(Collections.singletonMap("message", "You have been logged out"));
+    public ResponseEntity<String> loggedOut() {
+        return ResponseEntity.ok("You have been logged out");
     }
 }
