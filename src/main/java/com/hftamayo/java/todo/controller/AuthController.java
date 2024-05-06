@@ -70,4 +70,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during logout: " + e.getMessage());
         }
     }
+
+    @GetMapping("/logged-out")
+    public ResponseEntity<?> loggedOut() {
+        return ResponseEntity.ok(Collections.singletonMap("message", "You have been logged out"));
+    }
 }
