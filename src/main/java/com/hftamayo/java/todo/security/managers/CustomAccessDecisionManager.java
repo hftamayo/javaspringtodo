@@ -1,5 +1,7 @@
 package com.hftamayo.java.todo.security.managers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -16,11 +18,15 @@ import java.util.stream.Collectors;
 @Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomAccessDecisionManager.class);
+
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
         FilterInvocation filterInvocation = (FilterInvocation) object;
         String url = filterInvocation.getRequestUrl();
+
+        logger.info("Checking access for URL: " + url);
 
         if (url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register")) {
             // Allow the request to proceed if it's for the register or login workflows
@@ -31,9 +37,13 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                 .map(ConfigAttribute::getAttribute)
                 .collect(Collectors.toSet());
 
+        logger.info("Required roles: " + requiredRoles);
+
         Set<String> userRoles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
+
+        logger.info("User roles: " + userRoles);
 
         // Check if userRoles contains any of the requiredRoles
         if (Collections.disjoint(userRoles, requiredRoles)) {
