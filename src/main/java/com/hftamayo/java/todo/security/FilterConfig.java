@@ -36,14 +36,23 @@ public class FilterConfig {
                 })
 
                 .authorizeRequests(authorizeRequests -> {
-                    authorizeRequests
-                            .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**").permitAll()
-                            .requestMatchers("/api/health/**").permitAll()
-                            .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
-                            .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
-                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                            .anyRequest().authenticated()
-                            .accessDecisionManager(customAccessDecisionManager);
+                    try {
+                        authorizeRequests
+                                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**").permitAll()
+                                .requestMatchers("/api/health/**").permitAll()
+                                .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
+                                .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .anyRequest().authenticated()
+                                .accessDecisionManager(customAccessDecisionManager)
+                                .and()
+                                .logout()
+                                .logoutUrl("/api/auth/logout")
+                                .logoutSuccessUrl("/api/auth/login")
+                                .permitAll();
+                    } catch (Exception e) {
+                        logger.error("Error in authorization: " + e.getMessage());
+                    }
                     logger.info("Authorization requests configured");
                 })
                 .exceptionHandling(exceptionHandling -> {
@@ -60,5 +69,4 @@ public class FilterConfig {
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
 }
