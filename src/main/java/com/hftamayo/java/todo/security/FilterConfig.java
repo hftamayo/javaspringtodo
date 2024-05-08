@@ -3,16 +3,19 @@ package com.hftamayo.java.todo.security;
 import com.hftamayo.java.todo.exceptions.CustomAccessDeniedHandler;
 import com.hftamayo.java.todo.security.managers.CustomAccessDecisionManager;
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
+import com.hftamayo.java.todo.security.managers.CustomFilterInvocationSecurityMetadataSource;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -27,7 +30,9 @@ public class FilterConfig {
     private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   FilterSecurityInterceptor filterSecurityInterceptor)
+            throws Exception {
         logger.info("Configuring Security Filter Chain");
         return httpSecurity
                 .csrf(csrf -> {
@@ -66,7 +71,19 @@ public class FilterConfig {
                     logger.info("Session management configured");
                 })
                 .authenticationProvider(authenticationProvider)
+                .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+    @Bean
+    public FilterSecurityInterceptor filterSecurityInterceptor(AuthenticationManager authenticationManager,
+                                                               CustomFilterInvocationSecurityMetadataSource cfisMetadataSource) {
+        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+        filterSecurityInterceptor.setAuthenticationManager(authenticationManager);
+        filterSecurityInterceptor.setAccessDecisionManager(customAccessDecisionManager);
+        filterSecurityInterceptor.setSecurityMetadataSource(cfisMetadataSource);
+        return filterSecurityInterceptor;
+    }
+
 }
