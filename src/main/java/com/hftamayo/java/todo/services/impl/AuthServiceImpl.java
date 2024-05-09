@@ -10,6 +10,8 @@ import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,13 +40,18 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
+
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleEnum().name()))
+                .collect(Collectors.toList());
+
         UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities(new ArrayList<>())
+                .authorities(authorities)
                 .build();
 
         List<String> roles = user.getRoles().stream()
-                .map(role ->  role.getRoleEnum().name())
+                .map(role ->  role.getRoleEnum().toString())
                 .collect(Collectors.toList());
 
         String username = user.getUsername();
