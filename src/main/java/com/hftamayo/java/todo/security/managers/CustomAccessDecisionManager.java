@@ -38,36 +38,6 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
 
         logger.info("entering to the requiredRoles loop");
 
-//        Set<String> requiredRoles = configAttributes.stream()
-//                .map(ConfigAttribute::getAttribute)
-//                .peek(attribute -> logger.info("Before flatMap, attribute: " + attribute))
-//                .filter(Objects::nonNull)
-//                .flatMap(attribute -> {
-//                    logger.info("Inside flatMap, processing attribute: " + attribute);
-//                    Pattern pattern = Pattern.compile("hasAnyRole\\((.*?)\\)");
-//                    Matcher matcher = pattern.matcher(attribute);
-//                    if (!matcher.find()) {
-//                        logger.info("No match found for attribute: " + attribute);
-//                        return Stream.empty();
-//                    }
-//                    do {
-//                        String rolesString = matcher.group(1);
-//                        logger.info("Extracted role: " + rolesString);
-//                        String[] roles = rolesString.replace("'", "").split(",");
-//                        return Arrays.stream(roles);
-//                    } while (matcher.find());
-//                })
-//                .peek(role -> logger.info("After flatMap, role: " + role))
-//                .collect(Collectors.toSet());
-
-//        Set<String> requiredRoles = configAttributes.stream()
-//                .map(ConfigAttribute::getAttribute)
-//                .filter(Objects::nonNull)
-//                .map(attribute -> attribute.replace("hasAnyRole(", "").replace(")", ""))
-//                .map(rolesString -> rolesString.replace("'", "").split(","))
-//                .flatMap(Arrays::stream)
-//                .collect(Collectors.toSet());
-
         Set<String> requiredRoles = configAttributes.stream()
                 .peek(attribute -> logger.info("Before map, attribute: " + attribute))
                 .map(ConfigAttribute::getAttribute)
