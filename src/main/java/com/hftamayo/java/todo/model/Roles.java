@@ -23,9 +23,6 @@ public class Roles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, unique = true, name = "role_name")
-    private String name;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "role_enum")
     private ERole roleEnum;
