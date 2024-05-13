@@ -12,5 +12,5 @@ public interface RolesRepository extends JpaRepository<Roles, Long> {
 
     @Override
     List<Roles> findAll();
-    Optional<Roles> findByName(String name);
+    Optional<Roles> findByRoleEnum(String roleEnum);
 }

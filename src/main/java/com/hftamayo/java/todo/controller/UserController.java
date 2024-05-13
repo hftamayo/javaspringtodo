@@ -140,7 +140,7 @@ public class UserController {
 
             // Fetch the role by name and add it to the user's roles
             logger.info("searching if the role exists");
-            Optional<Roles> roleOptional = roleService.getRoleByName(String.valueOf(roleEnum));
+            Optional<Roles> roleOptional = roleService.getRoleByEnum(String.valueOf(roleEnum));
             if (!roleOptional.isPresent()) {
                 throw new EntityNotFoundException("Role not found");
             }

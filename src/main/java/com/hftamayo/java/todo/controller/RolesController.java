@@ -29,7 +29,7 @@ public class RolesController {
     @GetMapping(value = "/roles/getrolebyname/{roleName}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<Roles> getRoleByName(@PathVariable String roleName){
-        return rolesService.getRoleByName(roleName);
+        return rolesService.getRoleByEnum(roleName);
     }
 
     @PostMapping(value = "/roles/saverole")

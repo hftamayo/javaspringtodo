@@ -20,13 +20,13 @@ public class RolesServiceImpl implements RolesService {
         return rolesRepository.findAll();
     }
 
-    public Optional<Roles> getRoleByName(String name){
-        return rolesRepository.findByName(name);
+    public Optional<Roles> getRoleByEnum(String roleEnum){
+        return rolesRepository.findByRoleEnum(roleEnum);
     }
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getRoleEnum().toString());
+        Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum().toString());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {
