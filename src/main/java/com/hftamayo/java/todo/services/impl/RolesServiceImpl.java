@@ -26,7 +26,7 @@ public class RolesServiceImpl implements RolesService {
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getName().toString());
+        Optional<Roles> requestedRole = rolesRepository.findByName(newRole.getRoleEnum().toString());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {
@@ -36,9 +36,10 @@ public class RolesServiceImpl implements RolesService {
 
     @Override
     public Roles updateRole(long roleId, Roles updatedRole) {
-        Roles requestedRole = rolesRepository.findById(roleId).get();
-        if(requestedRole != null){
-            requestedRole.setName(updatedRole.getName());
+        Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
+        if(requestedRoleOptional.isPresent()){
+            Roles requestedRole = requestedRoleOptional.get();
+            requestedRole.setRoleEnum(updatedRole.getRoleEnum());
             requestedRole.setDescription(updatedRole.getDescription());
             requestedRole.setStatus(updatedRole.isStatus());
             return rolesRepository.save(requestedRole);
@@ -49,9 +50,9 @@ public class RolesServiceImpl implements RolesService {
 
     @Override
     public void deleteRole(long roleId) {
-        Roles requestedRole = rolesRepository.findById(roleId).get();
-        if(requestedRole != null){
-            rolesRepository.delete(requestedRole);
+        Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
+        if(requestedRoleOptional.isPresent()){
+            rolesRepository.delete(requestedRoleOptional.get());
         } else {
             throw new RuntimeException("Role not found");
         }
