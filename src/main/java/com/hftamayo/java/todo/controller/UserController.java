@@ -130,23 +130,20 @@ public class UserController {
             // Fetch the status and role from the updates map
             logger.info("fetching params from request");
             boolean status = (boolean) updates.get("status");
-            String roleName = (String) updates.get("roleName");
+            String roleName = (String) updates.get("role");
             logger.info("status: " + status + " role: " + roleName);
 
             user.setStatus(status);
 
-            // Convert the roleName to an ERole value
-            ERole roleEnum = ERole.valueOf(roleName);
-
             // Fetch the role by name and add it to the user's roles
             logger.info("searching if the role exists");
-            Optional<Roles> roleOptional = roleService.getRoleByEnum(String.valueOf(roleEnum));
+            Optional<Roles> roleOptional = roleService.getRoleByEnum(roleName);
             if (!roleOptional.isPresent()) {
                 throw new EntityNotFoundException("Role not found");
             }
             user.getRoles().add(roleOptional.get());
 
-            logger.info("updating user");
+            logger.info("about to write the updates on the data layer");
             User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {

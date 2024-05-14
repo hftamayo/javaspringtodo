@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.services.RolesService;
@@ -21,12 +22,13 @@ public class RolesServiceImpl implements RolesService {
     }
 
     public Optional<Roles> getRoleByEnum(String roleEnum){
-        return rolesRepository.findByRoleEnum(roleEnum);
+        ERole eRole = ERole.valueOf(roleEnum);
+        return rolesRepository.findByRoleEnum(eRole);
     }
 
     @Override
     public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum().toString());
+        Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum());
         if(requestedRole == null){
             return rolesRepository.save(newRole);
         } else {
