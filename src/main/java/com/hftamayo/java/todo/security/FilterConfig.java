@@ -49,7 +49,6 @@ public class FilterConfig {
                                 .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
-                                .accessDecisionManager(customAccessDecisionManager)
                                 .and()
                                 .logout()
                                 .logoutUrl("/api/auth/logout")
