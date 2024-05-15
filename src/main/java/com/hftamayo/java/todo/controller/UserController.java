@@ -124,26 +124,13 @@ public class UserController {
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
                                                         @RequestBody Map<String, Object> updates) {
         try {
-            logger.info("Updating user status and role for ID: " + userId);
             User user = userService.getUserById(userId);
-
-            // Fetch the status and role from the updates map
-            logger.info("fetching params from request");
             boolean status = (boolean) updates.get("status");
-            String roleName = (String) updates.get("role");
-            logger.info("status: " + status + " role: " + roleName);
+            String roleEnum = (String) updates.get("role");
 
-            user.setStatus(status);
+            userService.updateUserStatus(user, status);
+            roleService.addRoleToUser(user, roleEnum);
 
-            // Fetch the role by name and add it to the user's roles
-            logger.info("searching if the role exists");
-            Optional<Roles> roleOptional = roleService.getRoleByEnum(roleName);
-            if (!roleOptional.isPresent()) {
-                throw new EntityNotFoundException("Role not found");
-            }
-            user.getRoles().add(roleOptional.get());
-
-            logger.info("about to write the updates on the data layer");
             User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
