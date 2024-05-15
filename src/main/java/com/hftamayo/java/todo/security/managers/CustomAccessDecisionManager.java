@@ -11,10 +11,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {
@@ -27,10 +24,6 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         FilterInvocation filterInvocation = (FilterInvocation) object;
         String url = filterInvocation.getRequestUrl();
 
-        logger.info("Checking access for URL: " + url);
-        logger.info("authentication: "+ authentication);
-        logger.info("configAttributes: "+ configAttributes);
-
         if (url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register")) {
             // Allow the request to proceed if it's for the register or login workflows
             return;
@@ -39,18 +32,12 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         logger.info("entering to the requiredRoles loop");
 
         Set<String> requiredRoles = configAttributes.stream()
-                .peek(attribute -> logger.info("Before map, attribute: " + attribute))
                 .map(ConfigAttribute::getAttribute)
-                .peek(attribute -> logger.info("After map, attribute: " + attribute))
                 .collect(Collectors.toSet());
-
-        logger.info("Required roles: " + requiredRoles);
 
         Set<String> userRoles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
-
-        logger.info("User roles: " + userRoles);
 
         // Check if userRoles contains any of the requiredRoles
         if (Collections.disjoint(userRoles, requiredRoles)) {
