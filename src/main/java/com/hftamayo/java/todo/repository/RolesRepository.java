@@ -1,0 +1,17 @@
+package com.hftamayo.java.todo.repository;
+
+import com.hftamayo.java.todo.model.ERole;
+import com.hftamayo.java.todo.model.Roles;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface RolesRepository extends JpaRepository<Roles, Long> {
+
+    @Override
+    List<Roles> findAll();
+    Optional<Roles> findByRoleEnum(ERole roleEnum);
+}

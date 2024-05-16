@@ -46,4 +46,5 @@ Please refer to the Issues section in this repository
 - official mysql docker documentation: https://hub.docker.com/_/mysql/
 - [JWT Implementation](https://www.javaguides.net/2023/05/spring-boot-spring-security-jwt-mysql.html)
 - [Data seeding](https://studygyaan.com/spring-boot/provide-initial-default-data-for-models-in-spring-boot) 
-- [Data sseding 2](https://www.javadevjournal.com/spring-boot/loading-initial-data-with-spring-boot/)
+- [Data seeding 2](https://www.javadevjournal.com/spring-boot/loading-initial-data-with-spring-boot/)
+- [JWT Implementation v2](https://github.com/bezkoder/spring-boot-login-example/blob/master/src/main/java/com/bezkoder/spring/login/security/WebSecurityConfig.java)
