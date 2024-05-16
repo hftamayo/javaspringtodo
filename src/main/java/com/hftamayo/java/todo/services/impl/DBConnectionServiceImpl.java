@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.stream.IntStream;
 
 @Service
 public class DBConnectionServiceImpl implements DBConnectionService, ApplicationRunner {
@@ -26,12 +27,9 @@ public class DBConnectionServiceImpl implements DBConnectionService, Application
 
     @Override
     public void checkDatabaseConnectionOnStartup() {
-        for (int i = 0; i < 3; i++) {
-            if (checkDatabaseConnection()) {
-                isDatabaseOnline = true;
-                break;
-            }
-        }
+        isDatabaseOnline = IntStream.range(0, 3)
+                .anyMatch(i -> checkDatabaseConnection());
+
         if (!isDatabaseOnline) {
             // Notify user and stop application
             System.out.println("Unable to establish database connection. Application will stop.");
