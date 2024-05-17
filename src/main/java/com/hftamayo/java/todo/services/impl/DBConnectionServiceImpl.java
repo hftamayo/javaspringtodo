@@ -4,6 +4,8 @@ import com.hftamayo.java.todo.services.DBConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.sql.SQLException;
 import java.util.stream.IntStream;
 
 @Service
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DBConnectionServiceImpl implements DBConnectionService, ApplicationRunner {
 
     @Autowired
@@ -23,6 +26,11 @@ public class DBConnectionServiceImpl implements DBConnectionService, Application
     @Override
     public void run(ApplicationArguments args) throws Exception {
         checkDatabaseConnectionOnStartup();
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     @Override
