@@ -76,3 +76,4 @@ src/main/resources/*.properties
 
 .env
 dockerinit/*sql
+.dockerignore
