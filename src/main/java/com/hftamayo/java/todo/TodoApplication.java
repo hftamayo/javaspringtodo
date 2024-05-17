@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.services.DBConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
@@ -17,6 +18,8 @@ public class TodoApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(TodoApplication.class, args);
+        ApplicationContext context = SpringApplication.run(TodoApplication.class, args);
+        DBConnectionService dbConnectionService = context.getBean(DBConnectionService.class);
+        dbConnectionService.checkDatabaseConnectionOnStartup();
     }
 }
