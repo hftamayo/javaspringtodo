@@ -21,7 +21,10 @@ VOLUME /tmp
 ARG JAR_FILE=/workspace/app/target/*.jar
 COPY --from=build ${JAR_FILE} jsbtodo.jar
 WORKDIR /workspace/app
-ENTRYPOINT ["java","-jar","/jsbtodo.jar"]
+#HEALTHCHECK --interval=5s \
+#            --timeout=3s \
+#            CMD curl -f http://localhost:8080/actuator/health || exit 1
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/jsbtodo.jar"]
 
 #how to run this file:
 #docker buildx build --platform linux/amd64,linux/arm64 -t myimage:latest .
