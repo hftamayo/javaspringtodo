@@ -18,9 +18,9 @@ RUN ./mvnw clean package -DskipTests
 # Stage 2: Run the application
 FROM eclipse-temurin:17
 VOLUME /tmp
+WORKDIR /workspace/app
 ARG JAR_FILE=/workspace/app/target/*.jar
 COPY --from=build ${JAR_FILE} jsbtodo.jar
-WORKDIR /workspace/app
 CMD java \
     -Dspring.config.location=/resources/application-docker.properties \
     -Djava.security.egd=file:/dev/./urandom \
