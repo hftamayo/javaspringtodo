@@ -7,24 +7,22 @@ import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.services.RolesService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class RolesServiceImpl implements RolesService {
     private final RolesRepository rolesRepository;
 
-    public RolesServiceImpl(RolesRepository rolesRepository) {
-        this.rolesRepository = rolesRepository;
-    }
-
-    public List<Roles> getRoles(){
+    public List<Roles> getRoles() {
         return rolesRepository.findAll();
     }
 
-    public Optional<Roles> getRoleByEnum(String roleEnum){
+    public Optional<Roles> getRoleByEnum(String roleEnum) {
         ERole eRole = ERole.valueOf(roleEnum);
         return rolesRepository.findByRoleEnum(eRole);
     }
@@ -32,7 +30,7 @@ public class RolesServiceImpl implements RolesService {
     @Override
     public Roles saveRole(Roles newRole) {
         Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum());
-        if(requestedRole == null){
+        if (requestedRole == null) {
             return rolesRepository.save(newRole);
         } else {
             throw new RuntimeException("Role already exists");
@@ -42,7 +40,7 @@ public class RolesServiceImpl implements RolesService {
     @Override
     public Roles updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
-        if(requestedRoleOptional.isPresent()){
+        if (requestedRoleOptional.isPresent()) {
             Roles requestedRole = requestedRoleOptional.get();
             requestedRole.setRoleEnum(updatedRole.getRoleEnum());
             requestedRole.setDescription(updatedRole.getDescription());
@@ -56,7 +54,7 @@ public class RolesServiceImpl implements RolesService {
     @Override
     public void deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
-        if(requestedRoleOptional.isPresent()){
+        if (requestedRoleOptional.isPresent()) {
             rolesRepository.delete(requestedRoleOptional.get());
         } else {
             throw new RuntimeException("Role not found");
@@ -65,7 +63,7 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public void addRoleToUser(User user, String roleEnum){
+    public void addRoleToUser(User user, String roleEnum) {
         Optional<Roles> roleOptional = getRoleByEnum(roleEnum);
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
