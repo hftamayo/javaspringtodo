@@ -36,11 +36,11 @@ public class Roles {
 
     @Column
     @CreatedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
     @LastModifiedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 }
