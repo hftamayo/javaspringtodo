@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     Optional<Task> findById(long taskId);
 
-    Task findByTitle(String title);
+    Optional<Task> findByTitle(String title);
     long countAllByStatus(boolean isActive);
 
 
