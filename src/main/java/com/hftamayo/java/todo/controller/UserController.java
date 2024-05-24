@@ -7,6 +7,7 @@ import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/supervisor")
 public class UserController {
     private final UserService userService;
     private final RolesService roleService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    public UserController(UserService userService, RolesService roleService) {
-        this.userService = userService;
-        this.roleService = roleService;
-    }
 
     @GetMapping(value = "/users/allusers")
     @ResponseStatus(HttpStatus.OK)
