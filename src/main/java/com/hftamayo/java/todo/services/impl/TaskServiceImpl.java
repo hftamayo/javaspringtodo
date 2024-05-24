@@ -3,17 +3,17 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.model.Task;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.services.TaskService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-
-    public TaskServiceImpl(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-    }
 
     public List<Task> getTasks(){
         return taskRepository.findAll();
@@ -25,11 +25,6 @@ public class TaskServiceImpl implements TaskService {
 
     public long countAllTaskByStatus(boolean taskStatus){
         return taskRepository.countAllByStatus(taskStatus);
-    }
-
-    public Task getTaskById(long taskId){
-        return taskRepository.findById(taskId).get();
-        //return todoRepository.findById(taskId).orElseThrow(EntityNotFoundException::new);
     }
 
     public Task getTaskByTitle(String taskTitle){
@@ -57,11 +52,12 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Transactional
     @Override
-    public void deleteTask(long id) {
-        boolean recordExists = this.taskRepository.existsById(id);
-        if(recordExists){
-            taskRepository.deleteById(id);
+    public void deleteTask(long taskId) {
+        Optional<Task> requestedTask = taskRepository.findById(taskId);
+        if(requestedTask.isPresent()){
+            taskRepository.deleteById(requestedTask.get().getId());
         } else {
             throw new RuntimeException("Task does not exist");
         }
