@@ -34,8 +34,8 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @Override
     public Task saveTask(Task task){
-        Task requestedTask = taskRepository.findByTitle(task.getTitle());
-        if(requestedTask != null && requestedTask.getId()>0){
+        Optional<Task> requestedTask = taskRepository.findByTitle(task.getTitle());
+        if(requestedTask.isPresent()){
             throw new RuntimeException("Title already exists");
         }
         return taskRepository.save(task);
