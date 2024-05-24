@@ -3,11 +3,11 @@ package com.hftamayo.java.todo.services;
 import com.hftamayo.java.todo.model.Task;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskService {
     List<Task> getTasks();
     List<Task> getAllTasksByStatus(boolean isActive);
-    Task getTaskById(long taskId);
     Task getTaskByTitle(String title);
     long countAllTaskByStatus(boolean isActive);
 
