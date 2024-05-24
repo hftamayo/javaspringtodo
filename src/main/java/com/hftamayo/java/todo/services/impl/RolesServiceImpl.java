@@ -27,6 +27,7 @@ public class RolesServiceImpl implements RolesService {
         return rolesRepository.findByRoleEnum(eRole);
     }
 
+    @Transactional
     @Override
     public Roles saveRole(Roles newRole) {
         Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum());
@@ -37,6 +38,7 @@ public class RolesServiceImpl implements RolesService {
         }
     }
 
+    @Transactional
     @Override
     public Roles updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
@@ -51,6 +53,7 @@ public class RolesServiceImpl implements RolesService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);

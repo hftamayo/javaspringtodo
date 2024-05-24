@@ -31,6 +31,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findByTitle(taskTitle);
     }
 
+    @Transactional
     @Override
     public Task saveTask(Task task){
         Task requestedTask = taskRepository.findByTitle(task.getTitle());
@@ -40,6 +41,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.save(task);
     }
 
+    @Transactional
     @Override
     public Task updateTask(long taskId, Task task) {
         Task requestedTask = taskRepository.findById(taskId).get();
