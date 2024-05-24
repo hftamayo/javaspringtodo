@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -31,7 +32,7 @@ public class TaskController {
 
     @GetMapping(value = "/gettaskbytitle/{taskTitle}")
     @ResponseStatus(HttpStatus.OK)
-    public Task getTaskByTitle(@PathVariable String taskTitle) {
+    public Optional<Task> getTaskByTitle(@PathVariable String taskTitle) {
         return taskService.getTaskByTitle(taskTitle);
     }
 
