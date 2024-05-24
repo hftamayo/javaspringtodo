@@ -19,6 +19,10 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findAll();
     }
 
+    public Optional<Task> getTaskById(long taskId){
+        return taskRepository.findById(taskId);
+    }
+
     public List<Task> getAllTasksByStatus(boolean taskStatus){
         return taskRepository.findAllByStatus(taskStatus);
     }
@@ -58,7 +62,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @Override
     public void deleteTask(long taskId) {
-        Optional<Task> requestedTask = taskRepository.findById(taskId);
+        Optional<Task> requestedTask = getTaskById(taskId);
         if(requestedTask.isPresent()){
             taskRepository.deleteById(requestedTask.get().getId());
         } else {
