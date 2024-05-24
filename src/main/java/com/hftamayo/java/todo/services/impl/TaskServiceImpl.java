@@ -44,11 +44,12 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @Override
     public Task updateTask(long taskId, Task task) {
-        Task requestedTask = taskRepository.findById(taskId).get();
-        if(requestedTask != null){
-            requestedTask.setTitle(task.getTitle());
-            requestedTask.setDescription(task.getDescription());
-            return taskRepository.save(requestedTask);
+        Optional<Task> requestedTask = taskRepository.findById(taskId);
+        if(requestedTask.isPresent(){
+            Task updateTask = requestedTask.get();
+            updateTask.setTitle(task.getTitle());
+            updateTask.setDescription(task.getDescription());
+            return taskRepository.save(updateTask);
         } else {
             throw new RuntimeException("Task does not exist");
         }
