@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface TaskService {
     List<Task> getTasks();
     List<Task> getAllTasksByStatus(boolean isActive);
-    Task getTaskByTitle(String title);
+    Optional<Task> getTaskByTitle(String title);
     long countAllTaskByStatus(boolean isActive);
 
     Task saveTask(Task newTask);
