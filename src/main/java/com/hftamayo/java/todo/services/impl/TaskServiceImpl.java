@@ -27,7 +27,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.countAllByStatus(taskStatus);
     }
 
-    public Task getTaskByTitle(String taskTitle){
+    public Optional<Task> getTaskByTitle(String taskTitle){
         return taskRepository.findByTitle(taskTitle);
     }
 
@@ -45,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task updateTask(long taskId, Task task) {
         Optional<Task> requestedTask = taskRepository.findById(taskId);
-        if(requestedTask.isPresent(){
+        if(requestedTask.isPresent()){
             Task updateTask = requestedTask.get();
             updateTask.setTitle(task.getTitle());
             updateTask.setDescription(task.getDescription());
