@@ -18,64 +18,65 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/supervisor")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
     private final RolesService roleService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping(value = "/users/allusers")
+    @GetMapping(value = "/supervisor/allusers")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/users/getuserbyid/{userId}")
+    @GetMapping(value = "/supervisor/getuserbyid/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUser(@PathVariable long userId) {
+    public Optional<User> getUser(@PathVariable long userId) {
         return userService.getUserById(userId);
     }
 
-    @GetMapping(value = "/users/getuserbyusername/{username}")
+    @GetMapping(value = "/supervisor/getuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByUsername(@PathVariable String username) {
         return userService.getUserByUsername(username);
     }
 
-    @GetMapping(value = "/users/getuserbyemail/{email}")
+    @GetMapping(value = "/supervisor/getuserbyemail/{email}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email);
     }
 
-    @GetMapping(value = "/users/getuserbyusernameandpassword/{username}/{password}")
+    @GetMapping(value = "/supervisor/getuserbyusernameandpassword/{username}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public User getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
         return userService.getUserByUsernameAndPassword(username, password);
     }
 
-    @GetMapping(value = "/users/getuserbyemailandpassword/{email}/{password}")
+    @GetMapping(value = "/supervisor/getuserbyemailandpassword/{email}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public User getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
         return userService.getUserByEmailAndPassword(email, password);
     }
 
-    @GetMapping(value = "/users/countuserbyusername/{username}")
+    @GetMapping(value = "/supervisor/countuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
     public long countUserByUsername(@PathVariable String username) {
         return userService.countAllUserByUsername(username);
     }
 
-    @GetMapping(value = "/users/countuserbyemail/{email}")
+    @GetMapping(value = "/supervisor/countuserbyemail/{email}")
     @ResponseStatus(HttpStatus.OK)
     public long countUserByEmail(@PathVariable String email) {
         return userService.countAllUserByEmail(email);
     }
 
-    @PostMapping(value = "/users/saveuser")
+    @PostMapping(value = "/supervisor/saveuser")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterUserResponseDto saveUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
@@ -102,12 +103,11 @@ public class UserController {
         }
     }
 
-    @PatchMapping(value = "/users/updatestatus/{userId}")
+
+    @PatchMapping(value = "/supervisor/updatestatus/{userId}")
     public ResponseEntity<User> updateUserStatus(@PathVariable long userId, @RequestParam boolean status) {
         try {
-            User user = userService.getUserById(userId);
-            user.setStatus(status);
-            User updatedUser = userService.updateUser(userId, user);
+            User updatedUser = userService.updateUserStatus(userId, status);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -116,18 +116,17 @@ public class UserController {
         }
     }
 
-    @PatchMapping(value = "/users/activateuser/{userId}")
+    @PatchMapping(value = "/supervisor/activateuser/{userId}")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
                                                         @RequestBody Map<String, Object> updates) {
         try {
-            User user = userService.getUserById(userId);
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
 
-            userService.updateUserStatus(user, status);
-            roleService.addRoleToUser(user, roleEnum);
+            userService.updateUserStatus(userId, status);
+            roleService.addRoleToUser(userId, roleEnum);
 
-            User updatedUser = userService.updateUser(userId, user);
+            //User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -137,7 +136,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping(value = "/users/deleteuser/{userId}")
+    @DeleteMapping(value = "/admin/deleteuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteUser(@PathVariable long userId) {
         try {

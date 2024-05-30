@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface UserService {
     List<User> getUsers();
     List<User> getAllUsersByStatus(boolean isActive);
-    User getUserById(long userId);
+    Optional<User> getUserById(long userId);
     Optional<User> getUserByUsername(String username);
     Optional<User> getUserByEmail(String email);
     User getUserByUsernameAndPassword(String username, String password);
@@ -18,6 +18,7 @@ public interface UserService {
 
     User saveUser(User newUser);
     User updateUser(long userId, User updatedUser);
+    User updateUserStatus(long userId, boolean status);
     void deleteUser(long userId);
-    void updateUserStatus(User user, boolean status);
+
 }
