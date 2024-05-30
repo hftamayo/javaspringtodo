@@ -27,11 +27,15 @@ public class RolesServiceImpl implements RolesService {
         return rolesRepository.findByRoleEnum(eRole);
     }
 
+    public Optional<Roles> getRoleById(long roleId) {
+        return rolesRepository.findById(roleId);
+    }
+
     @Transactional
     @Override
     public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = rolesRepository.findByRoleEnum(newRole.getRoleEnum());
-        if (requestedRole == null) {
+        Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum().toString());
+        if (!requestedRole.isPresent()) {
             return rolesRepository.save(newRole);
         } else {
             throw new RuntimeException("Role already exists");
@@ -41,7 +45,7 @@ public class RolesServiceImpl implements RolesService {
     @Transactional
     @Override
     public Roles updateRole(long roleId, Roles updatedRole) {
-        Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
+        Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             Roles requestedRole = requestedRoleOptional.get();
             requestedRole.setRoleEnum(updatedRole.getRoleEnum());
@@ -56,7 +60,7 @@ public class RolesServiceImpl implements RolesService {
     @Transactional
     @Override
     public void deleteRole(long roleId) {
-        Optional<Roles> requestedRoleOptional = rolesRepository.findById(roleId);
+        Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             rolesRepository.delete(requestedRoleOptional.get());
         } else {
