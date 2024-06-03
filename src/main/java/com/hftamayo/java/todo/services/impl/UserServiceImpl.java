@@ -29,8 +29,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAllByStatus(isActive);
     }
 
-    public User getUserById(long userId) {
-        return userRepository.findById(userId).get();
+    public Optional<User> getUserById(long userId) {
+        return userRepository.findById(userId);
     }
 
     public Optional<User> getUserByUsername(String username) {
@@ -73,8 +73,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User updateUser(long userId, User updatedUser) {
-        User requestedUser = userRepository.findById(userId).get();
-        if (requestedUser != null) {
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            User requestedUser = requestedUserOptional.get();
             requestedUser.setName(updatedUser.getName());
             requestedUser.setEmail(updatedUser.getEmail());
             requestedUser.setPassword(updatedUser.getPassword());
@@ -100,8 +101,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void updateUserStatus(User user, boolean status) {
-        user.setStatus(status);
+    public User updateUserStatus(long userId, boolean status) {
+        User requestedUser = userRepository.findById(userId).get();
+        if (requestedUser != null) {
+            requestedUser.setStatus(status);
+            return userRepository.save(requestedUser);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+
+
     }
 
 }
