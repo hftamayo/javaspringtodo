@@ -2,10 +2,8 @@ package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.services.RolesService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,13 +66,4 @@ public class RolesServiceImpl implements RolesService {
         }
     }
 
-    @Transactional
-    @Override
-    public void addRoleToUser(User user, String roleEnum) {
-        Optional<Roles> roleOptional = getRoleByEnum(roleEnum);
-        if (!roleOptional.isPresent()) {
-            throw new EntityNotFoundException("Role not found");
-        }
-        user.getRoles().add(roleOptional.get());
-    }
 }

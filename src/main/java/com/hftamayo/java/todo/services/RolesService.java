@@ -13,5 +13,4 @@ public interface RolesService {
     Roles saveRole(Roles newRole);
     Roles updateRole(long roleId, Roles updatedRole);
     void deleteRole(long roleId);
-    void addRoleToUser(User user, String roleEnum);
 }
