@@ -91,9 +91,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(long userId) {
-        boolean userExists = userRepository.existsById(userId);
-        if (userExists) {
-            userRepository.deleteById(userId);
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            userRepository.deleteById(requestedUserOptional.get().getId());
         } else {
             throw new RuntimeException("User not found");
         }
@@ -102,8 +102,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User updateUserStatus(long userId, boolean status) {
-        User requestedUser = userRepository.findById(userId).get();
-        if (requestedUser != null) {
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            User requestedUser = requestedUserOptional.get();
             requestedUser.setStatus(status);
             return userRepository.save(requestedUser);
         } else {
