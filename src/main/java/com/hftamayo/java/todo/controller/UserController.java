@@ -124,7 +124,7 @@ public class UserController {
             String roleEnum = (String) updates.get("role");
 
             userService.updateUserStatus(userId, status);
-            roleService.addRoleToUser(userId, roleEnum);
+            userService.updateUserRole(userId, roleEnum);
 
             //User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
