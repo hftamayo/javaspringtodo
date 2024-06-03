@@ -110,8 +110,17 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new RuntimeException("User not found");
         }
+    }
 
-
+    @Transactional
+    @Override
+    public User updateUserRole(User user, String roleEnum) {
+        Optional<Roles> roleOptional = roleService.getRoleByEnum(roleEnum);
+        if (!roleOptional.isPresent()) {
+            throw new EntityNotFoundException("Role not found");
+        }
+        user.getRoles().add(roleOptional.get());
+        return userRepository.save(user);
     }
 
 }
