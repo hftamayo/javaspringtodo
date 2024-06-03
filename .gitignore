@@ -75,5 +75,5 @@ enviro.properties
 src/main/resources/*.properties
 
 .env
-dockerinit/*sql
+dockerfiles/datalayer/datalayerschema.sql
 .dockerignore
