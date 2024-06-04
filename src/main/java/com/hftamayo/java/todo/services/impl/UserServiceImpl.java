@@ -3,7 +3,9 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
+import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,14 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final RolesService roleService;
 
     public List<User> getUsers() {
         return userRepository.findAll();
@@ -114,12 +114,20 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUserRole(User user, String roleEnum) {
+    public User updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (!requestedUserOptional.isPresent()) {
+            throw new EntityNotFoundException("User not found");
+        }
+        User user = requestedUserOptional.get();
+        user.setStatus(status);
+
         Optional<Roles> roleOptional = roleService.getRoleByEnum(roleEnum);
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
         }
         user.getRoles().add(roleOptional.get());
+
         return userRepository.save(user);
     }
 }
