@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.repository.RolesRepository;
@@ -37,7 +38,7 @@ public class RolesServiceImpl implements RolesService {
         if (!requestedRole.isPresent()) {
             return rolesRepository.save(newRole);
         } else {
-            throw new RuntimeException("Role already exists");
+            throw new EntityAlreadyExistsException("Role already exists");
         }
     }
 

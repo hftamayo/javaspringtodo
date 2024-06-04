@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.services.TaskService;
@@ -41,7 +42,7 @@ public class TaskServiceImpl implements TaskService {
     public Task saveTask(Task task){
         Optional<Task> requestedTask = taskRepository.findByTitle(task.getTitle());
         if(requestedTask.isPresent()){
-            throw new RuntimeException("Title already exists");
+            throw new EntityAlreadyExistsException("Title already exists");
         }
         return taskRepository.save(task);
     }
