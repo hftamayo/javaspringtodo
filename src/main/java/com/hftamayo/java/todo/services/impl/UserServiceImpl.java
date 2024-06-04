@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
+import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             return userRepository.save(newUser);
         } else {
-            throw new EntityNotFoundException("The email is already registered by this user: " +
+            throw new EntityAlreadyExistsException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
         }
     }
