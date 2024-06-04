@@ -123,10 +123,8 @@ public class UserController {
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
 
-            userService.updateUserStatus(userId, status);
-            userService.updateUserRole(userId, roleEnum);
+            User updatedUser = userService.updateUserStatusAndRole(userId, status, roleEnum);
 
-            //User updatedUser = userService.updateUser(userId, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
