@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             return userRepository.save(newUser);
         } else {
-            throw new RuntimeException("The email is already registered by this user: " +
+            throw new EntityNotFoundException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
         }
     }
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
             requestedUser.setStatus(updatedUser.isStatus());
             return userRepository.save(requestedUser);
         } else {
-            throw new RuntimeException("User not found");
+            throw new EntityNotFoundException("User not found");
         }
     }
 
@@ -95,7 +96,7 @@ public class UserServiceImpl implements UserService {
         if (requestedUserOptional.isPresent()) {
             userRepository.deleteById(requestedUserOptional.get().getId());
         } else {
-            throw new RuntimeException("User not found");
+            throw new EntityNotFoundException("User not found");
         }
     }
 
@@ -108,7 +109,7 @@ public class UserServiceImpl implements UserService {
             requestedUser.setStatus(status);
             return userRepository.save(requestedUser);
         } else {
-            throw new RuntimeException("User not found");
+            throw new EntityNotFoundException("User not found");
         }
     }
 
