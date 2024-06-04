@@ -7,6 +7,7 @@ import com.hftamayo.java.todo.services.RolesService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class RolesServiceImpl implements RolesService {
             requestedRole.setStatus(updatedRole.isStatus());
             return rolesRepository.save(requestedRole);
         } else {
-            throw new RuntimeException("Role not found");
+            throw new EntityNotFoundException("Role not found");
         }
     }
 
@@ -62,7 +63,7 @@ public class RolesServiceImpl implements RolesService {
         if (requestedRoleOptional.isPresent()) {
             rolesRepository.delete(requestedRoleOptional.get());
         } else {
-            throw new RuntimeException("Role not found");
+            throw new EntityNotFoundException("Role not found");
         }
     }
 
