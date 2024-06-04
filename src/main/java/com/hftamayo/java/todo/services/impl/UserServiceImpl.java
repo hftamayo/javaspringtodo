@@ -122,5 +122,4 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(roleOptional.get());
         return userRepository.save(user);
     }
-
 }

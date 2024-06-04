@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,6 @@ public interface UserService {
     User updateUserStatus(long userId, boolean status);
     void deleteUser(long userId);
 
-    User updateUserRole(long userId, String roleEnum);
+    User updateUserRole(User user, String roleEnum);
 
 }
