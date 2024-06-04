@@ -6,6 +6,7 @@ import com.hftamayo.java.todo.services.TaskService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
             updateTask.setDescription(task.getDescription());
             return taskRepository.save(updateTask);
         } else {
-            throw new RuntimeException("Task does not exist");
+            throw new EntityNotFoundException("Task does not exist");
         }
     }
 
@@ -66,7 +67,7 @@ public class TaskServiceImpl implements TaskService {
         if(requestedTask.isPresent()){
             taskRepository.deleteById(requestedTask.get().getId());
         } else {
-            throw new RuntimeException("Task does not exist");
+            throw new EntityNotFoundException("Task does not exist");
         }
     }
     
