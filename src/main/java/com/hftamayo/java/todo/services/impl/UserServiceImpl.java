@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.repository.UserRepository;
@@ -70,6 +71,13 @@ public class UserServiceImpl implements UserService {
             throw new EntityAlreadyExistsException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
         }
+    }
+
+    @Override
+    public RegisterUserResponseDto userToDto(User user) {
+        return new RegisterUserResponseDto(user.getId(),
+                user.getName(), user.getEmail(),
+                user.getAge(), user.isAdmin(), user.isStatus());
     }
 
     @Transactional
