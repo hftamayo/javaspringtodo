@@ -2,7 +2,6 @@ package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-    private final RolesService roleService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping(value = "/supervisor/allusers")
@@ -76,15 +74,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterUserResponseDto saveUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
-        RegisterUserResponseDto registerUserResponseDto = new RegisterUserResponseDto();
-        registerUserResponseDto.setId(savedUser.getId());
-        registerUserResponseDto.setName(savedUser.getName());
-        registerUserResponseDto.setEmail(savedUser.getEmail());
-        registerUserResponseDto.setAge(savedUser.getAge());
-        registerUserResponseDto.setAdmin(savedUser.isAdmin());
-        registerUserResponseDto.setStatus(savedUser.isStatus());
-
-        return registerUserResponseDto;
+        return userService.userToDto(savedUser);
     }
 
     @PutMapping(value = "/users/updateuser/{userId}")
