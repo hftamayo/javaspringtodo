@@ -49,15 +49,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterUserResponseDto saveUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
-        RegisterUserResponseDto registerUserResponseDto = new RegisterUserResponseDto();
-        registerUserResponseDto.setId(savedUser.getId());
-        registerUserResponseDto.setName(savedUser.getName());
-        registerUserResponseDto.setEmail(savedUser.getEmail());
-        registerUserResponseDto.setAge(savedUser.getAge());
-        registerUserResponseDto.setAdmin(savedUser.isAdmin());
-        registerUserResponseDto.setStatus(savedUser.isStatus());
-
-        return registerUserResponseDto;
+        return userService.userToDto(savedUser);
     }
 
     @PostMapping("/logout")
