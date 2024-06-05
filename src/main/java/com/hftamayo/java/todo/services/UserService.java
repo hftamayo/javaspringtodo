@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services;
 
+import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +19,12 @@ public interface UserService {
     long countAllUserByEmail(String email);
 
     User saveUser(User newUser);
+    RegisterUserResponseDto userToDto(User user);
     User updateUser(long userId, User updatedUser);
     User updateUserStatus(long userId, boolean status);
     void deleteUser(long userId);
 
     User updateUserStatusAndRole(long userId, boolean status, String roleEnum);
+
 
 }
