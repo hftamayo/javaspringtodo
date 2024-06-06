@@ -50,7 +50,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @Override
     public Task updateTask(long taskId, Task task) {
-        Optional<Task> requestedTask = taskRepository.findById(taskId);
+        Optional<Task> requestedTask = getTaskById(taskId);
         if(requestedTask.isPresent()){
             Task updateTask = requestedTask.get();
             updateTask.setTitle(task.getTitle());

@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         List<String> roles = user.getRoles().stream()
-                .map(role ->  role.getRoleEnum().toString())
+                .map(role -> role.getRoleEnum().toString())
                 .collect(Collectors.toList());
 
         String username = user.getUsername();
