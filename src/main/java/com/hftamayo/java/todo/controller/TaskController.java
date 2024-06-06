@@ -57,8 +57,14 @@ public class TaskController {
 
     @PutMapping(value = "/updatetask/{taskId}")
     public ResponseEntity<Task> updateTask(@PathVariable long taskId, @RequestBody Task task) {
+        try{
         Task updatedTask = taskService.updateTask(taskId, task);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+        } catch (EntityNotFoundException enf) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping(value = "/deletetask/{taskId}")
