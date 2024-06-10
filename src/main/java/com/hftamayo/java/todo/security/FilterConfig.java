@@ -70,8 +70,8 @@ public class FilterConfig {
                     logger.info("Session management configured");
                 })
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class)
                 .build();
     }
 
