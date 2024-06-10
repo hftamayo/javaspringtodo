@@ -45,7 +45,7 @@ public class FilterConfig {
                         authorizeRequests
                                 .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
                                 .requestMatchers("/api/health/**").hasAnyRole("SUPERVISOR", "ADMIN")
-                                .requestMatchers("/api/user/**").hasAnyRole("USER", "SUPERVISOR", "ADMIN")
+                                .requestMatchers("/api/users/manager/**").hasAnyRole("SUPERVISOR", "ADMIN")
                                 .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
