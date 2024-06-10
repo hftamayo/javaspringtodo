@@ -17,67 +17,67 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/users/manager")
 public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping(value = "/supervisor/allusers")
+    @GetMapping(value = "/allusers")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/supervisor/getuserbyid/{userId}")
+    @GetMapping(value = "/getuserbyid/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUser(@PathVariable long userId) {
         return userService.getUserById(userId);
     }
 
-    @GetMapping(value = "/supervisor/getuserbyusername/{username}")
+    @GetMapping(value = "/getuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByUsername(@PathVariable String username) {
         return userService.getUserByUsername(username);
     }
 
-    @GetMapping(value = "/supervisor/getuserbyemail/{email}")
+    @GetMapping(value = "/getuserbyemail/{email}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email);
     }
 
-    @GetMapping(value = "/supervisor/getuserbyusernameandpassword/{username}/{password}")
+    @GetMapping(value = "/getuserbyusernameandpassword/{username}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public User getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
         return userService.getUserByUsernameAndPassword(username, password);
     }
 
-    @GetMapping(value = "/supervisor/getuserbyemailandpassword/{email}/{password}")
+    @GetMapping(value = "/getuserbyemailandpassword/{email}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public User getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
         return userService.getUserByEmailAndPassword(email, password);
     }
 
-    @GetMapping(value = "/supervisor/countuserbyusername/{username}")
+    @GetMapping(value = "/countuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
     public long countUserByUsername(@PathVariable String username) {
         return userService.countAllUserByUsername(username);
     }
 
-    @GetMapping(value = "/supervisor/countuserbyemail/{email}")
+    @GetMapping(value = "/countuserbyemail/{email}")
     @ResponseStatus(HttpStatus.OK)
     public long countUserByEmail(@PathVariable String email) {
         return userService.countAllUserByEmail(email);
     }
 
-    @PostMapping(value = "/supervisor/saveuser")
+    @PostMapping(value = "/saveuser")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterUserResponseDto saveUser(@RequestBody User user) {
         User savedUser = userService.saveUser(user);
         return userService.userToDto(savedUser);
     }
 
-    @PutMapping(value = "/users/updateuser/{userId}")
+    @PutMapping(value = "/updateuser/{userId}")
     public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
             User updatedUser = userService.updateUser(userId, user);
@@ -90,7 +90,7 @@ public class UserController {
     }
 
 
-    @PatchMapping(value = "/supervisor/updatestatus/{userId}")
+    @PatchMapping(value = "/updatestatus/{userId}")
     public ResponseEntity<User> updateUserStatus(@PathVariable long userId, @RequestParam boolean status) {
         try {
             User updatedUser = userService.updateUserStatus(userId, status);
@@ -102,7 +102,7 @@ public class UserController {
         }
     }
 
-    @PatchMapping(value = "/supervisor/activateuser/{userId}")
+    @PatchMapping(value = "/activateuser/{userId}")
     public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
                                                         @RequestBody Map<String, Object> updates) {
         try {
