@@ -1,14 +1,15 @@
-package com.hftamayo.java.todo.Services;
+package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.Model.Task;
+import com.hftamayo.java.todo.model.Task;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface TodoService {
+public interface TaskService {
     List<Task> getTasks();
+    Optional<Task> getTaskById(long taskId);
     List<Task> getAllTasksByStatus(boolean isActive);
-    Task getTaskById(long taskId);
-    Task getTaskByTitle(String title);
+    Optional<Task> getTaskByTitle(String title);
     long countAllTaskByStatus(boolean isActive);
 
     Task saveTask(Task newTask);

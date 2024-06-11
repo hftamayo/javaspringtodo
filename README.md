@@ -39,9 +39,12 @@ This is a fully functional ToDo Application built on Kotlin for the Frontend and
 Please refer to the Issues section in this repository
 
 ## References ##
-https://www.bezkoder.com/docker-compose-spring-boot-mysql/
-https://stackoverflow.com/questions/76513868/mysql-docker-spring-boot-connection-issue-communications-link-failure
-https://stackoverflow.com/questions/42567475/docker-compose-check-if-mysql-connection-is-ready
-health check routine: https://www.appsloveworld.com/docker/100/78/docker-compose-healthcheck-mysql
-official mysql docker documentation: https://hub.docker.com/_/mysql/
-
+- https://www.bezkoder.com/docker-compose-spring-boot-mysql/
+- https://stackoverflow.com/questions/76513868/mysql-docker-spring-boot-connection-issue-communications-link-failure
+- https://stackoverflow.com/questions/42567475/docker-compose-check-if-mysql-connection-is-ready
+- health check routine: https://www.appsloveworld.com/docker/100/78/docker-compose-healthcheck-mysql
+- official mysql docker documentation: https://hub.docker.com/_/mysql/
+- [JWT Implementation](https://www.javaguides.net/2023/05/spring-boot-spring-security-jwt-mysql.html)
+- [Data seeding](https://studygyaan.com/spring-boot/provide-initial-default-data-for-models-in-spring-boot) 
+- [Data seeding 2](https://www.javadevjournal.com/spring-boot/loading-initial-data-with-spring-boot/)
+- [JWT Implementation v2](https://github.com/bezkoder/spring-boot-login-example/blob/master/src/main/java/com/bezkoder/spring/login/security/WebSecurityConfig.java)

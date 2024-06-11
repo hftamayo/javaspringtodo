@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   db:
-    container_name: jsbtodotest
+    container_name: jsbtododatatest
     image: mysql:8.1.0
     restart: on-failure
     #.env is expected as name and located in root folder
@@ -21,13 +21,13 @@ services:
     ports:
       - $MYSQL_LOCAL_PORT:$MYSQL_DOCKER_PORT
     volumes:
-      - jsbtodotestdata:/var/lib/mysql
+      - jsbtododatatestvol:/var/lib/mysql
         #- ./dockerinit/jsbtodoschema.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - jsbtodotestnetwork
+      - jsbtododatatestnetwork
 
 volumes:
-  jsbtodotestdata:
+  jsbtododatatestvol:
 
 networks:
-  jsbtodotestnetwork:
+  jsbtododatatestnetwork:

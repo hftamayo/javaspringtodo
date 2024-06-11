@@ -1,8 +1,10 @@
-package com.hftamayo.java.todo.Model;
+package com.hftamayo.java.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -29,15 +31,16 @@ public class Task {
     private String description;
 
     @Column
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    @CreatedDate
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
+    @LastModifiedDate
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
     @Column(name = "status")
-    @NonNull
     @Builder.Default
     private boolean status = true;
 
@@ -46,34 +49,24 @@ public class Task {
     private long taskOwner;
 
     @Column
-    @CreatedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
-    private LocalDateTime dateAdded;
-
-    @Column
     @CreatedBy
     User owner
-
-    @Column
-    @LastModifiedDate
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm", timezone = "America/El_Salvador")
-    private LocalDateTime dateUpdated;
 
     para el resto de softDelete ver: https://www.baeldung.com/spring-jpa-soft-delete
      */
 
-    @PrePersist
-    protected void onCreate(){
-        dateAdded = LocalDateTime.now();
-        dateUpdated = LocalDateTime.now();
-        //createdBy = LoggedUser.getId();
-    }
-
-    @PreUpdate
-    protected void onUpdate(){
-        dateUpdated = LocalDateTime.now();
-        //updatedBy = LoggedUser.getId();
-    }
+//    @PrePersist
+//    protected void onCreate(){
+//        dateAdded = LocalDateTime.now();
+//        dateUpdated = LocalDateTime.now();
+//        //createdBy = LoggedUser.getId();
+//    }
+//
+//    @PreUpdate
+//    protected void onUpdate(){
+//        dateUpdated = LocalDateTime.now();
+//        //updatedBy = LoggedUser.getId();
+//    }
 
     public long getDaysAdded(){
         return ChronoUnit.DAYS.between(this.getDateAdded(), LocalDateTime.now());

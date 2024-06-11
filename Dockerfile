@@ -1,19 +1,37 @@
-#################### MAVEN BUILD STAGE ####################
+# Stage 1: Build the application
+FROM eclipse-temurin:17 as build
+WORKDIR /workspace/app
 
-FROM maven:3.8.5-openjdk-17 AS build
-#directorio de trabajo dentro del contenedor
-#ENV APP_HOME = /opt/jsbtodo
-RUN mkdir -p /opt/jsbtodo; exit 0
+# Copy maven executable to the image
+COPY mvnw .
+COPY .mvn .mvn
 
-WORKDIR /opt/jsbtodo
-COPY src ./src
+# Copy the pom.xml file
 COPY pom.xml .
-RUN mvn clean package
 
-################# JDK RUN STAGE ################### 
-FROM openjdk:17
-WORKDIR /opt/jsbtodo
-COPY --from=build /opt/jsbtodo/target/todo-0.0.1-SNAPSHOT.jar ./todo001.jar
-ENTRYPOINT ["java", "-jar", "./todo001.jar"]
+# Copy the source code
+COPY src src
 
+# Build the application
+RUN ./mvnw clean package -DskipTests
 
+# Stage 2: Run the application
+FROM eclipse-temurin:17
+VOLUME /tmp
+WORKDIR /workspace/app
+ARG JAR_FILE=/workspace/app/target/*.jar
+COPY --from=build ${JAR_FILE} jsbtodo.jar
+#HEALTHCHECK --interval=5s \
+#            --timeout=3s \
+#            CMD curl -f http://localhost:8080/actuator/health || exit 1
+CMD java \
+    -Dspring.config.location=/resources/application-docker.properties \
+    -Djava.security.egd=file:/dev/./urandom \
+    -Dspring.profiles.active=docker \
+    -jar jsbtodo.jar
+
+#ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/jsbtodo.jar"]
+
+#how to run this file:
+#docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t myimage:latest .
+#docker run --name jsbtodo -p 8002:8002 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:experimental-0.0.1

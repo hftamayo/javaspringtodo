@@ -1,19 +1,24 @@
-package com.hftamayo.java.todo.Repository;
+package com.hftamayo.java.todo.repository;
 
-import com.hftamayo.java.todo.Model.Task;
+import com.hftamayo.java.todo.model.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface TodoRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Override
     List<Task> findAll();
     List <Task> findAllByStatus(boolean isActive);
-    Task findByTitle(String title);
+
+    Optional<Task> findById(long taskId);
+
+    Optional<Task> findByTitle(String title);
     long countAllByStatus(boolean isActive);
+
 
     //for next release
     // List<Task> findAllByOwner(long taskOwner);
