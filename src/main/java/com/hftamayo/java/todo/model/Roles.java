@@ -1,15 +1,17 @@
 package com.hftamayo.java.todo.model;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+
 
 @Data
 @AllArgsConstructor
@@ -35,12 +37,12 @@ public class Roles {
     private boolean status = true;
 
     @Column
-    @CreatedDate
+    @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @LastModifiedDate
+    @UpdateTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 }
