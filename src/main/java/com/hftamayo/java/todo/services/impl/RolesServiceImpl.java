@@ -1,12 +1,13 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dao.RolesDao;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.services.RolesService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -16,19 +17,20 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RolesServiceImpl implements RolesService {
-    private final RolesRepository rolesRepository;
+    @Autowired
+    private RolesDao rolesDao;
 
     public List<Roles> getRoles() {
-        return rolesRepository.findAll();
+        return rolesDao.getRoles();
     }
 
     public Optional<Roles> getRoleByEnum(String roleEnum) {
         ERole eRole = ERole.valueOf(roleEnum);
-        return rolesRepository.findByRoleEnum(eRole);
+        return rolesDao.getRoleByEnum(eRole.toString());
     }
 
     public Optional<Roles> getRoleById(long roleId) {
-        return rolesRepository.findById(roleId);
+        return rolesDao.findById(roleId);
     }
 
     @Transactional
@@ -36,7 +38,7 @@ public class RolesServiceImpl implements RolesService {
     public Roles saveRole(Roles newRole) {
         Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum().toString());
         if (!requestedRole.isPresent()) {
-            return rolesRepository.save(newRole);
+            return rolesDao.saveRole(newRole);
         } else {
             throw new EntityAlreadyExistsException("Role already exists");
         }
@@ -51,7 +53,7 @@ public class RolesServiceImpl implements RolesService {
             requestedRole.setRoleEnum(updatedRole.getRoleEnum());
             requestedRole.setDescription(updatedRole.getDescription());
             requestedRole.setStatus(updatedRole.isStatus());
-            return rolesRepository.save(requestedRole);
+            return rolesDao.saveRole(requestedRole);
         } else {
             throw new EntityNotFoundException("Role not found");
         }
@@ -62,7 +64,7 @@ public class RolesServiceImpl implements RolesService {
     public void deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
-            rolesRepository.delete(requestedRoleOptional.get());
+            rolesDao.deleteRole(requestedRoleOptional.get());
         } else {
             throw new EntityNotFoundException("Role not found");
         }
