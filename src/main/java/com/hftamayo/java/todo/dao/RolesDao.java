@@ -1,0 +1,71 @@
+package com.hftamayo.java.todo.dao;
+
+import com.hftamayo.java.todo.model.ERole;
+import com.hftamayo.java.todo.model.Roles;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class RolesDao {
+
+    @Autowired
+    public SessionFactory sessionFactory;
+
+    public List<Roles> getRoles() {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from Roles", Roles.class).list();
+        }
+    }
+
+    public Optional<Roles> getRoleByEnum(String roleEnum) {
+        try (Session session = sessionFactory.openSession()) {
+            ERole eRole = ERole.valueOf(roleEnum);
+            Roles role = session.createQuery("from Roles where roleEnum = :roleEnum", Roles.class)
+                    .setParameter("roleEnum", eRole)
+                    .uniqueResult();
+            return Optional.ofNullable(role);
+        }
+    }
+
+    public Optional<Roles> findById(long roleId) {
+        try (Session session = sessionFactory.openSession()) {
+            Roles role = session.get(Roles.class, roleId);
+            return Optional.ofNullable(role);
+        }
+    }
+
+    public void saveRole(Roles newRole) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.save(newRole);
+            session.getTransaction().commit();
+        }
+    }
+
+    public void updateRole(long roleId, Roles updatedRole) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Roles role = session.get(Roles.class, roleId);
+            role.setRoleEnum(updatedRole.getRoleEnum());
+            role.setDescription(updatedRole.getDescription());
+            role.setStatus(updatedRole.isStatus());
+            session.update(role);
+            session.getTransaction().commit();
+        }
+    }
+
+    public void deleteRole(long roleId) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Roles role = session.get(Roles.class, roleId);
+            session.delete(role);
+            session.getTransaction().commit();
+        }
+    }
+
+}
