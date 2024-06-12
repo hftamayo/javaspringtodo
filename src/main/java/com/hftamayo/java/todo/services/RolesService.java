@@ -1,7 +1,6 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
 
 import java.util.List;
 import java.util.Optional;
