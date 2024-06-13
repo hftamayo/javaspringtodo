@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 
-@Entity
+@Entity(name="Roles")
 @Table(schema = "roles")
 public class Roles {
     @Id
