@@ -53,7 +53,7 @@ public class RolesServiceImpl implements RolesService {
             requestedRole.setRoleEnum(updatedRole.getRoleEnum());
             requestedRole.setDescription(updatedRole.getDescription());
             requestedRole.setStatus(updatedRole.isStatus());
-            return rolesDao.saveRole(requestedRole);
+            return rolesDao.updateRole(roleId, requestedRole);
         } else {
             throw new EntityNotFoundException("Role not found");
         }
@@ -64,7 +64,7 @@ public class RolesServiceImpl implements RolesService {
     public void deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
-            rolesDao.deleteRole(requestedRoleOptional.get());
+            rolesDao.deleteRole(requestedRoleOptional.get().getId());
         } else {
             throw new EntityNotFoundException("Role not found");
         }
