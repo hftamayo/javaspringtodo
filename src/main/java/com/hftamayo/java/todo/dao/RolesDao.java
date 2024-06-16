@@ -39,15 +39,16 @@ public class RolesDao {
         }
     }
 
-    public void saveRole(Roles newRole) {
+    public Roles saveRole(Roles newRole) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             session.persist(newRole);
             session.getTransaction().commit();
         }
+        return newRole;
     }
 
-    public void updateRole(long roleId, Roles updatedRole) {
+    public Roles updateRole(long roleId, Roles updatedRole) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             Roles role = session.get(Roles.class, roleId);
@@ -57,6 +58,7 @@ public class RolesDao {
             session.merge(role);
             session.getTransaction().commit();
         }
+        return updatedRole;
     }
 
     public void deleteRole(long roleId) {
