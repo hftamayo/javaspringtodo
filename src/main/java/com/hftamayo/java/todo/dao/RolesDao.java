@@ -44,8 +44,8 @@ public class RolesDao {
             session.beginTransaction();
             session.persist(newRole);
             session.getTransaction().commit();
+            return newRole;
         }
-        return newRole;
     }
 
     public Roles updateRole(long roleId, Roles updatedRole) {
@@ -55,10 +55,10 @@ public class RolesDao {
             role.setRoleEnum(updatedRole.getRoleEnum());
             role.setDescription(updatedRole.getDescription());
             role.setStatus(updatedRole.isStatus());
-            session.merge(role);
+            Roles mergedRole = (Roles) session.merge(role);
             session.getTransaction().commit();
+            return mergedRole;
         }
-        return updatedRole;
     }
 
     public void deleteRole(long roleId) {
