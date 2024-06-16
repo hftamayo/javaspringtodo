@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @Data
@@ -45,4 +46,7 @@ public class Roles {
     @UpdateTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
 }
