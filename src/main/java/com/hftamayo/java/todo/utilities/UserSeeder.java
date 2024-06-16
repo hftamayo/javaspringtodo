@@ -1,10 +1,11 @@
 package com.hftamayo.java.todo.utilities;
 
+import com.hftamayo.java.todo.dao.RolesDao;
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -14,10 +15,11 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Component
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private final UserRepository userRepository;
-    private final RolesRepository rolesRepository;
+    private final RolesDao rolesDao;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${seed.development}")
@@ -29,13 +31,6 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private Roles adminRole;
     private Roles supervisorRole;
     private Roles userRole;
-
-    public UserSeeder(UserRepository userRepository, RolesRepository rolesRepository,
-                      PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.rolesRepository = rolesRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -66,13 +61,13 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private void setRoles() {
         System.out.println("Seeding roles started");
         userRole = new Roles(1, ERole.ROLE_USER, "User role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(userRole);
+        rolesDao.saveRole(userRole);
 
         supervisorRole = new Roles(2, ERole.ROLE_SUPERVISOR, "Supervisor role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(supervisorRole);
+        rolesDao.saveRole(supervisorRole);
 
         adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(adminRole);
+        rolesDao.saveRole(adminRole);
 
         System.out.println("Seeding roles completed");
 
