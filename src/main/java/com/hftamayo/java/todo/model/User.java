@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hftamayo.java.todo.security.interfaces.RoleGrantedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 
-@Entity
+@Entity(name = "User")
 @Table(schema = "users")
 public class User implements UserDetails {
 
@@ -60,12 +62,12 @@ public class User implements UserDetails {
     private boolean status = false;
 
     @Column
-    @CreatedDate
+    @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @LastModifiedDate
+    @UpdateTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
