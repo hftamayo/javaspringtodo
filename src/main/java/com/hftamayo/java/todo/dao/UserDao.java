@@ -1,0 +1,159 @@
+package com.hftamayo.java.todo.dao;
+
+import com.hftamayo.java.todo.model.User;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public class UserDao {
+
+    @Autowired
+    public SessionFactory sessionFactory;
+
+    public List<User> getUsers() {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User", User.class).list();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User getUserById(long userId) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(User.class, userId);
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User getUserByEmail(String useremail) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_email = :useremail", User.class)
+                    .setParameter("useremail", useremail)
+                    .uniqueResult();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User getUserByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_name = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User getUserByUsernameAndPassword(String username, String password) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_name = :username and user_password = :password", User.class)
+                    .setParameter("username", username)
+                    .setParameter("password", password)
+                    .uniqueResult();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User getUserByEmailAndPassword(String email, String password) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_email = :email and user_password = :password", User.class)
+                    .setParameter("email", email)
+                    .setParameter("password", password)
+                    .uniqueResult();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public boolean existsByName(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_name = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResult() != null;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public long countAllByName(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_name = :username", User.class)
+                    .setParameter("username", username)
+                    .list().size();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public long countAllByEmail(String email) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from User where user_email = :email", User.class)
+                    .setParameter("email", email)
+                    .list().size();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User saveUser(User newUser) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.persist(newUser);
+            session.getTransaction().commit();
+            return newUser;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User updateUser(long userId, User updatedUser) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            User user = session.get(User.class, userId);
+            user.setUserName(updatedUser.getUserName());
+            user.setUserEmail(updatedUser.getUserEmail());
+            user.setUserPassword(updatedUser.getUserPassword());
+            user.setUserAge(updatedUser.getUserAge());
+            user.setUserStatus(updatedUser.isUserStatus());
+            user.setUserRole(updatedUser.getUserRole());
+            User mergedUser = (User) session.merge(user);
+            session.getTransaction().commit();
+            return mergedUser;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public void deleteUser(long userId) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            User user = session.get(User.class, userId);
+            session.remove(user);
+            session.getTransaction().commit();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+
+    public User updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            User user = session.get(User.class, userId);
+            user.setUserStatus(status);
+            user.setUserRole(roleEnum);
+            User mergedUser = (User) session.merge(user);
+            session.getTransaction().commit();
+            return mergedUser;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving user", he);
+        }
+    }
+}
