@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.dao;
 
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class RolesDao {
     public List<Roles> getRoles() {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from Roles", Roles.class).list();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
@@ -29,6 +32,8 @@ public class RolesDao {
                     .setParameter("roleEnum", eRole)
                     .uniqueResult();
             return Optional.ofNullable(role);
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
@@ -36,6 +41,8 @@ public class RolesDao {
         try (Session session = sessionFactory.openSession()) {
             Roles role = session.get(Roles.class, roleId);
             return Optional.ofNullable(role);
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
@@ -45,6 +52,8 @@ public class RolesDao {
             session.persist(newRole);
             session.getTransaction().commit();
             return newRole;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
@@ -58,6 +67,8 @@ public class RolesDao {
             Roles mergedRole = (Roles) session.merge(role);
             session.getTransaction().commit();
             return mergedRole;
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
@@ -67,6 +78,8 @@ public class RolesDao {
             Roles role = session.get(Roles.class, roleId);
             session.remove(role);
             session.getTransaction().commit();
+        } catch (HibernateException he) {
+            throw new RuntimeException("Error retrieving roles", he);
         }
     }
 
