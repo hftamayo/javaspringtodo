@@ -51,6 +51,6 @@ public class Roles {
     private LocalDateTime dateUpdated;
 
     @Builder.Default
-    @ManyToMany(mappedBy = "roles")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<User> users = new HashSet<>();
 }
