@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
         }
-        user.getRoles().add(roleOptional.get());
+        user.setRole(roleOptional.get());
 
         return userRepository.save(user);
     }
