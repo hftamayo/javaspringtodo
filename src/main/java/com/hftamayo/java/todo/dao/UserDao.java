@@ -33,7 +33,7 @@ public class UserDao {
 
     public User getUserByEmail(String useremail) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_email = :useremail", User.class)
+            return session.createQuery("from User where email = :useremail", User.class)
                     .setParameter("useremail", useremail)
                     .uniqueResult();
         } catch (HibernateException he) {
@@ -43,7 +43,7 @@ public class UserDao {
 
     public User getUserByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_name = :username", User.class)
+            return session.createQuery("from User where name = :username", User.class)
                     .setParameter("username", username)
                     .uniqueResult();
         } catch (HibernateException he) {
@@ -53,7 +53,7 @@ public class UserDao {
 
     public User getUserByUsernameAndPassword(String username, String password) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_name = :username and user_password = :password", User.class)
+            return session.createQuery("from User where name = :username and password = :password", User.class)
                     .setParameter("username", username)
                     .setParameter("password", password)
                     .uniqueResult();
@@ -64,7 +64,7 @@ public class UserDao {
 
     public User getUserByEmailAndPassword(String email, String password) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_email = :email and user_password = :password", User.class)
+            return session.createQuery("from User where email = :email and password = :password", User.class)
                     .setParameter("email", email)
                     .setParameter("password", password)
                     .uniqueResult();
@@ -75,7 +75,7 @@ public class UserDao {
 
     public boolean existsByName(String username) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_name = :username", User.class)
+            return session.createQuery("from User where name = :username", User.class)
                     .setParameter("username", username)
                     .uniqueResult() != null;
         } catch (HibernateException he) {
@@ -85,7 +85,7 @@ public class UserDao {
 
     public long countAllByName(String username) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_name = :username", User.class)
+            return session.createQuery("from User where name = :username", User.class)
                     .setParameter("username", username)
                     .list().size();
         } catch (HibernateException he) {
@@ -95,7 +95,7 @@ public class UserDao {
 
     public long countAllByEmail(String email) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where user_email = :email", User.class)
+            return session.createQuery("from User where email = :email", User.class)
                     .setParameter("email", email)
                     .list().size();
         } catch (HibernateException he) {
@@ -118,12 +118,12 @@ public class UserDao {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             User user = session.get(User.class, userId);
-            user.setUserName(updatedUser.getUserName());
-            user.setUserEmail(updatedUser.getUserEmail());
-            user.setUserPassword(updatedUser.getUserPassword());
-            user.setUserAge(updatedUser.getUserAge());
-            user.setUserStatus(updatedUser.isUserStatus());
-            user.setUserRole(updatedUser.getUserRole());
+            user.setName(updatedUser.getName());
+            user.setEmail(updatedUser.getEmail());
+            user.setPassword(updatedUser.getPassword());
+            user.setAge(updatedUser.getAge());
+            user.setStatus(updatedUser.isStatus());
+            user.setRole(updatedUser.getRole());
             User mergedUser = (User) session.merge(user);
             session.getTransaction().commit();
             return mergedUser;
@@ -143,17 +143,4 @@ public class UserDao {
         }
     }
 
-    public User updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            User user = session.get(User.class, userId);
-            user.setUserStatus(status);
-            user.setUserRole(roleEnum);
-            User mergedUser = (User) session.merge(user);
-            session.getTransaction().commit();
-            return mergedUser;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
-        }
-    }
 }

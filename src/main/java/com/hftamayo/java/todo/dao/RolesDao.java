@@ -19,7 +19,7 @@ public class RolesDao {
 
     public List<Roles> getRoles() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from Roles", Roles.class).list();
+            return session.createQuery("from Role", Roles.class).list();
         } catch (HibernateException he) {
             throw new RuntimeException("Error retrieving roles", he);
         }
