@@ -19,7 +19,7 @@ public class RolesDao {
 
     public List<Roles> getRoles() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from " + Roles.class.getName(), Roles.class).list();
+            return session.createQuery("from Roles", Roles.class).list();
         } catch (HibernateException he) {
             throw new RuntimeException("Error retrieving roles", he);
         }
@@ -28,8 +28,7 @@ public class RolesDao {
     public Optional<Roles> getRoleByEnum(String roleEnum) {
         try (Session session = sessionFactory.openSession()) {
             ERole eRole = ERole.valueOf(roleEnum);
-            Roles role = session.createQuery("from " + Roles.class.getName() + "where "
-                            + ERole.class.getName() + " = :roleEnum", Roles.class)
+            Roles role = session.createQuery("from Roles where role_enum = :roleEnum", Roles.class)
                     .setParameter("roleEnum", eRole)
                     .uniqueResult();
             return Optional.ofNullable(role);
