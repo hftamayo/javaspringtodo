@@ -83,20 +83,22 @@ public class RolesDao {
         }
     }
 
-public Roles updateRole(long roleId, Roles updatedRole) {
-    try (Session session = sessionFactory.openSession()) {
-        session.beginTransaction();
-        Roles role = session.get(Roles.class, roleId);
-        role.setRoleEnum(updatedRole.getRoleEnum());
-        role.setDescription(updatedRole.getDescription());
-        role.setStatus(updatedRole.isStatus());
-        Roles mergedRole = (Roles) session.merge(role);
-        session.getTransaction().commit();
-        return mergedRole;
-    } catch (HibernateException he) {
-        throw new RuntimeException("Error retrieving roles", he);
+    public Roles updateRole(long roleId, Roles updatedRole) {
+        try {
+            entityManager.getTransaction().begin();
+            Roles existingRole = entityManager.find(Roles.class, roleId);
+            if (existingRole != null) {
+                existingRole.setRoleEnum(updatedRole.getRoleEnum());
+                existingRole.setDescription(updatedRole.getDescription());
+                existingRole.setStatus(updatedRole.isStatus());
+                existingRole = entityManager.merge(existingRole);
+            }
+            entityManager.getTransaction().commit();
+            return existingRole;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error updating role", pe);
+        }
     }
-}
 
 public void deleteRole(long roleId) {
     try (Session session = sessionFactory.openSession()) {
