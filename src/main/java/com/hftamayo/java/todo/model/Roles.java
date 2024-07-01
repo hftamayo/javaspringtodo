@@ -3,8 +3,7 @@ package com.hftamayo.java.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.hibernate.annotations.Table;
-import org.hibernate.annotations.Entity;
+import javax.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -19,7 +18,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(appliesTo = "roles")
+@Table(name = "roles")
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
