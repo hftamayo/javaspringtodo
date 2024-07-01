@@ -67,16 +67,21 @@ public class RolesDao {
         }
     }
 
-public Roles saveRole(Roles newRole) {
-    try (Session session = sessionFactory.openSession()) {
-        session.beginTransaction();
-        session.persist(newRole);
-        session.getTransaction().commit();
-        return newRole;
-    } catch (HibernateException he) {
-        throw new RuntimeException("Error retrieving roles", he);
+    public Roles saveRole(Roles newRole) {
+        try {
+            entityManager.getTransaction().begin();
+            Roles existingRole = entityManager.find(Roles.class, newRole.getId());
+            if (existingRole == null) {
+                entityManager.persist(newRole);
+            } else {
+                newRole = entityManager.merge(newRole);
+            }
+            entityManager.getTransaction().commit();
+            return newRole;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error saving role", pe);
+        }
     }
-}
 
 public Roles updateRole(long roleId, Roles updatedRole) {
     try (Session session = sessionFactory.openSession()) {
