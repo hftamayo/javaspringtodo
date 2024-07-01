@@ -100,15 +100,17 @@ public class RolesDao {
         }
     }
 
-public void deleteRole(long roleId) {
-    try (Session session = sessionFactory.openSession()) {
-        session.beginTransaction();
-        Roles role = session.get(Roles.class, roleId);
-        session.remove(role);
-        session.getTransaction().commit();
-    } catch (HibernateException he) {
-        throw new RuntimeException("Error retrieving roles", he);
+    public void deleteRole(long roleId) {
+        try {
+            entityManager.getTransaction().begin();
+            Roles role = entityManager.find(Roles.class, roleId);
+            if (role != null) {
+                entityManager.remove(role);
+            }
+            entityManager.getTransaction().commit();
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error deleting role", pe);
+        }
     }
-}
 
 }
