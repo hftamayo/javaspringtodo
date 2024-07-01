@@ -4,7 +4,7 @@ import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
@@ -12,7 +12,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,20 +20,25 @@ import java.util.Optional;
 @Repository
 public class RolesDao {
 
-    @Autowired
-    public SessionFactory sessionFactory;
+    @PersistenceContext
     public EntityManager entityManager;
 
     public List<Roles> getRoles() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from Roles", Roles.class).list();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
+            Root<Roles> root = query.from(Roles.class);
+            query.select(root).orderBy(builder.desc(root.get("id")));
+
+            return entityManager.createQuery(query).getResultList();
+
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving roles", pe);
         }
     }
 
     public Optional<Roles> getRoleByEnum(String roleEnum) {
-        try  {
+        try {
             ERole eRole = ERole.valueOf(roleEnum);
 
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
