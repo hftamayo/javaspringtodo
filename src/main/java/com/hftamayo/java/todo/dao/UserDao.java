@@ -15,6 +15,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDao {
@@ -36,11 +37,17 @@ public class UserDao {
         }
     }
 
-    public User getUserById(long userId) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.get(User.class, userId);
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+    public Optional<User> getUserById(long userId) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("id"), userId));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return Optional.ofNullable(user);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving roles", pe);
         }
     }
 
