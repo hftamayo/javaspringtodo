@@ -5,6 +5,13 @@ import com.hftamayo.java.todo.model.Roles;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +23,7 @@ public class RolesDao {
 
     @Autowired
     public SessionFactory sessionFactory;
+    public EntityManager entityManager;
 
     public List<Roles> getRoles() {
         try (Session session = sessionFactory.openSession()) {
@@ -26,14 +34,18 @@ public class RolesDao {
     }
 
     public Optional<Roles> getRoleByEnum(String roleEnum) {
-        try (Session session = sessionFactory.openSession()) {
+        try  {
             ERole eRole = ERole.valueOf(roleEnum);
-            Roles role = session.createQuery("from Roles where role_enum = :roleEnum", Roles.class)
-                    .setParameter("roleEnum", eRole)
-                    .uniqueResult();
+
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
+            Root<Roles> root = query.from(Roles.class);
+            query.select(root).where(builder.equal(root.get("roleEnum"), eRole));
+
+            Roles role = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(role);
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving roles", pe);
         }
     }
 
