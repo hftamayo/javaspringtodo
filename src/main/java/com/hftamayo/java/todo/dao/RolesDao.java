@@ -54,49 +54,54 @@ public class RolesDao {
     }
 
     public Optional<Roles> findById(long roleId) {
-        try (Session session = sessionFactory.openSession()) {
-            Roles role = session.get(Roles.class, roleId);
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
+            Root<Roles> root = query.from(Roles.class);
+            query.select(root).where(builder.equal(root.get("id"), roleId));
+
+            Roles role = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(role);
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving roles", pe);
         }
     }
 
-    public Roles saveRole(Roles newRole) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.persist(newRole);
-            session.getTransaction().commit();
-            return newRole;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
-        }
+public Roles saveRole(Roles newRole) {
+    try (Session session = sessionFactory.openSession()) {
+        session.beginTransaction();
+        session.persist(newRole);
+        session.getTransaction().commit();
+        return newRole;
+    } catch (HibernateException he) {
+        throw new RuntimeException("Error retrieving roles", he);
     }
+}
 
-    public Roles updateRole(long roleId, Roles updatedRole) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Roles role = session.get(Roles.class, roleId);
-            role.setRoleEnum(updatedRole.getRoleEnum());
-            role.setDescription(updatedRole.getDescription());
-            role.setStatus(updatedRole.isStatus());
-            Roles mergedRole = (Roles) session.merge(role);
-            session.getTransaction().commit();
-            return mergedRole;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
-        }
+public Roles updateRole(long roleId, Roles updatedRole) {
+    try (Session session = sessionFactory.openSession()) {
+        session.beginTransaction();
+        Roles role = session.get(Roles.class, roleId);
+        role.setRoleEnum(updatedRole.getRoleEnum());
+        role.setDescription(updatedRole.getDescription());
+        role.setStatus(updatedRole.isStatus());
+        Roles mergedRole = (Roles) session.merge(role);
+        session.getTransaction().commit();
+        return mergedRole;
+    } catch (HibernateException he) {
+        throw new RuntimeException("Error retrieving roles", he);
     }
+}
 
-    public void deleteRole(long roleId) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Roles role = session.get(Roles.class, roleId);
-            session.remove(role);
-            session.getTransaction().commit();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving roles", he);
-        }
+public void deleteRole(long roleId) {
+    try (Session session = sessionFactory.openSession()) {
+        session.beginTransaction();
+        Roles role = session.get(Roles.class, roleId);
+        session.remove(role);
+        session.getTransaction().commit();
+    } catch (HibernateException he) {
+        throw new RuntimeException("Error retrieving roles", he);
     }
+}
 
 }
