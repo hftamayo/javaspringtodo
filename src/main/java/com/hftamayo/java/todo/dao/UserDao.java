@@ -173,13 +173,15 @@ public class UserDao {
     }
 
     public void deleteUser(long userId) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            User user = session.get(User.class, userId);
-            session.remove(user);
-            session.getTransaction().commit();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+        try {
+            entityManager.getTransaction().begin();
+            User user = entityManager.find(User.class, userId);
+            if (user != null) {
+                entityManager.remove(user);
+            }
+            entityManager.getTransaction().commit();
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error deleting user", pe);
         }
     }
 
