@@ -123,23 +123,16 @@ public class UserDao {
         }
     }
 
-    public long countAllByName(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where name = :username", User.class)
-                    .setParameter("username", username)
-                    .list().size();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
-        }
-    }
+    public long countAllByCriteria(String criteria, String value) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get(criteria), value));
 
-    public long countAllByEmail(String email) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where email = :email", User.class)
-                    .setParameter("email", email)
-                    .list().size();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+            return entityManager.createQuery(query).getResultList().size();
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
