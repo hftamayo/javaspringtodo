@@ -51,6 +51,20 @@ public class UserDao {
         }
     }
 
+    public Optional<User> getUsersByStatus(boolean isActive) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("status"), isActive));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return Optional.ofNullable(user);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
+        }
+    }
+
     public Optional<User> getUserByEmail(String userEmail) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
