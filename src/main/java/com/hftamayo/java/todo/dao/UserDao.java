@@ -93,7 +93,7 @@ public class UserDao {
         }
     }
 
-    public User getUserByNameAndPassword(String userName, String userPassword) {
+    public Optional<User> getUserByNameAndPassword(String userName, String userPassword) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -102,13 +102,13 @@ public class UserDao {
                     builder.equal(root.get("password"), userPassword));
 
             User user = entityManager.createQuery(query).getSingleResult();
-            return user;
+            return Optional.ofNullable(user);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public User getUserByEmailAndPassword(String userEmail, String userPassword) {
+    public Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -117,13 +117,13 @@ public class UserDao {
                     builder.equal(root.get("password"), userPassword));
 
             User user = entityManager.createQuery(query).getSingleResult();
-            return user;
+            return Optional.ofNullable(user);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public boolean existsByName(String username) {
+    public boolean existsByName(String userName) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from User where name = :username", User.class)
                     .setParameter("username", username)
