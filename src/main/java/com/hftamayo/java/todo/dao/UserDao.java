@@ -84,7 +84,7 @@ public class UserDao {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
-            query.select(root).where(builder.equal(root.get("username"), userName));
+            query.select(root).where(builder.equal(root.get("name"), userName));
 
             User user = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(user);
@@ -98,7 +98,7 @@ public class UserDao {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
-            query.select(root).where(builder.equal(root.get("username"), userName),
+            query.select(root).where(builder.equal(root.get("name"), userName),
                     builder.equal(root.get("password"), userPassword));
 
             User user = entityManager.createQuery(query).getSingleResult();
@@ -109,13 +109,17 @@ public class UserDao {
     }
 
     public User getUserByEmailAndPassword(String userEmail, String userPassword) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where email = :email and password = :password", User.class)
-                    .setParameter("email", email)
-                    .setParameter("password", password)
-                    .uniqueResult();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("email"), userEmail),
+                    builder.equal(root.get("password"), userPassword));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return user;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
