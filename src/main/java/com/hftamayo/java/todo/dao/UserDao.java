@@ -137,31 +137,38 @@ public class UserDao {
     }
 
     public User saveUser(User newUser) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.persist(newUser);
-            session.getTransaction().commit();
+        try {
+            entityManager.getTransaction().begin();
+            User existingUser = entityManager.find(User.class, newUser.getId());
+            if (existingUser == null) {
+                entityManager.persist(newUser);
+            } else {
+                newUser = entityManager.merge(newUser);
+            }
+            entityManager.getTransaction().commit();
             return newUser;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error saving user", pe);
         }
     }
 
     public User updateUser(long userId, User updatedUser) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            User user = session.get(User.class, userId);
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
-            user.setPassword(updatedUser.getPassword());
-            user.setAge(updatedUser.getAge());
-            user.setStatus(updatedUser.isStatus());
-            user.setRole(updatedUser.getRole());
-            User mergedUser = (User) session.merge(user);
-            session.getTransaction().commit();
-            return mergedUser;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+        try {
+            entityManager.getTransaction().begin();
+            User existingUser = entityManager.find(User.class, userId);
+            if (existingUser != null) {
+                existingUser.setName(updatedUser.getName());
+                existingUser.setEmail(updatedUser.getEmail());
+                existingUser.setPassword(updatedUser.getPassword());
+                existingUser.setAge(updatedUser.getAge());
+                existingUser.setStatus(updatedUser.isStatus());
+                existingUser.setRole(updatedUser.getRole());
+                existingUser = entityManager.merge(existingUser);
+            }
+            entityManager.getTransaction().commit();
+            return existingUser;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error updating user", pe);
         }
     }
 
