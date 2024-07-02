@@ -79,7 +79,7 @@ public class UserDao {
         }
     }
 
-    public Optional<User> getUserByUserName(String userName) {
+    public Optional<User> getUserByName(String userName) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -93,18 +93,22 @@ public class UserDao {
         }
     }
 
-    public User getUserByUsernameAndPassword(String username, String password) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where name = :username and password = :password", User.class)
-                    .setParameter("username", username)
-                    .setParameter("password", password)
-                    .uniqueResult();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+    public User getUserByNameAndPassword(String userName, String userPassword) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("username"), userName),
+                    builder.equal(root.get("password"), userPassword));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return user;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public User getUserByEmailAndPassword(String email, String password) {
+    public User getUserByEmailAndPassword(String userEmail, String userPassword) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from User where email = :email and password = :password", User.class)
                     .setParameter("email", email)
