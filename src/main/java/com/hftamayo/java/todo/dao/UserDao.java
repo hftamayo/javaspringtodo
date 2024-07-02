@@ -47,27 +47,35 @@ public class UserDao {
             User user = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(user);
         } catch (PersistenceException pe) {
-            throw new RuntimeException("Error retrieving roles", pe);
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public User getUserByEmail(String useremail) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where email = :useremail", User.class)
-                    .setParameter("useremail", useremail)
-                    .uniqueResult();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+    public Optional<User> getUserByEmail(String userEmail) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("email"), userEmail));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return Optional.ofNullable(user);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public User getUserByUsername(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where name = :username", User.class)
-                    .setParameter("username", username)
-                    .uniqueResult();
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
+    public Optional<User> getUserByUserName(String userName) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root).where(builder.equal(root.get("username"), userName));
+
+            User user = entityManager.createQuery(query).getSingleResult();
+            return Optional.ofNullable(user);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
