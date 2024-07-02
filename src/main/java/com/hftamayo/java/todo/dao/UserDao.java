@@ -123,16 +123,6 @@ public class UserDao {
         }
     }
 
-    public boolean existsByName(String userName) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User where name = :username", User.class)
-                    .setParameter("username", username)
-                    .uniqueResult() != null;
-        } catch (HibernateException he) {
-            throw new RuntimeException("Error retrieving user", he);
-        }
-    }
-
     public long countAllByName(String username) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from User where name = :username", User.class)
