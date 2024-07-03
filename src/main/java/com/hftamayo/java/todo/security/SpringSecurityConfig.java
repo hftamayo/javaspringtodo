@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.jwt.JwtConfig;
-import com.hftamayo.java.todo.services.impl.UserServiceImpl;
+import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
     @Bean
     public JwtConfig jwtConfig() {
@@ -50,7 +50,7 @@ public class SpringSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userEmail -> (UserDetails) userServiceImpl.getUserByEmail(userEmail)
+        return userEmail -> (UserDetails) userService.getUserByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid Credentials: Username or Password not found"));
     }
 
