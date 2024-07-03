@@ -27,17 +27,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
+
     private final CustomTokenProvider customTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UserServiceImpl userServiceImpl;
 
     @Override
     public ActiveSessionResponseDto login(LoginRequestDto loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getEmail(), loginRequest.getPassword()));
-        User user = userRepository.findByEmail(loginRequest.getEmail())
+        User user = userServiceImpl.getUserByEmail(loginRequest.getEmail())
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
 
