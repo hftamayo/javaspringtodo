@@ -4,9 +4,9 @@ import com.hftamayo.java.todo.dto.LoginRequestDto;
 import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
+import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,13 +31,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
     @Override
     public ActiveSessionResponseDto login(LoginRequestDto loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getEmail(), loginRequest.getPassword()));
-        User user = userServiceImpl.getUserByEmail(loginRequest.getEmail())
+        User user = userService.getUserByEmail(loginRequest.getEmail())
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
 
