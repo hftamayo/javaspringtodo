@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         if (requestedUserOptional.isPresent()) {
             User requestedUser = requestedUserOptional.get();
             requestedUser.setStatus(status);
-            return userRepository.save(requestedUser);
+            return userDao.updateUser(userId, requestedUser);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -128,8 +128,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("Role not found");
         }
         user.setRole(roleOptional.get());
-
-        return userRepository.save(user);
+        return userDao.updateUser(userId, user);
     }
 
     @Override
