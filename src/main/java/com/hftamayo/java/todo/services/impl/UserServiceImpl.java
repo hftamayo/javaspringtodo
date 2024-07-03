@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(long userId) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            userRepository.deleteById(requestedUserOptional.get().getId());
+            userDao.deleteUser(requestedUserOptional.get().getId());
         } else {
             throw new EntityNotFoundException("User not found");
         }
