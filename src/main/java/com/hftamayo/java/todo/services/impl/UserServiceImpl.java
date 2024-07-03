@@ -1,13 +1,14 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dao.UserDao;
 import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,66 +19,56 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserDao userDao;
+
     private final PasswordEncoder passwordEncoder;
     private final RolesService roleService;
 
     public List<User> getUsers() {
-        return userRepository.findAll();
-    }
-
-    public List<User> getAllUsersByStatus(boolean isActive) {
-        return userRepository.findAllByStatus(isActive);
+        return userDao.getUsers();
     }
 
     public Optional<User> getUserById(long userId) {
-        return userRepository.findById(userId);
+        return userDao.getUserById(userId);
     }
 
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByName(username);
+    public List<User> getUsersByStatus(boolean isActive) {
+        return userDao.getUsersByStatus(isActive);
     }
 
     public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userDao.getUserByEmail(email);
     }
 
-    public User getUserByUsernameAndPassword(String username, String password) {
-        return userRepository.findByNameAndPassword(username, password);
+    public Optional<User> getUserByName(String username) {
+        return userDao.getUserByName(username);
     }
 
-    public User getUserByEmailAndPassword(String email, String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+    public Optional<User> getUserByNameAndPassword(String userName, String userPassword) {
+        return userDao.getUserByNameAndPassword(userName, userPassword);
     }
 
-    public long countAllUserByUsername(String username) {
-        return userRepository.countAllByName(username);
+    public Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword) {
+        return userDao.getUserByEmailAndPassword(userEmail, userPassword);
     }
 
-    public long countAllUserByEmail(String email) {
-        return userRepository.countAllByEmail(email);
+    public long countAllByCriteria(String criteria, String value) {
+        return userDao.countAllByCriteria(criteria, value);
     }
 
     @Transactional
     @Override
     public User saveUser(User newUser) {
-        Optional<User> requestedUser = userRepository.findByEmail(newUser.getEmail());
+        Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            return userRepository.save(newUser);
+            return userDao.saveUser(newUser);
         } else {
             throw new EntityAlreadyExistsException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
         }
-    }
-
-    @Override
-    public RegisterUserResponseDto userToDto(User user) {
-        return new RegisterUserResponseDto(user.getId(),
-                user.getName(), user.getEmail(),
-                user.getAge(), user.isAdmin(), user.isStatus());
     }
 
     @Transactional
@@ -92,7 +83,7 @@ public class UserServiceImpl implements UserService {
             requestedUser.setAge(updatedUser.getAge());
             requestedUser.setAdmin(updatedUser.isAdmin());
             requestedUser.setStatus(updatedUser.isStatus());
-            return userRepository.save(requestedUser);
+            return userDao.updateUser(userId, requestedUser);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -140,4 +131,12 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
+    @Override
+    public RegisterUserResponseDto userToDto(User user) {
+        return new RegisterUserResponseDto(user.getId(),
+                user.getName(), user.getEmail(),
+                user.getAge(), user.isAdmin(), user.isStatus());
+    }
+
 }
