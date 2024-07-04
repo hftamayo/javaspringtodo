@@ -2,8 +2,6 @@ package com.hftamayo.java.todo.dao;
 
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
