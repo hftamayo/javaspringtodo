@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,19 +43,16 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
 
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleEnum().name()))
-                .collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getRoleEnum().name()));
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities(authorities)
                 .build();
 
-        List<String> roles = user.getRoles().stream()
-                .map(role -> role.getRoleEnum().toString())
-                .collect(Collectors.toList());
-
+        String roleName = user.getRole().getRoleEnum().name();
+        List<String> roles = Collections.singletonList(roleName);
         String username = user.getUsername();
         String email = user.getEmail();
         String token = customTokenProvider.getToken(userDetails);
