@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.dao;
 
+import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.Task;
 import org.springframework.stereotype.Repository;
 
@@ -75,25 +76,45 @@ public class TaskDao {
 
     public Task saveTask(Task task) {
         try {
-            entityManager.persist(task);
+            entityManager.getTransaction().begin();
+            Task existingTask = entityManager.find(Task.class, task.getId());
+            if (existingTask == null) {
+                entityManager.persist(task);
+            } else {
+                task = entityManager.merge(task);
+            }
+            entityManager.getTransaction().commit();
             return task;
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error saving task", pe);
         }
     }
 
-    public Task updateTask(Task task) {
+    public Task updateTask(long taskId, Task task) {
         try {
-            entityManager.merge(task);
-            return task;
+            entityManager.getTransaction().begin();
+            Task existingTask = entityManager.find(Task.class, taskId);
+            if (existingTask != null) {
+                existingTask.setTitle(task.getTitle());
+                existingTask.setDescription(task.getDescription());
+                existingTask.setStatus(task.isStatus());
+                existingTask = entityManager.merge(existingTask);
+            }
+            entityManager.getTransaction().commit();
+            return existingTask;
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error updating task", pe);
         }
     }
 
-    public void deleteTask(Task task) {
+    public void deleteTask(long taskId) {
         try {
-            entityManager.remove(task);
+            entityManager.getTransaction().begin();
+            Task task = entityManager.find(Task.class, taskId);
+            if (task != null) {
+                entityManager.remove(task);
+            }
+            entityManager.getTransaction().commit();
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error deleting task", pe);
         }
