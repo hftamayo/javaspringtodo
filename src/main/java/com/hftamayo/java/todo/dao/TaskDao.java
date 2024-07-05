@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.dao;
 
+import com.hftamayo.java.todo.dto.task.TasksByStatusResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.Task;
 import org.springframework.stereotype.Repository;
@@ -69,6 +70,20 @@ public class TaskDao {
 
             Task task = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(task);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving tasks", pe);
+        }
+    }
+
+    public TasksByStatusResponseDto getTasksByStatusAndSize(boolean isActive) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Task> query = builder.createQuery(Task.class);
+            Root<Task> root = query.from(Task.class);
+            query.select(root).where(builder.equal(root.get("status"), isActive));
+
+            List<Task> tasks = entityManager.createQuery(query).getResultList();
+            return new TasksByStatusResponseDto(tasks);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving tasks", pe);
         }
