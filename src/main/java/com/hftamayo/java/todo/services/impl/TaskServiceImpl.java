@@ -36,7 +36,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public long countAllTaskByStatus(boolean taskStatus){
-        return taskRepository.countAllByStatus(taskStatus);
+        List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
+        return tasks.size();
     }
 
     @Transactional
