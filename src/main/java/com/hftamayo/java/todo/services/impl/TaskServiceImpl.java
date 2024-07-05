@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.TaskDao;
+import com.hftamayo.java.todo.dto.task.TasksByStatusResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
 import com.hftamayo.java.todo.services.TaskService;
@@ -38,6 +39,11 @@ public class TaskServiceImpl implements TaskService {
     public long countAllTaskByStatus(boolean taskStatus){
         List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
         return tasks.size();
+    }
+
+    public TasksByStatusResponseDto getTasksByStatusAndSize(boolean taskStatus){
+        List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
+        return new TasksByStatusResponseDto(tasks);
     }
 
     @Transactional
