@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;

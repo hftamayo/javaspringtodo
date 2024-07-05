@@ -1,8 +1,8 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.LoginRequestDto;
-import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
-import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
+import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
+import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
