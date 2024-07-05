@@ -73,11 +73,29 @@ public class TaskDao {
         }
     }
 
+    public Task saveTask(Task task) {
+        try {
+            entityManager.persist(task);
+            return task;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error saving task", pe);
+        }
+    }
 
+    public Task updateTask(Task task) {
+        try {
+            entityManager.merge(task);
+            return task;
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error updating task", pe);
+        }
+    }
 
-
-
-
-
-
+    public void deleteTask(Task task) {
+        try {
+            entityManager.remove(task);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error deleting task", pe);
+        }
+    }
 }
