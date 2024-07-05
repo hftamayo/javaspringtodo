@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.LoginRequestDto;
-import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
+import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
+import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.AuthService;
@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
