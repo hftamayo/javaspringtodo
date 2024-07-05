@@ -1,11 +1,12 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dao.TaskDao;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
-import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -15,36 +16,37 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
-    private final TaskRepository taskRepository;
+    @Autowired
+    private final TaskDao taskDao;
 
     public List<Task> getTasks(){
-        return taskRepository.findAll();
+        return taskDao.getTasks();
     }
 
     public Optional<Task> getTaskById(long taskId){
-        return taskRepository.findById(taskId);
+        return taskDao.getTaskById(taskId);
     }
 
     public List<Task> getAllTasksByStatus(boolean taskStatus){
-        return taskRepository.findAllByStatus(taskStatus);
+        return taskDao.getTasksByStatus(taskStatus);
+    }
+
+    public Optional<Task> getTaskByTitle(String taskTitle){
+        return taskDao.getTaskByTitle(taskTitle);
     }
 
     public long countAllTaskByStatus(boolean taskStatus){
         return taskRepository.countAllByStatus(taskStatus);
     }
 
-    public Optional<Task> getTaskByTitle(String taskTitle){
-        return taskRepository.findByTitle(taskTitle);
-    }
-
     @Transactional
     @Override
     public Task saveTask(Task task){
-        Optional<Task> requestedTask = taskRepository.findByTitle(task.getTitle());
+        Optional<Task> requestedTask = getTaskByTitle(task.getTitle());
         if(requestedTask.isPresent()){
             throw new EntityAlreadyExistsException("Title already exists");
         }
-        return taskRepository.save(task);
+        return taskDao.saveTask(task);
     }
 
     @Transactional
@@ -55,7 +57,8 @@ public class TaskServiceImpl implements TaskService {
             Task updateTask = requestedTask.get();
             updateTask.setTitle(task.getTitle());
             updateTask.setDescription(task.getDescription());
-            return taskRepository.save(updateTask);
+            updateTask.setStatus(task.isStatus());
+            return taskDao.updateTask(taskId, updateTask);
         } else {
             throw new EntityNotFoundException("Task does not exist");
         }
@@ -66,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(long taskId) {
         Optional<Task> requestedTask = getTaskById(taskId);
         if(requestedTask.isPresent()){
-            taskRepository.deleteById(requestedTask.get().getId());
+            taskDao.deleteTask(requestedTask.get().getId());
         } else {
             throw new EntityNotFoundException("Task does not exist");
         }
