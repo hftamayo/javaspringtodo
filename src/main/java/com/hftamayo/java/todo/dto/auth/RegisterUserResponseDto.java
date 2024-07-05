@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.dto;
+package com.hftamayo.java.todo.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
