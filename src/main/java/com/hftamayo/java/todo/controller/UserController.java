@@ -38,7 +38,7 @@ public class UserController {
     @GetMapping(value = "/getuserbyusername/{username}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username);
+        return userService.getUserByName(username);
     }
 
     @GetMapping(value = "/getuserbyemail/{email}")
@@ -49,26 +49,20 @@ public class UserController {
 
     @GetMapping(value = "/getuserbyusernameandpassword/{username}/{password}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
-        return userService.getUserByUsernameAndPassword(username, password);
+    public Optional<User> getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
+        return userService.getUserByNameAndPassword(username, password);
     }
 
     @GetMapping(value = "/getuserbyemailandpassword/{email}/{password}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
+    public Optional<User> getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
         return userService.getUserByEmailAndPassword(email, password);
     }
 
-    @GetMapping(value = "/countuserbyusername/{username}")
+    @GetMapping(value = "/countbycriteria/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public long countUserByUsername(@PathVariable String username) {
-        return userService.countAllUserByUsername(username);
-    }
-
-    @GetMapping(value = "/countuserbyemail/{email}")
-    @ResponseStatus(HttpStatus.OK)
-    public long countUserByEmail(@PathVariable String email) {
-        return userService.countAllUserByEmail(email);
+    public long countUserByUsername(@PathVariable String criteria, @PathVariable String value) {
+        return userService.countAllByCriteria(criteria, value);
     }
 
     @PostMapping(value = "/saveuser")
