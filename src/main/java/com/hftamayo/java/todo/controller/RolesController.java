@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.services.RolesService;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,24 +21,24 @@ public class RolesController {
 
     @GetMapping(value = "/allroles")
     @ResponseStatus(HttpStatus.OK)
-    public List<Roles> getRoles() {
+    public List<RolesResponseDto> getRoles() {
         return rolesService.getRoles();
     }
 
     @GetMapping(value = "/getrolebyname/{roleName}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<Roles> getRoleByName(@PathVariable String roleName) {
+    public Optional<RolesResponseDto> getRoleByName(@PathVariable String roleName) {
         return rolesService.getRoleByEnum(roleName);
     }
 
     @PostMapping(value = "/saverole")
     @ResponseStatus(HttpStatus.CREATED)
-    public Roles saveRole(@RequestBody Roles role) {
+    public RolesResponseDto saveRole(@RequestBody Roles role) {
         return rolesService.saveRole(role);
     }
 
     @PutMapping(value = "/updaterole/{roleId}")
-    public ResponseEntity<Roles> updateRole(@PathVariable long roleId, @RequestBody Roles role) {
+    public RolesResponseDto updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
             Roles updatedRole = rolesService.updateRole(roleId, role);
             return new ResponseEntity<>(updatedRole, HttpStatus.OK);
