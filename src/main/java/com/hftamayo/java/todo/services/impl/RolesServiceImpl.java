@@ -28,9 +28,16 @@ public class RolesServiceImpl implements RolesService {
         return rolesList.stream().map(this::roleToDto).toList();
     }
 
-    public Optional<Roles> getRoleByEnum(String roleEnum) {
+    public Optional<RolesResponseDto> getRoleByEnum(String roleEnum) {
         ERole eRole = ERole.valueOf(roleEnum);
-        return rolesDao.getRoleByEnum(eRole.toString());
+        Optional<Roles> roleOptional = rolesDao.getRoleByEnum(eRole.toString());
+        if(roleOptional.isPresent()){
+            Roles role = roleOptional.get();
+            RolesResponseDto dto = roleToDto(role);
+            return Optional.of(dto);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Optional<Roles> getRoleById(long roleId) {
