@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.RolesDao;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,4 +72,16 @@ public class RolesServiceImpl implements RolesService {
         }
     }
 
+    @Override
+    public RolesResponseDto roleToDto(Roles role) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        String formattedDate = role.getDateAdded().format(formatter);
+
+        return new RolesResponseDto(
+                role.getId(),
+                role.getRoleEnum().toString(),
+                role.getDescription(),
+                role.isStatus(),
+                formattedDate);
+    };
 }
