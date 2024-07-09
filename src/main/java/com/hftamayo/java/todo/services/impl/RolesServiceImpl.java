@@ -22,8 +22,10 @@ public class RolesServiceImpl implements RolesService {
     @Autowired
     private RolesDao rolesDao;
 
-    public List<Roles> getRoles() {
-        return rolesDao.getRoles();
+    public List<RolesResponseDto> getRoles()
+    {
+        List<Roles> rolesList = rolesDao.getRoles();
+        return rolesList.stream().map(this::roleToDto).toList();
     }
 
     public Optional<Roles> getRoleByEnum(String roleEnum) {

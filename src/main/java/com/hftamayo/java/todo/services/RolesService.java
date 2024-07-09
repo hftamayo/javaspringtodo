@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RolesService {
-    List<Roles> getRoles();
+    List<RolesResponseDto> getRoles();
     Optional<Roles> getRoleByEnum(String roleEnum);
 
     Roles saveRole(Roles newRole);
