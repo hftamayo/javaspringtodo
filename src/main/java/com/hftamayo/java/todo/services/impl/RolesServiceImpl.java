@@ -76,12 +76,14 @@ public class RolesServiceImpl implements RolesService {
     public RolesResponseDto roleToDto(Roles role) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         String formattedDate = role.getDateAdded().format(formatter);
+        String roleName = role.getRoleEnum().name();
 
         return new RolesResponseDto(
                 role.getId(),
-                role.getRoleEnum().toString(),
+                roleName,
                 role.getDescription(),
                 role.isStatus(),
-                formattedDate);
-    };
+                formattedDate
+        );
+    }
 }
