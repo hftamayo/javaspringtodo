@@ -11,7 +11,7 @@ public interface RolesService {
     Optional<RolesResponseDto> getRoleByEnum(String roleEnum);
 
     RolesResponseDto saveRole(Roles newRole);
-    Roles updateRole(long roleId, Roles updatedRole);
+    RolesResponseDto updateRole(long roleId, Roles updatedRole);
     void deleteRole(long roleId);
 
     RolesResponseDto roleToDto(Roles role);

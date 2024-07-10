@@ -42,7 +42,7 @@ public class RolesController {
     @ResponseStatus(HttpStatus.OK)
     public RolesResponseDto updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
-            Roles updatedRole = rolesService.updateRole(roleId, role);
+            return rolesService.updateRole(roleId, role);
         } catch (EntityNotFoundException enf) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

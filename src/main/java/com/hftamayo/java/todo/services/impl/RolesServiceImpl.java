@@ -59,14 +59,16 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public Roles updateRole(long roleId, Roles updatedRole) {
+    public RolesResponseDto updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             Roles requestedRole = requestedRoleOptional.get();
             requestedRole.setRoleEnum(updatedRole.getRoleEnum());
             requestedRole.setDescription(updatedRole.getDescription());
             requestedRole.setStatus(updatedRole.isStatus());
-            return rolesDao.updateRole(roleId, requestedRole);
+            Roles roleToUpdate = rolesDao.updateRole(roleId, requestedRole);
+            RolesResponseDto dto = roleToDto(roleToUpdate);
+            return dto;
         } else {
             throw new EntityNotFoundException("Role not found");
         }
