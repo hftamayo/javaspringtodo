@@ -32,11 +32,11 @@ public class UserController {
 
     @GetMapping(value = "/getuserbyid/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUser(@PathVariable long userId) {
+    public Optional<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUserById(userId);
     }
 
-    @GetMapping(value = "/getuserbyusername/{username}")
+    @GetMapping(value = "/getuserbyname/{username}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByUsername(@PathVariable String username) {
         return userService.getUserByName(username);
@@ -48,13 +48,13 @@ public class UserController {
         return userService.getUserByEmail(email);
     }
 
-    @GetMapping(value = "/getuserbyusernameandpassword/{username}/{password}")
+    @GetMapping(value = "/getuserbynandp/{username}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
         return userService.getUserByNameAndPassword(username, password);
     }
 
-    @GetMapping(value = "/getuserbyemailandpassword/{email}/{password}")
+    @GetMapping(value = "/getuserbyeandp/{email}/{password}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
         return userService.getUserByEmailAndPassword(email, password);
