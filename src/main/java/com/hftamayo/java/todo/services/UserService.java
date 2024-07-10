@@ -10,7 +10,13 @@ import java.util.Optional;
 public interface UserService {
     List<UserResponseDto> getUsers();
 
-    Optional<UserResponseDto> getUserById(long userId);
+    Optional<User> getUserById(long userId);
+
+    Optional<UserResponseDto> getUser(long userId);
+
+    Optional<UserResponseDto> getUserByCriteria(String criteria, String value);
+
+
 
     List<User> getUsersByStatus(boolean isActive);
 
