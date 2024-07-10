@@ -33,8 +33,7 @@ public class UserServiceImpl implements UserService {
         return usersList.stream().map(this::usersToDto).toList();
     }
 
-    public Optional<UserResponseDto> getUserById(long userId) {
-
+    public Optional<User> getUserById(long userId) {
         return userDao.getUserById(userId);
     }
 
