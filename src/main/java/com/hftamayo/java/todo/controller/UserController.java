@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -74,28 +75,13 @@ public class UserController {
     }
 
     @PutMapping(value = "/updateuser/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user) {
+    public UserResponseDto updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
-            User updatedUser = userService.updateUser(userId, user);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            return userService.updateUser(userId, user);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-    }
 
-
-    @PatchMapping(value = "/updatestatus/{userId}")
-    public ResponseEntity<User> updateUserStatus(@PathVariable long userId, @RequestParam boolean status) {
-        try {
-            User updatedUser = userService.updateUserStatus(userId, status);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @PatchMapping(value = "/activateuser/{userId}")

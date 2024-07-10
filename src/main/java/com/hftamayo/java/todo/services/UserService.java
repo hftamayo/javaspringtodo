@@ -32,7 +32,7 @@ public interface UserService {
 
     User saveUser(User newUser);
 
-    User updateUser(long userId, User updatedUser);
+    UserResponseDto updateUser(long userId, User updatedUser);
 
     void deleteUser(long userId);
 

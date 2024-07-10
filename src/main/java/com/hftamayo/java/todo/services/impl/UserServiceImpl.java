@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUser(long userId, User updatedUser) {
+    public UserResponseDto updateUser(long userId, User updatedUser) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             User requestedUser = requestedUserOptional.get();
@@ -86,7 +86,9 @@ public class UserServiceImpl implements UserService {
             requestedUser.setAge(updatedUser.getAge());
             requestedUser.setAdmin(updatedUser.isAdmin());
             requestedUser.setStatus(updatedUser.isStatus());
-            return userDao.updateUser(userId, requestedUser);
+            User userToUpdate = userDao.updateUser(userId, requestedUser);
+            UserResponseDto dto = usersToDto(userToUpdate);
+            return dto;
         } else {
             throw new EntityNotFoundException("User not found");
         }
