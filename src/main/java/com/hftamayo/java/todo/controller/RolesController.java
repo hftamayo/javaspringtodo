@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,14 +39,12 @@ public class RolesController {
     }
 
     @PutMapping(value = "/updaterole/{roleId}")
+    @ResponseStatus(HttpStatus.OK)
     public RolesResponseDto updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
             Roles updatedRole = rolesService.updateRole(roleId, role);
-            return new ResponseEntity<>(updatedRole, HttpStatus.OK);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
