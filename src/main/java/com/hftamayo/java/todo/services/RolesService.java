@@ -10,7 +10,7 @@ public interface RolesService {
     List<RolesResponseDto> getRoles();
     Optional<RolesResponseDto> getRoleByEnum(String roleEnum);
 
-    Roles saveRole(Roles newRole);
+    RolesResponseDto saveRole(Roles newRole);
     Roles updateRole(long roleId, Roles updatedRole);
     void deleteRole(long roleId);
 

@@ -46,10 +46,12 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public Roles saveRole(Roles newRole) {
-        Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum().toString());
+    public RolesResponseDto saveRole(Roles newRole) {
+        Optional<RolesResponseDto> requestedRole = getRoleByEnum(newRole.getRoleEnum().toString());
         if (!requestedRole.isPresent()) {
-            return rolesDao.saveRole(newRole);
+            Roles savedRole = rolesDao.saveRole(newRole);
+            RolesResponseDto dto = roleToDto(savedRole);
+            return dto;
         } else {
             throw new EntityAlreadyExistsException("Role already exists");
         }
