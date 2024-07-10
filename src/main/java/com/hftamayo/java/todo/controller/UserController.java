@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,7 +26,7 @@ public class UserController {
 
     @GetMapping(value = "/allusers")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
+    public List<UserResponseDto> getUsers() {
         return userService.getUsers();
     }
 

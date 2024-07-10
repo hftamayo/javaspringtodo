@@ -2,6 +2,8 @@ package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.UserDao;
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.RolesService;
@@ -26,8 +28,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RolesService roleService;
 
-    public List<User> getUsers() {
-        return userDao.getUsers();
+    public List<UserResponseDto> getUsers() {
+        List<User> usersList = userDao.getUsers();
+        return usersList.stream().map(this::usersToDto).toList();
     }
 
     public Optional<User> getUserById(long userId) {
@@ -136,6 +139,25 @@ public class UserServiceImpl implements UserService {
         return new RegisterUserResponseDto(user.getId(),
                 user.getName(), user.getEmail(),
                 user.getAge(), user.isAdmin(), user.isStatus());
+    }
+
+    @Override
+    public UserResponseDto usersToDto(User user) {
+        String formattedRoleName = user.getRole().getRoleEnum().name();
+
+        return new UserResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getAge(),
+                user.isAdmin(),
+                user.isAccountNonExpired(),
+                user.isAccountNonLocked(),
+                user.isCredentialsNonExpired(),
+                user.isStatus(),
+                user.getDateAdded().toString(),
+                formattedRoleName
+        );
     }
 
 }

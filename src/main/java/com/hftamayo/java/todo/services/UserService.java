@@ -1,13 +1,14 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    List<User> getUsers();
+    List<UserResponseDto> getUsers();
 
     Optional<User> getUserById(long userId);
 
@@ -34,6 +35,8 @@ public interface UserService {
     User updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
     RegisterUserResponseDto userToDto(User user);
+
+    UserResponseDto usersToDto(User user);
 
 
 }
