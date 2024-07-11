@@ -30,7 +30,7 @@ public interface UserService {
 
     long countAllByCriteria(String criteria, String value);
 
-    User saveUser(User newUser);
+    UserResponseDto saveUser(User newUser);
 
     UserResponseDto updateUser(long userId, User updatedUser);
 

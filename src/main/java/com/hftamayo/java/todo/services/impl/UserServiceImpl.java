@@ -63,11 +63,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User saveUser(User newUser) {
+    public UserResponseDto saveUser(User newUser) {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            return userDao.saveUser(newUser);
+            User savedUser = userDao.saveUser(newUser);
+            UserResponseDto dto = usersToDto(savedUser);
+            return dto;
         } else {
             throw new EntityAlreadyExistsException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());

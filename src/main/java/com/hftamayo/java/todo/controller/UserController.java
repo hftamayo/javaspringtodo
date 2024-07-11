@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;
@@ -69,9 +70,8 @@ public class UserController {
 
     @PostMapping(value = "/saveuser")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterUserResponseDto saveUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return userService.userToDto(savedUser);
+    public UserResponseDto saveUser(@RequestBody User user) {
+        return userService.saveUser(user);
     }
 
     @PutMapping(value = "/updateuser/{userId}")
