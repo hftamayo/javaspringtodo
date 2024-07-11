@@ -38,7 +38,7 @@ public interface UserService {
 
     User updateUserStatus(long userId, boolean status);
 
-    User updateUserStatusAndRole(long userId, boolean status, String roleEnum);
+    UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
     RegisterUserResponseDto userToDto(User user);
 

@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.UserDao;
+import com.hftamayo.java.todo.dao.RolesDao;
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final RolesService roleService;
+    private final RolesDao rolesDao;
 
     public List<UserResponseDto> getUsers() {
         List<User> usersList = userDao.getUsers();
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+    public UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (!requestedUserOptional.isPresent()) {
             throw new EntityNotFoundException("User not found");
@@ -130,12 +132,13 @@ public class UserServiceImpl implements UserService {
         User user = requestedUserOptional.get();
         user.setStatus(status);
 
-        Optional<Roles> roleOptional = roleService.getRoleByEnum(roleEnum);
+        Optional<Roles> roleOptional = rolesDao.getRoleByEnum(roleEnum);
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
         }
         user.setRole(roleOptional.get());
-        return userDao.updateUser(userId, user);
+        User updatedUser = userDao.updateUser(userId, user);
+        return usersToDto(updatedUser);
     }
 
     @Override

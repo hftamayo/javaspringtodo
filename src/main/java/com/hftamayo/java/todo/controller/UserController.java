@@ -85,20 +85,14 @@ public class UserController {
     }
 
     @PatchMapping(value = "/activateuser/{userId}")
-    public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
-                                                        @RequestBody Map<String, Object> updates) {
-        try {
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates){
+        try{
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
-
-            User updatedUser = userService.updateUserStatusAndRole(userId, status, roleEnum);
-
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            return userService.updateUserStatusAndRole(userId, status, roleEnum);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("unexpected error: ", e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
