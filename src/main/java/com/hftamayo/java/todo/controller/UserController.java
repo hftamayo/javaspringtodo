@@ -1,7 +1,5 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;

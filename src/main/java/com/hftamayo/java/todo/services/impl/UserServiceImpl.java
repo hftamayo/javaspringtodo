@@ -2,12 +2,9 @@ package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.UserDao;
 import com.hftamayo.java.todo.dao.RolesDao;
-import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +24,6 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     private final PasswordEncoder passwordEncoder;
-    private final RolesService roleService;
     private final RolesDao rolesDao;
 
     public List<UserResponseDto> getUsers() {
@@ -139,13 +135,6 @@ public class UserServiceImpl implements UserService {
         user.setRole(roleOptional.get());
         User updatedUser = userDao.updateUser(userId, user);
         return usersToDto(updatedUser);
-    }
-
-    @Override
-    public RegisterUserResponseDto userToDto(User user) {
-        return new RegisterUserResponseDto(user.getId(),
-                user.getName(), user.getEmail(),
-                user.getAge(), user.isAdmin(), user.isStatus());
     }
 
     @Override
