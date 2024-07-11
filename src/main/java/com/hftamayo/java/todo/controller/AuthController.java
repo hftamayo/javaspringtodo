@@ -3,6 +3,7 @@ package com.hftamayo.java.todo.controller;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.dto.auth.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
@@ -47,9 +48,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterUserResponseDto saveUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return userService.userToDto(savedUser);
+    public UserResponseDto saveUser(@RequestBody User user) {
+        return userService.saveUser(user);
     }
 
     @PostMapping("/logout")
