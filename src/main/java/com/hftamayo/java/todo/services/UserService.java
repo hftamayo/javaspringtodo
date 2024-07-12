@@ -21,10 +21,6 @@ public interface UserService {
 
     long countAllByCriteria(String criteria, String value);
 
-    Optional<User> getUserByNameAndPassword(String userName, String userPassword);
-
-    Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword);
-
     UserResponseDto saveUser(User newUser);
 
     UserResponseDto updateUser(long userId, User updatedUser);
