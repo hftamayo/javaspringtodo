@@ -43,7 +43,8 @@ public class TaskServiceImpl implements TaskService {
 
     public TasksByStatusResponseDto getTasksByStatusAndSize(boolean taskStatus){
         List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
-        return new TasksByStatusResponseDto(tasks);
+        int count = tasks.size();
+        return new TasksByStatusResponseDto(tasks, count);
     }
 
     @Transactional
