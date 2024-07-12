@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         }
     }
-    
+
     public long countAllByCriteria(String criteria, String value) {
         return userDao.countAllByCriteria(criteria, value);
     }
