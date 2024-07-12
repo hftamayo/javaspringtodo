@@ -30,13 +30,13 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/getuserbyid/{userId}")
+    @GetMapping(value = "/getuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
-    @GetMapping(value= "/getuserbycriteria/{criteria}/{value}")
+    @GetMapping(value = "/getuserbycriteria/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<UserResponseDto> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return userService.getUserByCriteria(criteria, value);
@@ -78,8 +78,8 @@ public class UserController {
 
     @PatchMapping(value = "/activateuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates){
-        try{
+    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+        try {
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
             return userService.updateUserStatusAndRole(userId, status, roleEnum);
