@@ -59,12 +59,12 @@ public class UserDao {
         }
     }
 
-    public Optional<User> getUserByEmail(String userEmail) {
+    public Optional<User> getUserByCriteria(String criteria, String value) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
-            query.select(root).where(builder.equal(root.get("email"), userEmail));
+            query.select(root).where(builder.equal(root.get(criteria), value));
 
             User user = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(user);
@@ -73,12 +73,12 @@ public class UserDao {
         }
     }
 
-    public Optional<User> getUserByName(String userName) {
+    public Optional<User> getUserByEmail(String userEmail) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
-            query.select(root).where(builder.equal(root.get("name"), userName));
+            query.select(root).where(builder.equal(root.get("email"), userEmail));
 
             User user = entityManager.createQuery(query).getSingleResult();
             return Optional.ofNullable(user);

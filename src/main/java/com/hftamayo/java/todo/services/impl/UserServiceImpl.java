@@ -31,6 +31,17 @@ public class UserServiceImpl implements UserService {
         return usersList.stream().map(this::usersToDto).toList();
     }
 
+    public Optional<UserResponseDto> getUser(long userId) {
+        Optional<User> userOptional = getUserById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDto dto = usersToDto(user);
+            return Optional.of(dto);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public Optional<User> getUserById(long userId) {
         return userDao.getUserById(userId);
     }

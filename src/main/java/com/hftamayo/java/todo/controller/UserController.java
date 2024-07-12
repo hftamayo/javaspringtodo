@@ -33,7 +33,7 @@ public class UserController {
     @GetMapping(value = "/getuserbyid/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<UserResponseDto> getUser(@PathVariable long userId) {
-        return userService.getUserById(userId);
+        return userService.getUser(userId);
     }
 
     @GetMapping(value= "/getuserbycriteria/{criteria}/{value}")
