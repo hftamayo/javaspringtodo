@@ -35,16 +35,20 @@ public class UserServiceImpl implements UserService {
         return userDao.getUserById(userId);
     }
 
-    public List<User> getUsersByStatus(boolean isActive) {
-        return userDao.getUsersByStatus(isActive);
+    public Optional<UserResponseDto> getUserByCriteria(String criteria, String value) {
+        Optional<User> userOptional = userDao.getUserByCriteria(criteria, value);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDto dto = usersToDto(user);
+            return Optional.of(dto);
+        } else {
+            return Optional.empty();
+        }
     }
+
 
     public Optional<User> getUserByEmail(String email) {
         return userDao.getUserByEmail(email);
-    }
-
-    public Optional<User> getUserByName(String username) {
-        return userDao.getUserByName(username);
     }
 
     public Optional<User> getUserByNameAndPassword(String userName, String userPassword) {
