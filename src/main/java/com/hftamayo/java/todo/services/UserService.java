@@ -9,13 +9,11 @@ import java.util.Optional;
 public interface UserService {
     List<UserResponseDto> getUsers();
 
-    Optional<User> getUserById(long userId);
-
     Optional<UserResponseDto> getUser(long userId);
 
+    Optional<User> getUserById(long userId);
+
     Optional<UserResponseDto> getUserByCriteria(String criteria, String value);
-
-
 
     List<User> getUsersByStatus(boolean isActive);
 
@@ -23,11 +21,14 @@ public interface UserService {
 
     Optional<User> getUserByName(String userName);
 
+    long countAllByCriteria(String criteria, String value);
+
+    Optional<UserResponseDto> getUserByCriterias(String criteria, String value, String criteria2, String value2);
+
     Optional<User> getUserByNameAndPassword(String userName, String userPassword);
 
     Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword);
 
-    long countAllByCriteria(String criteria, String value);
 
     UserResponseDto saveUser(User newUser);
 
