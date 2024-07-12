@@ -46,6 +46,10 @@ public class UserServiceImpl implements UserService {
         return userDao.getUserById(userId);
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userDao.getUserByCriteria("email", email);
+    }
+
     public Optional<UserResponseDto> getUserByCriteria(String criteria, String value) {
         Optional<User> userOptional = userDao.getUserByCriteria(criteria, value);
         if (userOptional.isPresent()) {
