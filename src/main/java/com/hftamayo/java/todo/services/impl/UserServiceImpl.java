@@ -57,11 +57,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
-    public Optional<User> getUserByEmail(String email) {
-        return userDao.getUserByEmail(email);
-    }
-
     public Optional<User> getUserByNameAndPassword(String userName, String userPassword) {
         return userDao.getUserByNameAndPassword(userName, userPassword);
     }
