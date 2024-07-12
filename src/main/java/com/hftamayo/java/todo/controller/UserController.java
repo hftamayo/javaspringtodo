@@ -42,16 +42,10 @@ public class UserController {
         return userService.getUserByCriteria(criteria, value);
     }
 
-    @GetMapping(value = "/getuserbynandp/{username}/{password}")
+    @GetMapping(value = "/getuserbycriterias/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
-        return userService.getUserByNameAndPassword(username, password);
-    }
-
-    @GetMapping(value = "/getuserbyeandp/{email}/{password}")
-    @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
-        return userService.getUserByEmailAndPassword(email, password);
+    public Optional<UserResponseDto> getUserByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+        return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 
     @GetMapping(value = "/countbycriteria/{criteria}/{value}")
