@@ -15,11 +15,7 @@ public interface UserService {
 
     Optional<UserResponseDto> getUserByCriteria(String criteria, String value);
 
-    List<User> getUsersByStatus(boolean isActive);
-
     Optional<User> getUserByEmail(String userEmail);
-
-    Optional<User> getUserByName(String userName);
 
     long countAllByCriteria(String criteria, String value);
 
@@ -28,7 +24,6 @@ public interface UserService {
     Optional<User> getUserByNameAndPassword(String userName, String userPassword);
 
     Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword);
-
 
     UserResponseDto saveUser(User newUser);
 
