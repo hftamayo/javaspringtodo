@@ -13,13 +13,13 @@ public interface UserService {
 
     Optional<User> getUserById(long userId);
 
-    Optional<UserResponseDto> getUserByCriteria(String criteria, String value);
-
     Optional<User> getUserByEmail(String userEmail);
 
-    long countAllByCriteria(String criteria, String value);
+    Optional<UserResponseDto> getUserByCriteria(String criteria, String value);
 
     Optional<UserResponseDto> getUserByCriterias(String criteria, String value, String criteria2, String value2);
+
+    long countAllByCriteria(String criteria, String value);
 
     Optional<User> getUserByNameAndPassword(String userName, String userPassword);
 

@@ -61,14 +61,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public Optional<User> getUserByNameAndPassword(String userName, String userPassword) {
-        return userDao.getUserByNameAndPassword(userName, userPassword);
+    public Optional<UserResponseDto> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+        Optional<User> userOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDto dto = usersToDto(user);
+            return Optional.of(dto);
+        } else {
+            return Optional.empty();
+        }
     }
-
-    public Optional<User> getUserByEmailAndPassword(String userEmail, String userPassword) {
-        return userDao.getUserByEmailAndPassword(userEmail, userPassword);
-    }
-
+    
     public long countAllByCriteria(String criteria, String value) {
         return userDao.countAllByCriteria(criteria, value);
     }
