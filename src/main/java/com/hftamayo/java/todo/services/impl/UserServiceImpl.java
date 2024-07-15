@@ -48,11 +48,11 @@ public class UserServiceImpl implements UserService {
     }
 
     public Optional<User> getUserByEmail(String email) {
-        return userDao.getUserByCriteria("email", email);
+        return userDao.getUserByCriteria("email", email, true);
     }
 
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
-        Optional<List<User>> userListOptional = userDao.getUserByCriteria(criteria, value);
+        Optional<List<User>> userListOptional = userDao.getUserByCriteria(criteria, value, false);
         return userListOptional.map(usersList -> usersList.stream().map(this::usersToDto).collect(Collectors.toList()));
     }
 
