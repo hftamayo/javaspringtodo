@@ -15,5 +15,4 @@ public class RolesResponseDto {
     private String roleDescription;
     private boolean status;
     private String dateAdded;
-    private Integer listSize;
 }

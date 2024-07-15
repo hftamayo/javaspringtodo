@@ -23,9 +23,6 @@ public class UserResponseDto {
     private boolean status;
     private String dateAdded;
     private String role;
-
-
-
-
+    private Integer listSize;
 
 }
