@@ -59,15 +59,20 @@ public class UserDao {
         }
     }
 
-    public Optional<List<User>> getUserByCriteria(String criteria, String value) {
+    public Optional<Object> getUserByCriteria(String criteria, String value, boolean singleResult) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
             query.select(root).where(builder.equal(root.get(criteria), value));
 
-            List<User> userList = entityManager.createQuery(query).getResultList();
-            return Optional.ofNullable(userList.isEmpty() ? null : userList);
+            if (singleResult) {
+                User user = entityManager.createQuery(query).getSingleResult();
+                return Optional.ofNullable(user);
+            } else {
+                List<User> userList = entityManager.createQuery(query).getResultList();
+                return Optional.ofNullable(userList.isEmpty() ? null : userList);
+            }
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving data: not found", pe);
         }
