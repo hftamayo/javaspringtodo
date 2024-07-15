@@ -48,12 +48,6 @@ public class UserController {
         return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 
-    @GetMapping(value = "/countbycriteria/{criteria}/{value}")
-    @ResponseStatus(HttpStatus.OK)
-    public long countUserByUsername(@PathVariable String criteria, @PathVariable String value) {
-        return userService.countAllByCriteria(criteria, value);
-    }
-
     @PostMapping(value = "/saveuser")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto saveUser(@RequestBody User user) {

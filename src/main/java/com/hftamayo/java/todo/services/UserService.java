@@ -19,8 +19,6 @@ public interface UserService {
 
     Optional<UserResponseDto> getUserByCriterias(String criteria, String value, String criteria2, String value2);
 
-    long countAllByCriteria(String criteria, String value);
-
     UserResponseDto saveUser(User newUser);
 
     UserResponseDto updateUser(long userId, User updatedUser);

@@ -72,10 +72,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public long countAllByCriteria(String criteria, String value) {
-        return userDao.countAllByCriteria(criteria, value);
-    }
-
     @Transactional
     @Override
     public UserResponseDto saveUser(User newUser) {
