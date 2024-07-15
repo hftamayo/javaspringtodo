@@ -66,7 +66,16 @@ public class UserServiceImpl implements UserService {
 
     public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
         Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        return userListOptional.map(usersList -> usersList.stream().map(this::usersToDto).collect(Collectors.toList()));
+        return userListOptional.map(usersList -> {
+            int listSize = usersList.size();
+            return usersList.stream()
+                    .map(user -> {
+                        UserResponseDto dto = usersToDto(user);
+                        dto.setListSize(listSize); // Set the list size for each DTO
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+        });
     }
 
     @Transactional
