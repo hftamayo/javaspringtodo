@@ -59,30 +59,29 @@ public class UserDao {
         }
     }
 
-    public Optional<User> getUserByCriteria(String criteria, String value) {
+    public Optional<List<User>> getUserByCriteria(String criteria, String value) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
             query.select(root).where(builder.equal(root.get(criteria), value));
 
-            User user = entityManager.createQuery(query).getSingleResult();
-            return Optional.ofNullable(user);
+            List<User> userList = entityManager.createQuery(query).getResultList();
+            return Optional.ofNullable(userList.isEmpty() ? null : userList);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
-    public Optional<User> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+    public Optional<List<User>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<User> query = builder.createQuery(User.class);
             Root<User> root = query.from(User.class);
             query.select(root).where(builder.equal(root.get(criteria), value),
                     builder.equal(root.get(criteria2), value2));
-
-            User user = entityManager.createQuery(query).getSingleResult();
-            return Optional.ofNullable(user);
+            List<User> userList = entityManager.createQuery(query).getResultList();
+            return Optional.ofNullable(userList.isEmpty() ? null : userList);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving data: not found", pe);
         }

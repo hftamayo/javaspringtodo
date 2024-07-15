@@ -16,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,26 +51,14 @@ public class UserServiceImpl implements UserService {
         return userDao.getUserByCriteria("email", email);
     }
 
-    public Optional<UserResponseDto> getUserByCriteria(String criteria, String value) {
-        Optional<User> userOptional = userDao.getUserByCriteria(criteria, value);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserResponseDto dto = usersToDto(user);
-            return Optional.of(dto);
-        } else {
-            return Optional.empty();
-        }
+    public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
+        Optional<List<User>> userListOptional = userDao.getUserByCriteria(criteria, value);
+        return userListOptional.map(usersList -> usersList.stream().map(this::usersToDto).collect(Collectors.toList()));
     }
 
-    public Optional<UserResponseDto> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
-        Optional<User> userOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserResponseDto dto = usersToDto(user);
-            return Optional.of(dto);
-        } else {
-            return Optional.empty();
-        }
+    public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+        Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
+        return userListOptional.map(usersList -> usersList.stream().map(this::usersToDto).collect(Collectors.toList()));
     }
 
     @Transactional
