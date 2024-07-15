@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     public Optional<User> getUserByEmail(String email) {
         Optional<Object> result = userDao.getUserByCriteria("email", email, true);
-        return result.map(object -> (User) object;
+        return result.map(object -> (User) object);
     }
 
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
