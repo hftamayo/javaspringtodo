@@ -54,34 +54,18 @@ public class UserServiceImpl implements UserService {
 
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
         Optional<Object> result = userDao.getUserByCriteria(criteria, value, false);
-        if (result.isPresent() && result.get() instanceof List<?>) {
-            List<?> rawList = (List<?>) result.get();
-            if (!rawList.isEmpty() && rawList.get(0) instanceof User) {
-                List<User> usersList = (List<User>) rawList;
-                int listSize = usersList.size();
-                List<UserResponseDto> dtos = usersList.stream()
-                        .map(user -> {
-                            UserResponseDto dto = usersToDto(user);
-                            return dto;
-                        })
-                        .collect(Collectors.toList());
-                return Optional.of(dtos);
+        return result.map(object -> {
+            if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
+                List<User> usersList = (List<User>) object;
+                return Optional.of(convertUsersToDtos(usersList));
             }
-        }
-        return Optional.empty();
+            return Optional.<List<UserResponseDto>>empty();
+        }).orElse(Optional.empty());
     }
 
     public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
         Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        return userListOptional.map(usersList -> {
-            int listSize = usersList.size();
-            return usersList.stream()
-                    .map(user -> {
-                        UserResponseDto dto = usersToDto(user);
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-        });
+        return userListOptional.map(this::convertUsersToDtos).map(Optional::of).orElse(Optional.empty());
     }
 
     @Transactional
@@ -179,6 +163,12 @@ public class UserServiceImpl implements UserService {
                 user.getDateAdded().toString(),
                 formattedRoleName
         );
+    }
+
+    private List<UserResponseDto> convertUsersToDtos(List<User> users) {
+        return users.stream()
+                .map(this::usersToDto)
+                .collect(Collectors.toList());
     }
 
 }
