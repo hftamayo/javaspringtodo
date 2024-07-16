@@ -9,7 +9,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -138,21 +140,22 @@ public class UserDao {
         }
     }
 
-    public User updateUser(long userId, User updatedUser) {
+    public User updateUser(long userId, Map<String, Object> propertiesToUpdate) {
         try {
             entityManager.getTransaction().begin();
             User existingUser = entityManager.find(User.class, userId);
             if (existingUser != null) {
-                existingUser.setName(updatedUser.getName());
-                existingUser.setEmail(updatedUser.getEmail());
-                existingUser.setPassword(updatedUser.getPassword());
-                existingUser.setAge(updatedUser.getAge());
-                existingUser.setStatus(updatedUser.isStatus());
-                existingUser.setRole(updatedUser.getRole());
+                for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
+                    Field field = User.class.getDeclaredField(entry.getKey());
+                    field.setAccessible(true);
+                    field.set(existingUser, entry.getValue());
+                }
                 existingUser = entityManager.merge(existingUser);
             }
             entityManager.getTransaction().commit();
             return existingUser;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Error updating user properties", e);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error updating user", pe);
         }
