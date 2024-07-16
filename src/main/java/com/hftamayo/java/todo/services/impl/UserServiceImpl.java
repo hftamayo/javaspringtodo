@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         return result.map(object -> {
             if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
                 List<User> usersList = (List<User>) object;
-                return Optional.of(convertUsersToDtos(usersList));
+                return Optional.of(userListToDto(usersList));
             }
             return Optional.<List<UserResponseDto>>empty();
         }).orElse(Optional.empty());
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
     public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
         Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        return userListOptional.map(this::convertUsersToDtos).map(Optional::of).orElse(Optional.empty());
+        return userListOptional.map(this::userListToDto).map(Optional::of).orElse(Optional.empty());
     }
 
     @Transactional
@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-    private List<UserResponseDto> convertUsersToDtos(List<User> users) {
+    private List<UserResponseDto> userListToDto(List<User> users) {
         return users.stream()
                 .map(this::userToDto)
                 .collect(Collectors.toList());
