@@ -109,9 +109,9 @@ public class UserServiceImpl implements UserService {
     public User updateUserStatus(long userId, boolean status) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            User requestedUser = requestedUserOptional.get();
-            requestedUser.setStatus(status);
-            return userDao.updateUser(userId, requestedUser);
+            Map<String, Object> propertiesToUpdate = new HashMap<>();
+            propertiesToUpdate.put("status", status);
+            return userDao.updateUser(userId, propertiesToUpdate);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -131,8 +131,10 @@ public class UserServiceImpl implements UserService {
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
         }
-        user.setRole(roleOptional.get());
-        User updatedUser = userDao.updateUser(userId, user);
+        Map<String, Object> propertiesToUpdate = new HashMap<>();
+        propertiesToUpdate.put("status", status);
+        propertiesToUpdate.put("role", roleOptional.get());
+        User updatedUser = userDao.updateUser(userId, propertiesToUpdate);
         return usersToDto(updatedUser);
     }
 
