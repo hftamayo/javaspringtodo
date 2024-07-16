@@ -1,9 +1,6 @@
 package com.hftamayo.java.todo.dto.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
@@ -24,5 +21,4 @@ public class UserResponseDto {
     private String dateAdded;
     private String role;
     private Integer listSize;
-
 }
