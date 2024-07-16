@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
                 int listSize = usersList.size();
                 List<UserResponseDto> dtos = usersList.stream()
                         .map(user -> {
-                            UserResponseDto dto = usersToDto(user, Optional.of(listSize));
+                            UserResponseDto dto = usersToDto(user);
                             return dto;
                         })
                         .collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
             int listSize = usersList.size();
             return usersList.stream()
                     .map(user -> {
-                        UserResponseDto dto = usersToDto(user, Optional.of(listSize));
+                        UserResponseDto dto = usersToDto(user);
                         return dto;
                     })
                     .collect(Collectors.toList());
@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto usersToDto(User user, Optional<Integer> listSize) {
+    public UserResponseDto usersToDto(User user) {
         String formattedRoleName = user.getRole().getRoleEnum().name();
 
         return new UserResponseDto(
@@ -177,8 +177,7 @@ public class UserServiceImpl implements UserService {
                 user.isCredentialsNonExpired(),
                 user.isStatus(),
                 user.getDateAdded().toString(),
-                formattedRoleName,
-                listSize.orElse(null)
+                formattedRoleName
         );
     }
 
