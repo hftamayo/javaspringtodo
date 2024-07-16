@@ -35,6 +35,20 @@ public class RolesDao {
         }
     }
 
+    public Optional<Roles> getRoleById(long roleId) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
+            Root<Roles> root = query.from(Roles.class);
+            query.select(root).where(builder.equal(root.get("id"), roleId));
+
+            Roles role = entityManager.createQuery(query).getSingleResult();
+            return Optional.ofNullable(role);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving roles", pe);
+        }
+    }
+
     public Optional<Roles> getRoleByEnum(String roleEnum) {
         try {
             ERole eRole = ERole.valueOf(roleEnum);
@@ -51,19 +65,7 @@ public class RolesDao {
         }
     }
 
-    public Optional<Roles> findById(long roleId) {
-        try {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
-            Root<Roles> root = query.from(Roles.class);
-            query.select(root).where(builder.equal(root.get("id"), roleId));
 
-            Roles role = entityManager.createQuery(query).getSingleResult();
-            return Optional.ofNullable(role);
-        } catch (PersistenceException pe) {
-            throw new RuntimeException("Error retrieving roles", pe);
-        }
-    }
 
     public Roles saveRole(Roles newRole) {
         try {
