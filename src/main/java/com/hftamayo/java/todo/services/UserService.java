@@ -29,7 +29,7 @@ public interface UserService {
 
     UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
-    UserResponseDto usersToDto(User user);
+    UserResponseDto userToDto(User user);
 
 
 }

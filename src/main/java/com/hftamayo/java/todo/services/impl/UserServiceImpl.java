@@ -31,14 +31,14 @@ public class UserServiceImpl implements UserService {
 
     public List<UserResponseDto> getUsers() {
         List<User> usersList = userDao.getUsers();
-        return usersList.stream().map(this::usersToDto).toList();
+        return usersList.stream().map(this::userToDto).toList();
     }
 
     public Optional<UserResponseDto> getUser(long userId) {
         Optional<User> userOptional = getUserById(userId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            UserResponseDto dto = usersToDto(user);
+            UserResponseDto dto = userToDto(user);
             return Optional.of(dto);
         } else {
             return Optional.empty();
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
         if (!requestedUser.isPresent()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             User savedUser = userDao.saveUser(newUser);
-            UserResponseDto dto = usersToDto(savedUser);
+            UserResponseDto dto = userToDto(savedUser);
             return dto;
         } else {
             throw new EntityAlreadyExistsException("The email is already registered by this user: " +
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
             propertiesToUpdate.put("isAdmin", updatedUser.isAdmin());
             propertiesToUpdate.put("status", updatedUser.isStatus());
             User user = userDao.updateUser(userId, propertiesToUpdate);
-            return usersToDto(user);
+            return userToDto(user);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
         propertiesToUpdate.put("status", status);
         propertiesToUpdate.put("role", roleOptional.get());
         User updatedUser = userDao.updateUser(userId, propertiesToUpdate);
-        return usersToDto(updatedUser);
+        return userToDto(updatedUser);
     }
 
     @Transactional
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponseDto usersToDto(User user) {
+    public UserResponseDto userToDto(User user) {
         String formattedRoleName = user.getRole().getRoleEnum().name();
 
         return new UserResponseDto(
@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
 
     private List<UserResponseDto> convertUsersToDtos(List<User> users) {
         return users.stream()
-                .map(this::usersToDto)
+                .map(this::userToDto)
                 .collect(Collectors.toList());
     }
 
