@@ -58,7 +58,14 @@ public class UserServiceImpl implements UserService {
             List<?> rawList = (List<?>) result.get();
             if (!rawList.isEmpty() && rawList.get(0) instanceof User) {
                 List<User> usersList = (List<User>) rawList;
-                return Optional.of(usersList.stream().map(this::usersToDto).collect(Collectors.toList()));
+                int listSize = usersList.size();
+                List<UserResponseDto> dtos = usersList.stream()
+                        .map(user -> {
+                            UserResponseDto dto = usersToDto(user, Optional.of(listSize));
+                            return dto;
+                        })
+                        .collect(Collectors.toList());
+                return Optional.of(dtos);
             }
         }
         return Optional.empty();
@@ -70,8 +77,7 @@ public class UserServiceImpl implements UserService {
             int listSize = usersList.size();
             return usersList.stream()
                     .map(user -> {
-                        UserResponseDto dto = usersToDto(user);
-                        dto.setListSize(listSize); // Set the list size for each DTO
+                        UserResponseDto dto = usersToDto(user, Optional.of(listSize));
                         return dto;
                     })
                     .collect(Collectors.toList());
@@ -157,7 +163,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto usersToDto(User user) {
+    public UserResponseDto usersToDto(User user, Optional<Integer> listSize) {
         String formattedRoleName = user.getRole().getRoleEnum().name();
 
         return new UserResponseDto(
@@ -171,7 +177,8 @@ public class UserServiceImpl implements UserService {
                 user.isCredentialsNonExpired(),
                 user.isStatus(),
                 user.getDateAdded().toString(),
-                formattedRoleName
+                formattedRoleName,
+                listSize.orElse(null)
         );
     }
 
