@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -88,27 +90,15 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUser(long userId, User updatedUser) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            User requestedUser = requestedUserOptional.get();
-            requestedUser.setName(updatedUser.getName());
-            requestedUser.setEmail(updatedUser.getEmail());
-            requestedUser.setPassword(updatedUser.getPassword());
-            requestedUser.setAge(updatedUser.getAge());
-            requestedUser.setAdmin(updatedUser.isAdmin());
-            requestedUser.setStatus(updatedUser.isStatus());
-            User userToUpdate = userDao.updateUser(userId, requestedUser);
-            UserResponseDto dto = usersToDto(userToUpdate);
-            return dto;
-        } else {
-            throw new EntityNotFoundException("User not found");
-        }
-    }
-
-    @Transactional
-    @Override
-    public void deleteUser(long userId) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            userDao.deleteUser(requestedUserOptional.get().getId());
+            Map<String, Object> propertiesToUpdate = new HashMap<>();
+            propertiesToUpdate.put("name", updatedUser.getName());
+            propertiesToUpdate.put("email", updatedUser.getEmail());
+            propertiesToUpdate.put("password", updatedUser.getPassword());
+            propertiesToUpdate.put("age", updatedUser.getAge());
+            propertiesToUpdate.put("isAdmin", updatedUser.isAdmin());
+            propertiesToUpdate.put("status", updatedUser.isStatus());
+            User user = userDao.updateUser(userId, propertiesToUpdate);
+            return usersToDto(user);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -145,6 +135,18 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userDao.updateUser(userId, user);
         return usersToDto(updatedUser);
     }
+
+    @Transactional
+    @Override
+    public void deleteUser(long userId) {
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            userDao.deleteUser(requestedUserOptional.get().getId());
+        } else {
+            throw new EntityNotFoundException("User not found");
+        }
+    }
+
 
     @Override
     public UserResponseDto usersToDto(User user) {
