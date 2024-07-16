@@ -25,7 +25,7 @@ public interface UserService {
 
     void deleteUser(long userId);
 
-    User updateUserStatus(long userId, boolean status);
+    UserResponseDto updateUserStatus(long userId, boolean status);
 
     UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 

@@ -106,12 +106,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUserStatus(long userId, boolean status) {
+    public UserResponseDto updateUserStatus(long userId, boolean status) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             Map<String, Object> propertiesToUpdate = new HashMap<>();
             propertiesToUpdate.put("status", status);
-            return userDao.updateUser(userId, propertiesToUpdate);
+            User user = userDao.updateUser(userId, propertiesToUpdate);
+            return userToDto(user);
         } else {
             throw new EntityNotFoundException("User not found");
         }

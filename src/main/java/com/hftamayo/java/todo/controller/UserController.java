@@ -64,6 +64,17 @@ public class UserController {
 
     }
 
+    @PatchMapping(value = "/userstatus/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+        try {
+            boolean status = (boolean) updates.get("status");
+            return userService.updateUserStatus(userId, status);
+        } catch (EntityNotFoundException enf) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PatchMapping(value = "/activateuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
