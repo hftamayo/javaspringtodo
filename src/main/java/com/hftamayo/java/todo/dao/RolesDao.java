@@ -12,7 +12,9 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -65,8 +67,6 @@ public class RolesDao {
         }
     }
 
-
-
     public Roles saveRole(Roles newRole) {
         try {
             entityManager.getTransaction().begin();
@@ -83,18 +83,22 @@ public class RolesDao {
         }
     }
 
-    public Roles updateRole(long roleId, Roles updatedRole) {
+    public Roles updateRole(long roleId, Map<String, Object> propertiesToUpdate) {
         try {
             entityManager.getTransaction().begin();
             Roles existingRole = entityManager.find(Roles.class, roleId);
             if (existingRole != null) {
-                existingRole.setRoleEnum(updatedRole.getRoleEnum());
-                existingRole.setDescription(updatedRole.getDescription());
-                existingRole.setStatus(updatedRole.isStatus());
+                for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
+                    Field field = Roles.class.getDeclaredField(entry.getKey());
+                    field.setAccessible(true);
+                    field.set(existingRole, entry.getValue());
+                }
                 existingRole = entityManager.merge(existingRole);
             }
             entityManager.getTransaction().commit();
             return existingRole;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Error updating role properties", e);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error updating role", pe);
         }
