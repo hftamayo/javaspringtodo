@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -41,7 +43,7 @@ public class RolesServiceImpl implements RolesService {
     }
 
     public Optional<Roles> getRoleById(long roleId) {
-        return rolesDao.findById(roleId);
+        return rolesDao.getRoleById(roleId);
     }
 
     @Transactional
@@ -62,13 +64,12 @@ public class RolesServiceImpl implements RolesService {
     public RolesResponseDto updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
-            Roles requestedRole = requestedRoleOptional.get();
-            requestedRole.setRoleEnum(updatedRole.getRoleEnum());
-            requestedRole.setDescription(updatedRole.getDescription());
-            requestedRole.setStatus(updatedRole.isStatus());
-            Roles roleToUpdate = rolesDao.updateRole(roleId, requestedRole);
-            RolesResponseDto dto = roleToDto(roleToUpdate);
-            return dto;
+            Map<String, Object> propertiesToUpdate = new HashMap<>();
+            propertiesToUpdate.put("roleEnum", updatedRole.getRoleEnum());
+            propertiesToUpdate.put("description", updatedRole.getDescription());
+            propertiesToUpdate.put("status", updatedRole.isStatus());
+            Roles role = rolesDao.updateRole(roleId, propertiesToUpdate);
+            return roleToDto(role);
         } else {
             throw new EntityNotFoundException("Role not found");
         }
