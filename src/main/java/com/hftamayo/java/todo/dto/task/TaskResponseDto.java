@@ -14,7 +14,7 @@ public class TaskResponseDto {
     private Long id;
     private String title;
     private String description;
-    private String status;
+    private boolean status;
     private String dateAdded;
     private String owner;
 }
