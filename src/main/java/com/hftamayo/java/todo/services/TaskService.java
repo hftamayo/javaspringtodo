@@ -8,13 +8,13 @@ import java.util.Optional;
 
 public interface TaskService {
     List<TaskResponseDto> getTasks();
-    Optional<TaskResponseDto> getTaskById(long taskId);
+    Optional<TaskResponseDto> getTask(long taskId);
     Optional<List<TaskResponseDto>> getTaskByCriteria(String criteria, String value);
     Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value, String criteria2, String value2);
 
     Optional<Task> getTaskByTitle(String title);
-    Task saveTask(Task newTask);
-    Task updateTask(long taskId, Task updatedTask);
+    TaskResponseDto saveTask(Task newTask);
+    TaskResponseDto updateTask(long taskId, Task updatedTask);
     void deleteTask(long taskId);
     TaskResponseDto taskToDto(Task task);
 }
