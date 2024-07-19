@@ -23,11 +23,23 @@ public class TaskServiceImpl implements TaskService {
     private final TaskDao taskDao;
 
     public List<TaskResponseDto> getTasks() {
-        return taskDao.getTasks();
+        List<Task> taskList = taskDao.getTasks();
+        return taskList.stream().map(this::taskToDto).toList();
     }
 
-    public Optional<Task> getTaskById(long taskId) {
+    public Optional<Task> getTaskById(long taskId){
         return taskDao.getTaskById(taskId);
+    }
+
+    public Optional<TaskResponseDto> getTask(long taskId) {
+        Optional<Task> taskOptional = getTaskById(taskId);
+        if(taskOptional.isPresent()){
+            Task task = taskOptional.get();
+            TaskResponseDto dto = taskToDto(task);
+            return Optional.of(dto);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public List<Task> getAllTasksByStatus(boolean taskStatus) {
