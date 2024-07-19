@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,13 +70,34 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public Task saveTask(Task task) {
-        Optional<Task> requestedTask = getTaskByTitle(task.getTitle());
-        if (requestedTask.isPresent()) {
-            throw new EntityAlreadyExistsException("Title already exists");
+    public TaskResponseDto saveTask(Task newTask) {
+        Optional<Task> requestedTask = getTaskByTitle(newTask.getTitle());
+        if (!requestedTask.isPresent()) {
+            Task savedTask = taskDao.saveTask(newTask);
+            TaskResponseDto dto = taskToDto(savedTask);
+            return dto;
+        } else {
+            throw new EntityAlreadyExistsException("Task title already exists: " +
+                    requestedTask.get().getTitle());
         }
-        return taskDao.saveTask(task);
     }
+
+@Transactional
+    @Override
+    public TaskResponseDto updateTask(long taskId, Task updatedTask) {
+        Optional<Task> requestedTaskOptional = getTaskById(taskId);
+        if (requestedTaskOptional.isPresent()) {
+            Map<String, Object> propertiesToUpdate = new HashMap<>();
+            propertiesToUpdate.put("title", updatedTask.getTitle());
+            propertiesToUpdate.put("description", updatedTask.getDescription());
+            propertiesToUpdate.put("status", updatedTask.isStatus());
+            Task task = taskDao.updateTask(taskId, propertiesToUpdate);
+            return taskToDto(task);
+        } else {
+            throw new EntityNotFoundException("Task does not exist");
+        }
+    }
+
 
     @Transactional
     @Override
