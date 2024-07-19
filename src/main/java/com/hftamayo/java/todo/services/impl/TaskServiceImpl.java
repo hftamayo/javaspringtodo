@@ -3,8 +3,10 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dao.TaskDao;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.dto.task.TasksByStatusResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,8 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.empty;
 
 @Service
 @RequiredArgsConstructor
@@ -38,27 +42,28 @@ public class TaskServiceImpl implements TaskService {
             TaskResponseDto dto = taskToDto(task);
             return Optional.of(dto);
         } else {
-            return Optional.empty();
+            return empty();
         }
-    }
-
-    public List<Task> getAllTasksByStatus(boolean taskStatus) {
-        return taskDao.getTasksByStatus(taskStatus);
     }
 
     public Optional<Task> getTaskByTitle(String taskTitle) {
         return taskDao.getTaskByTitle(taskTitle);
     }
 
-    public long countAllTaskByStatus(boolean taskStatus) {
-        List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
-        return tasks.size();
+    public Optional<List<TaskResponseDto>> getUserByCriteria(String criteria, String value) {
+        Optional<Object> result = taskDao.getTaskByCriteria(criteria, value, false);
+        return result.map(object -> {
+            if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof Task) {
+                List<Task> taskList = (List<Task>) object;
+                return Optional.of(taskListToDto(taskList));
+            }
+            return Optional.<List<TaskResponseDto>>empty();
+        }).orElse(Optional.empty());
     }
 
-    public TasksByStatusResponseDto getTasksByStatusAndSize(boolean taskStatus) {
-        List<Task> tasks = taskDao.getTasksByStatus(taskStatus);
-        int count = tasks.size();
-        return new TasksByStatusResponseDto(tasks, count);
+    public Optional<List<TaskResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+        Optional<List<Task>> taskListOptional = taskDao.getTaskByCriterias(criteria, value, criteria2, value2);
+        return taskListOptional.map(this::taskListToDto).map(Optional::of).orElse(Optional.empty());
     }
 
     @Transactional
