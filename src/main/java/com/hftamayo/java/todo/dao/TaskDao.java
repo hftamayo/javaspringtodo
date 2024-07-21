@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.dao;
 
 import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.model.User;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -9,7 +10,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -27,19 +30,6 @@ public class TaskDao {
 
             return entityManager.createQuery(query).getResultList();
 
-        } catch (PersistenceException pe) {
-            throw new RuntimeException("Error retrieving tasks", pe);
-        }
-    }
-
-    public List<Task> getTasksByStatus(boolean isActive) {
-        try {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Task> query = builder.createQuery(Task.class);
-            Root<Task> root = query.from(Task.class);
-            query.select(root).where(builder.equal(root.get("status"), isActive));
-
-            return entityManager.createQuery(query).getResultList();
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving tasks", pe);
         }
@@ -73,17 +63,36 @@ public class TaskDao {
         }
     }
 
-    public TasksByStatusResponseDto getTasksByStatusAndSize(boolean isActive) {
+    public Optional<Object> getTaskByCriteria(String criteria, String value, boolean singleResult) {
         try {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<Task> query = builder.createQuery(Task.class);
             Root<Task> root = query.from(Task.class);
-            query.select(root).where(builder.equal(root.get("status"), isActive));
+            query.select(root).where(builder.equal(root.get(criteria), value));
 
-            List<Task> tasks = entityManager.createQuery(query).getResultList();
-            return new TasksByStatusResponseDto(tasks);
+            if (singleResult) {
+                Task task = entityManager.createQuery(query).getSingleResult();
+                return Optional.ofNullable(task);
+            } else {
+                List<Task> taskList = entityManager.createQuery(query).getResultList();
+                return Optional.ofNullable(taskList.isEmpty() ? null : taskList);
+            }
         } catch (PersistenceException pe) {
-            throw new RuntimeException("Error retrieving tasks", pe);
+            throw new RuntimeException("Error retrieving data: not found", pe);
+        }
+    }
+
+    public Optional<List<Task>> getTaskByCriterias(String criteria, String value, String criteria2, String value2) {
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Task> query = builder.createQuery(Task.class);
+            Root<Task> root = query.from(Task.class);
+            query.select(root).where(builder.equal(root.get(criteria), value),
+                    builder.equal(root.get(criteria2), value2));
+            List<Task> taskList = entityManager.createQuery(query).getResultList();
+            return Optional.ofNullable(taskList.isEmpty() ? null : taskList);
+        } catch (PersistenceException pe) {
+            throw new RuntimeException("Error retrieving data: not found", pe);
         }
     }
 
@@ -103,18 +112,22 @@ public class TaskDao {
         }
     }
 
-    public Task updateTask(long taskId, Task task) {
+    public Task updateTask(long taskId, Map<String, Object> propertiesToUpdate) {
         try {
             entityManager.getTransaction().begin();
             Task existingTask = entityManager.find(Task.class, taskId);
             if (existingTask != null) {
-                existingTask.setTitle(task.getTitle());
-                existingTask.setDescription(task.getDescription());
-                existingTask.setStatus(task.isStatus());
+                for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
+                    Field field = User.class.getDeclaredField(entry.getKey());
+                    field.setAccessible(true);
+                    field.set(existingTask, entry.getValue());
+                }
                 existingTask = entityManager.merge(existingTask);
             }
             entityManager.getTransaction().commit();
             return existingTask;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Error updating task properties", e);
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error updating task", pe);
         }
