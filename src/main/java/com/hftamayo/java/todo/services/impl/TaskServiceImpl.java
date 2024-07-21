@@ -2,11 +2,8 @@ package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dao.TaskDao;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
-import com.hftamayo.java.todo.dto.task.TasksByStatusResponseDto;
-import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
-import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +49,7 @@ public class TaskServiceImpl implements TaskService {
         return taskDao.getTaskByTitle(taskTitle);
     }
 
-    public Optional<List<TaskResponseDto>> getUserByCriteria(String criteria, String value) {
+    public Optional<List<TaskResponseDto>> getTaskByCriteria(String criteria, String value) {
         Optional<Object> result = taskDao.getTaskByCriteria(criteria, value, false);
         return result.map(object -> {
             if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof Task) {
@@ -63,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
         }).orElse(Optional.empty());
     }
 
-    public Optional<List<TaskResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+    public Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value, String criteria2, String value2) {
         Optional<List<Task>> taskListOptional = taskDao.getTaskByCriterias(criteria, value, criteria2, value2);
         return taskListOptional.map(this::taskListToDto).map(Optional::of).orElse(Optional.empty());
     }
@@ -93,22 +90,6 @@ public class TaskServiceImpl implements TaskService {
             propertiesToUpdate.put("status", updatedTask.isStatus());
             Task task = taskDao.updateTask(taskId, propertiesToUpdate);
             return taskToDto(task);
-        } else {
-            throw new EntityNotFoundException("Task does not exist");
-        }
-    }
-
-
-    @Transactional
-    @Override
-    public Task updateTask(long taskId, Task task) {
-        Optional<Task> requestedTask = getTaskById(taskId);
-        if (requestedTask.isPresent()) {
-            Task updateTask = requestedTask.get();
-            updateTask.setTitle(task.getTitle());
-            updateTask.setDescription(task.getDescription());
-            updateTask.setStatus(task.isStatus());
-            return taskDao.updateTask(taskId, updateTask);
         } else {
             throw new EntityNotFoundException("Task does not exist");
         }
