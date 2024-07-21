@@ -1,7 +1,5 @@
 package com.hftamayo.java.todo.dao;
 
-import com.hftamayo.java.todo.dto.task.TasksByStatusResponseDto;
-import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.Task;
 import org.springframework.stereotype.Repository;
 
