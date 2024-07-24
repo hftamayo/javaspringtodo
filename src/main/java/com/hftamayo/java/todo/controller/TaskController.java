@@ -31,18 +31,18 @@ public class TaskController {
     @GetMapping(value = "/gettaskbyid/{taskId}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<TaskResponseDto> getTask(@PathVariable long taskId) {
-        return taskService.getTaskById(taskId);
+        return taskService.getTask(taskId);
     }
 
     @GetMapping(value = "/gettaskbycriteria/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public Optional<List<TaskResponseDto>> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return taskService.getTaskByCriteria(criteria, value);
     }
 
     @GetMapping(value = "/gettaskbycriterias/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public Optional<List<TaskResponseDto>> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         return taskService.getTaskByCriterias(criteria, value, criteria2, value2);
     }
 
