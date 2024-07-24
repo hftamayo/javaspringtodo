@@ -118,7 +118,7 @@ public class TaskDao {
             Task existingTask = entityManager.find(Task.class, taskId);
             if (existingTask != null) {
                 for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
-                    Field field = User.class.getDeclaredField(entry.getKey());
+                    Field field = Task.class.getDeclaredField(entry.getKey());
                     field.setAccessible(true);
                     field.set(existingTask, entry.getValue());
                 }
