@@ -150,7 +150,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
     @Override
     public UserResponseDto userToDto(User user) {
         String formattedRoleName = user.getRole().getRoleEnum().name();
@@ -175,5 +174,4 @@ public class UserServiceImpl implements UserService {
                 .map(this::userToDto)
                 .collect(Collectors.toList());
     }
-
 }
