@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class CustomTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(CustomTokenProvider.class);
 
@@ -32,8 +34,7 @@ public class CustomTokenProvider {
     @Value("${jwt.expiration-milliseconds}")
     private int jwtExpirationDate;
 
-    @Autowired
-    private JwtConfig jwtConfig;
+    private final JwtConfig jwtConfig;
 
     public String sessionIdentifier = UUID.randomUUID().toString();
 
@@ -43,7 +44,6 @@ public class CustomTokenProvider {
     public void init() {
         secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
-
 
     public String getToken(UserDetails userDetails) {
         return getToken(new HashMap<>(), userDetails);
@@ -60,11 +60,6 @@ public class CustomTokenProvider {
                 .signWith(getKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
-
-//    private Key getKey() {
-//        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
 
     private Key getKey() {
         return secretKey;
@@ -119,6 +114,4 @@ public class CustomTokenProvider {
     public void invalidateToken() {
         sessionIdentifier = UUID.randomUUID().toString();
     }
-
-
 }
