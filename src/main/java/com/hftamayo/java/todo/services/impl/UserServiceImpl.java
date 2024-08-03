@@ -9,6 +9,7 @@ import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
 
-    private final PasswordEncoder passwordEncoder;
+    private final @Lazy PasswordEncoder passwordEncoder;
     private final RolesDao rolesDao;
 
     public List<UserResponseDto> getUsers() {
@@ -57,7 +58,8 @@ public class UserServiceImpl implements UserService {
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
         Optional<Object> result = userDao.getUserByCriteria(criteria, value, false);
         return result.map(object -> {
-            if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
+            if (object instanceof List<?> &&
+                    !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
                 List<User> usersList = (List<User>) object;
                 return Optional.of(userListToDto(usersList));
             }
@@ -65,7 +67,8 @@ public class UserServiceImpl implements UserService {
         }).orElse(Optional.empty());
     }
 
-    public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value, String criteria2, String value2) {
+    public Optional<List<UserResponseDto>> getUserByCriterias(
+            String criteria, String value, String criteria2, String value2) {
         Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
         return userListOptional.map(this::userListToDto).map(Optional::of).orElse(Optional.empty());
     }

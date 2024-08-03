@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.security.interfaces.UserInfoProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +22,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
+    private final UserInfoProvider userInfoProvider;
     private final CustomTokenProvider customTokenProvider;
-    private final UserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
@@ -49,7 +50,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             username = customTokenProvider.getUsernameFromToken(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userInfoProvider.getUserDetails(username);
                 if (customTokenProvider.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null,
@@ -64,7 +65,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             logger.error("Error in AuthenticationFilter: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             logger.error("message from Authentication Filter workflow: Unauthorized access");
-            response.getWriter().write("A problem ocurred during the authentication process. Please try again.");
+            response.getWriter().write("A problem occurred during the authentication process. Please try again.");
         }
     }
 
@@ -75,5 +76,4 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

@@ -26,7 +26,7 @@ public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
-    private final @Lazy UserService userService;
+    private final @Lazy UserDetailsService userDetailsService;
 
     @Bean
     public JwtConfig jwtConfig() {
@@ -34,14 +34,15 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
@@ -50,12 +51,4 @@ public class SpringSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return userEmail -> (UserDetails) userService.getUserByEmail(userEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid Credentials: Username or Password not found"));
-    }
-
-
 }
