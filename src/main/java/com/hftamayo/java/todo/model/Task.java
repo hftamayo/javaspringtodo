@@ -40,7 +40,7 @@ public class Task {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
