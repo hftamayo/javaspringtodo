@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,6 +36,7 @@ public class CustomTokenProvider {
     private int jwtExpirationDate;
 
     private final JwtConfig jwtConfig;
+    private final UserInfoProviderManager userInfoProviderManager;
 
     public String sessionIdentifier = UUID.randomUUID().toString();
 
@@ -45,16 +47,16 @@ public class CustomTokenProvider {
         secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public String getToken(UserDetails userDetails) {
-        return getToken(new HashMap<>(), userDetails);
+    public String getToken(String username) {
+        return getToken(new HashMap<>(), username);
     }
 
-    private String getToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    private String getToken(Map<String, Object> extraClaims, String username) {
         extraClaims.put("sessionIdentifier", sessionIdentifier);
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationDate))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
@@ -73,11 +75,12 @@ public class CustomTokenProvider {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+    public boolean isTokenValid(String token, String username) {
+        final UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
+        final String tokenUsername = getUsernameFromToken(token);
         final String tokenSessionIdentifier = getClaim(token,
                 claims -> claims.get("sessionIdentifier", String.class));
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token)
+        return tokenUsername.equals(userDetails.getUsername()) && !isTokenExpired(token)
                 && sessionIdentifier.equals(tokenSessionIdentifier);
     }
 
