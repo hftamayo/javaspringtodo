@@ -1,6 +1,5 @@
 package com.hftamayo.java.todo.security.jwt;
 
-import com.hftamayo.java.todo.security.interfaces.UserInfoProvider;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,11 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -52,8 +49,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             username = customTokenProvider.getUsernameFromToken(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
-                if (customTokenProvider.isTokenValid(token, userDetails)) {
+                if (customTokenProvider.isTokenValid(token, username)) {
+                    UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null,
                                     userDetails.getAuthorities());
