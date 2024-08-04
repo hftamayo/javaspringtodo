@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.security.jwt;
 
 import com.hftamayo.java.todo.security.interfaces.UserInfoProvider;
+import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
-    private final @Lazy UserInfoProvider userInfoProvider;
+    private final UserInfoProviderManager userInfoProviderManager;
     private final CustomTokenProvider customTokenProvider;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
@@ -51,7 +52,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             username = customTokenProvider.getUsernameFromToken(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userInfoProvider.getUserDetails(username);
+                UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
                 if (customTokenProvider.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null,
