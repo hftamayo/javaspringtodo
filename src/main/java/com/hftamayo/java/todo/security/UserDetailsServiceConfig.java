@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @RequiredArgsConstructor
 public class UserDetailsServiceConfig {
 
-    private final @Lazy UserService userService;
+    private final UserService userService;
 
     @Bean
     public UserDetailsService userDetailsService() {
