@@ -23,17 +23,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserDao userDao;
 
+    private final UserDao userDao;
     private final  PasswordEncoder passwordEncoder;
     private final RolesDao rolesDao;
 
+    @Override
     public List<UserResponseDto> getUsers() {
         List<User> usersList = userDao.getUsers();
         return usersList.stream().map(this::userToDto).toList();
     }
 
+    @Override
     public Optional<UserResponseDto> getUser(long userId) {
         Optional<User> userOptional = getUserById(userId);
         if (userOptional.isPresent()) {
@@ -44,16 +45,18 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         }
     }
-
+    @Override
     public Optional<User> getUserById(long userId) {
         return userDao.getUserById(userId);
     }
 
+    @Override
     public Optional<User> getUserByEmail(String email) {
         Optional<Object> result = userDao.getUserByCriteria("email", email, true);
         return result.map(object -> (User) object);
     }
 
+    @Override
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
         Optional<Object> result = userDao.getUserByCriteria(criteria, value, false);
         return result.map(object -> {
@@ -66,6 +69,7 @@ public class UserServiceImpl implements UserService {
         }).orElse(Optional.empty());
     }
 
+    @Override
     public Optional<List<UserResponseDto>> getUserByCriterias(
             String criteria, String value, String criteria2, String value2) {
         Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
