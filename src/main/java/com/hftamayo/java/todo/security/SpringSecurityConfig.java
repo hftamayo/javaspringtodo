@@ -17,12 +17,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
     private final UserInfoProviderManager userInfoProviderManager;
+
+    @Autowired
+    public SpringSecurityConfig(UserInfoProviderManager userInfoProviderManager) {
+        this.userInfoProviderManager = userInfoProviderManager;
+    }
 
     @Bean
     public JwtConfig jwtConfig() {
