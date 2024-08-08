@@ -9,10 +9,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Configuration
-@RequiredArgsConstructor
-public class UserDetailsServiceConfig {
 
-    private final UserService userService;
+public class UserDetailsServiceConfig {
+    private final UserInfoProviderManager userInfoProviderManager;
+
+    @Autowired
+    public UserDetailsServiceConfig(UserInfoProviderManager userInfoProviderManager) {
+        this.userInfoProviderManager = userInfoProviderManager;
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {
