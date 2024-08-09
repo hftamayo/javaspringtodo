@@ -25,20 +25,22 @@ public class SpringSecurityConfig {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final UserInfoProviderManager userInfoProviderManager;
 
     @Autowired
-    public SpringSecurityConfig(UserService userService, PasswordEncoder passwordEncoder,
-                                UserInfoProviderManager userInfoProviderManager) {
+    public SpringSecurityConfig(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.userInfoProviderManager = userInfoProviderManager;
+    }
+
+    @Bean
+    public UserInfoProviderManager userInfoProviderManager() {
+        return new UserInfoProviderManager(userService);
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userInfoProviderManager::getUserDetails);
+        authenticationProvider.setUserDetailsService(userInfoProviderManager()::getUserDetails);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
