@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.jwt.JwtConfig;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
+import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,34 +23,38 @@ public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
     private final UserInfoProviderManager userInfoProviderManager;
 
     @Autowired
-    public SpringSecurityConfig(UserInfoProviderManager userInfoProviderManager) {
+    public SpringSecurityConfig(UserService userService, PasswordEncoder passwordEncoder,
+                                UserInfoProviderManager userInfoProviderManager) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
         this.userInfoProviderManager = userInfoProviderManager;
-    }
-
-    @Bean
-    public JwtConfig jwtConfig() {
-        return new JwtConfig();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userInfoProviderManager::getUserDetails);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public JwtConfig jwtConfig() {
+        return new JwtConfig();
     }
 }
