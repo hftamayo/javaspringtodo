@@ -23,13 +23,17 @@ public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
-    private final UserService userService;
+    private UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SpringSecurityConfig(UserService userService, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
+    public SpringSecurityConfig(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Bean
