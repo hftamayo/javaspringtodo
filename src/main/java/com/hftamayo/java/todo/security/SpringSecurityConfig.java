@@ -69,12 +69,6 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public CustomTokenProvider customTokenProvider(JwtConfig jwtConfig,
-                                                   UserInfoProviderManager userInfoProviderManager) {
-        return new CustomTokenProvider(jwtConfig, userInfoProviderManager);
-    }
-
-    @Bean
     @Lazy
     public AuthenticationFilter authenticationFilter(UserInfoProviderManager userInfoProviderManager,
                                                      CustomTokenProvider customTokenProvider) {
