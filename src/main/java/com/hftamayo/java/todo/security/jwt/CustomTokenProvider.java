@@ -23,7 +23,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@Service
 @RequiredArgsConstructor
 public class CustomTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(CustomTokenProvider.class);
