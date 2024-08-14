@@ -17,7 +17,6 @@ public class CustomTokenProviderConfig {
         this.userInfoProviderManager = userInfoProviderManager;
     }
 
-
     @Bean
     public CustomTokenProvider customTokenProvider() {
         return new CustomTokenProvider(jwtConfig, userInfoProviderManager);
