@@ -8,6 +8,7 @@ import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +21,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
     private final  PasswordEncoder passwordEncoder;
     private final RolesDao rolesDao;
+
+    @Autowired
+    public UserServiceImpl(UserDao userDao,
+                           PasswordEncoder passwordEncoder, RolesDao rolesDao) {
+        this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
+        this.rolesDao = rolesDao;
+    }
 
     @Override
     public List<UserResponseDto> getUsers() {
@@ -51,7 +59,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getUserByEmail(String email) {
-        Optional<Object> result = userDao.getUserByCriteria("email", email, true);
+        Optional<Object> result = userDao
+                .getUserByCriteria("email", email, true);
         return result.map(object -> (User) object);
     }
 
