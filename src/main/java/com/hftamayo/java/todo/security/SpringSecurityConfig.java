@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@Import(PasswordEncoderConfig.class)
 public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
@@ -27,9 +29,11 @@ public class SpringSecurityConfig {
     private final UserInfoProviderManager userInfoProviderManager;
 
     @Autowired
-    public SpringSecurityConfig(PasswordEncoder passwordEncoder, UserInfoProviderManager userInfoProviderManager) {
+    public SpringSecurityConfig(PasswordEncoder passwordEncoder,
+                                UserInfoProviderManager userInfoProviderManager, UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.userInfoProviderManager = userInfoProviderManager;
+        this.userService = userService;
     }
 
     @Bean
