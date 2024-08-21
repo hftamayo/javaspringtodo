@@ -62,14 +62,14 @@ public class HibernateConfig {
         }
     }
 
-    private Properties hibernateProperties() {
+private Properties hibernateProperties() {
         Properties properties = new Properties();
-
         properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        properties.put("spring.jpa.properties.hibernate.show_sql", env.getProperty("hibernate.show_sql"));
-        properties.put("spring.jpa.properties.hibernate.format_sql", env.getProperty("hibernate.format_sql"));
+        properties.put("hibernate.show_sql", env.getProperty("spring.jpa.properties.hibernate.show_sql"));
+        properties.put("hibernate.format_sql", env.getProperty("spring.jpa.properties.hibernate.format_sql"));
 
-        logger.info("hibernate properties: {}", properties);
+        // Logging the properties to debug
+        logger.info("Hibernate Properties: {}", properties);
 
         return properties;
     }
