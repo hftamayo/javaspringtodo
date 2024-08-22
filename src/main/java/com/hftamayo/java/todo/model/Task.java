@@ -1,10 +1,10 @@
 package com.hftamayo.java.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -13,36 +13,36 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
-@Entity
+@Entity(name = "Task")
 @Table(schema = "tasks")
 public class Task {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, name = "task_title")
-    @NonNull
+    @Column(nullable = false, unique = true, name = "task_title")
     private String title;
 
-    @Column(name = "task_description")
-    @NonNull
+    @Column(nullable = false, name = "task_description")
     private String description;
 
+    @Column(nullable = false, name = "status")
+    @Builder.Default
+    private boolean status = true;
+
     @Column
-    @CreatedDate
+    @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @LastModifiedDate
+    @UpdateTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @Column(name = "status")
-    @Builder.Default
-    private boolean status = true;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     /* for the next release
     @Column(name = "owner_id", nullable = false)

@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.dto.LoginRequestDto;
-import com.hftamayo.java.todo.dto.ActiveSessionResponseDto;
+import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
+import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 
 import jakarta.servlet.http.HttpServletRequest;
 

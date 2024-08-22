@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,24 +8,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
-@RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
+    private final UserInfoProviderManager userInfoProviderManager;
     private final CustomTokenProvider customTokenProvider;
-    private final UserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
+
+    @Autowired
+    public AuthenticationFilter(UserInfoProviderManager userInfoProviderManager, CustomTokenProvider customTokenProvider) {
+        this.userInfoProviderManager = userInfoProviderManager;
+        this.customTokenProvider = customTokenProvider;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -49,8 +54,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             username = customTokenProvider.getUsernameFromToken(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (customTokenProvider.isTokenValid(token, userDetails)) {
+                if (customTokenProvider.isTokenValid(token, username)) {
+                    UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null,
                                     userDetails.getAuthorities());
@@ -64,7 +69,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             logger.error("Error in AuthenticationFilter: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             logger.error("message from Authentication Filter workflow: Unauthorized access");
-            response.getWriter().write("A problem ocurred during the authentication process. Please try again.");
+            response.getWriter().write("A problem occurred during the authentication process. Please try again.");
         }
     }
 

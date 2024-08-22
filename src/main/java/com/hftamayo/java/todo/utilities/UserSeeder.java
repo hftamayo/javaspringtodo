@@ -1,10 +1,13 @@
 package com.hftamayo.java.todo.utilities;
 
+import com.hftamayo.java.todo.dao.RolesDao;
+import com.hftamayo.java.todo.dao.UserDao;
 import com.hftamayo.java.todo.model.ERole;
 import com.hftamayo.java.todo.model.Roles;
 import com.hftamayo.java.todo.model.User;
-import com.hftamayo.java.todo.repository.RolesRepository;
-import com.hftamayo.java.todo.repository.UserRepository;
+import com.hftamayo.java.todo.services.RolesService;
+import com.hftamayo.java.todo.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -12,12 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.HashSet;
 
+@RequiredArgsConstructor
 @Component
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
-    private final UserRepository userRepository;
-    private final RolesRepository rolesRepository;
+    private final UserService userService;
+    private final RolesService rolesService;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${seed.development}")
@@ -29,13 +33,6 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private Roles adminRole;
     private Roles supervisorRole;
     private Roles userRole;
-
-    public UserSeeder(UserRepository userRepository, RolesRepository rolesRepository,
-                      PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.rolesRepository = rolesRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -65,17 +62,21 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void setRoles() {
         System.out.println("Seeding roles started");
-        userRole = new Roles(1, ERole.ROLE_USER, "User role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(userRole);
 
-        supervisorRole = new Roles(2, ERole.ROLE_SUPERVISOR, "Supervisor role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(supervisorRole);
 
-        adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true, LocalDateTime.now(), LocalDateTime.now());
-        rolesRepository.save(adminRole);
+        userRole = new Roles(1, ERole.ROLE_USER, "User role", true,
+                LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
+        rolesService.saveRole(userRole);
+
+        supervisorRole = new Roles(2, ERole.ROLE_SUPERVISOR, "Supervisor role", true,
+                LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
+        rolesService.saveRole(supervisorRole);
+
+        adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true,
+                LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
+        rolesService.saveRole(adminRole);
 
         System.out.println("Seeding roles completed");
-
     }
 
     private void seedDevelopment() {
@@ -83,20 +84,20 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
         User adminUser = new User(1L, "Herbert Tamayo", "hftamayo@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
                 true, true, true, true,
-                LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
-        userRepository.save(adminUser);
+                LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
+        userService.saveUser(adminUser);
 
         User supervisorUser = new User(2L, "Sebastian Fernandez", "sebas@gmail.com",
                 passwordEncoder.encode("password123"), 20, false,
                 true, true, true, true,
-                LocalDateTime.now(), LocalDateTime.now(), Set.of(supervisorRole));
-        userRepository.save(supervisorUser);
+                LocalDateTime.now(), LocalDateTime.now(), supervisorRole, new HashSet<>());
+        userService.saveUser(supervisorUser);
 
         User operatorUser = new User(3L, "Milu Martinez", "milu@gmail.com",
                 passwordEncoder.encode("password123"), 18, false,
                 true, true, true, true,
-                LocalDateTime.now(), LocalDateTime.now(), Set.of(userRole));
-        userRepository.save(operatorUser);
+                LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
+        userService.saveUser(operatorUser);
 
         System.out.println("Seeding data for development environment completed");
     }
@@ -106,9 +107,9 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
         User adminUser = new User(1L, "Administrator", "administrator@gmail.com",
                 passwordEncoder.encode("password123"), 25, true,
                 true, true, true, true,
-                LocalDateTime.now(), LocalDateTime.now(), Set.of(adminRole));
+                LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
 
-        userRepository.save(adminUser);
+        userService.saveUser(adminUser);
         System.out.println("Seeding data for production environment completed");
 
     }

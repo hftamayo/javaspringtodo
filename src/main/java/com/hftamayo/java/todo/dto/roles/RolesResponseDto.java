@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.dto;
+package com.hftamayo.java.todo.dto.roles;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,11 +9,10 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterUserResponseDto {
+public class RolesResponseDto {
     private Long id;
-    private String name;
-    private String email;
-    private int age;
-    private boolean isAdmin;
+    private String roleName;
+    private String roleDescription;
     private boolean status;
+    private String dateAdded;
 }

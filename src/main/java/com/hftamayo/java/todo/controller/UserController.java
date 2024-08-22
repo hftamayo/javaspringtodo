@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.RegisterUserResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -25,99 +26,64 @@ public class UserController {
 
     @GetMapping(value = "/allusers")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
+    public List<UserResponseDto> getUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/getuserbyid/{userId}")
+    @GetMapping(value = "/getuser/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUser(@PathVariable long userId) {
-        return userService.getUserById(userId);
+    public Optional<UserResponseDto> getUser(@PathVariable long userId) {
+        return userService.getUser(userId);
     }
 
-    @GetMapping(value = "/getuserbyusername/{username}")
+    @GetMapping(value = "/getuserbycriteria/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username);
+    public Optional<List<UserResponseDto>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
+        return userService.getUserByCriteria(criteria, value);
     }
 
-    @GetMapping(value = "/getuserbyemail/{email}")
+    @GetMapping(value = "/getuserbycriterias/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getUserByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email);
-    }
-
-    @GetMapping(value = "/getuserbyusernameandpassword/{username}/{password}")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUserByUsernameAndPassword(@PathVariable String username, @PathVariable String password) {
-        return userService.getUserByUsernameAndPassword(username, password);
-    }
-
-    @GetMapping(value = "/getuserbyemailandpassword/{email}/{password}")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUserByEmailAndPassword(@PathVariable String email, @PathVariable String password) {
-        return userService.getUserByEmailAndPassword(email, password);
-    }
-
-    @GetMapping(value = "/countuserbyusername/{username}")
-    @ResponseStatus(HttpStatus.OK)
-    public long countUserByUsername(@PathVariable String username) {
-        return userService.countAllUserByUsername(username);
-    }
-
-    @GetMapping(value = "/countuserbyemail/{email}")
-    @ResponseStatus(HttpStatus.OK)
-    public long countUserByEmail(@PathVariable String email) {
-        return userService.countAllUserByEmail(email);
+    public Optional<List<UserResponseDto>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+        return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 
     @PostMapping(value = "/saveuser")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterUserResponseDto saveUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return userService.userToDto(savedUser);
+    public UserResponseDto saveUser(@RequestBody User user) {
+        return userService.saveUser(user);
     }
 
     @PutMapping(value = "/updateuser/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user) {
+    public UserResponseDto updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
-            User updatedUser = userService.updateUser(userId, user);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            return userService.updateUser(userId, user);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+
     }
 
-
-    @PatchMapping(value = "/updatestatus/{userId}")
-    public ResponseEntity<User> updateUserStatus(@PathVariable long userId, @RequestParam boolean status) {
+    @PatchMapping(value = "/userstatus/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
-            User updatedUser = userService.updateUserStatus(userId, status);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            boolean status = (boolean) updates.get("status");
+            return userService.updateUserStatus(userId, status);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @PatchMapping(value = "/activateuser/{userId}")
-    public ResponseEntity<User> updateUserStatusAndRole(@PathVariable long userId,
-                                                        @RequestBody Map<String, Object> updates) {
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
-
-            User updatedUser = userService.updateUserStatusAndRole(userId, status, roleEnum);
-
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            return userService.updateUserStatusAndRole(userId, status, roleEnum);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("unexpected error: ", e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 

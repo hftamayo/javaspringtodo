@@ -38,6 +38,23 @@ This is a fully functional ToDo Application built on Kotlin for the Frontend and
 ## Bugs ##
 Please refer to the Issues section in this repository
 
+## Log releases ##
+### 0.0.1 Version ###
+- Released on: Jun 11st 2024
+- Based on JPA
+- this version won't be tested
+- Commit ID: (https://github.com/hftamayo/javaspringtodo/pull/38)
+
+### 0.0.2 Version ###
+- Released on: Jun 10th 2024
+- Based on Hibernate
+- Unit and Integration testing written in JUnit
+- Commit ID: (https://github.com/hftamayo/nodetodo/commit/70e6186b89ff4912a3c17745403db35685aa824a): typescript -> experimental -> main
+
+### 0.1.2 Version ###
+- Released on:
+- Unit and Integration testing written in Jest
+
 ## References ##
 - https://www.bezkoder.com/docker-compose-spring-boot-mysql/
 - https://stackoverflow.com/questions/76513868/mysql-docker-spring-boot-connection-issue-communications-link-failure

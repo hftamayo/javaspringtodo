@@ -19,7 +19,7 @@ public class TodoApplication {
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(TodoApplication.class, args);
-        DBConnectionService dbConnectionService = context.getBean(DBConnectionService.class);
-        dbConnectionService.checkDatabaseConnectionOnStartup();
+        TodoApplication app = context.getBean(TodoApplication.class);
+        app.dbConnectionService.checkDatabaseConnectionOnStartup();
     }
 }

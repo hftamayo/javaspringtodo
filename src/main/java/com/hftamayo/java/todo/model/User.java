@@ -1,25 +1,26 @@
 package com.hftamayo.java.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hftamayo.java.todo.security.interfaces.RoleGrantedAuthority;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 
-@Entity
+@Entity(name = "User")
 @Table(schema = "users")
 public class User implements UserDetails {
 
@@ -43,15 +44,15 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean isAdmin = false;
 
-    @Column(nullable = false, name= "isAccountNonExpired")
+    @Column(nullable = false, name = "isAccountNonExpired")
     @Builder.Default
     private boolean isAccountNonExpired = true;
 
-    @Column(nullable = false, name= "isAccountNonLocked")
+    @Column(nullable = false, name = "isAccountNonLocked")
     @Builder.Default
     private boolean isAccountNonLocked = true;
 
-    @Column(nullable = false, name= "isCredentialsNonExpired")
+    @Column(nullable = false, name = "isCredentialsNonExpired")
     @Builder.Default
     private boolean isCredentialsNonExpired = true;
 
@@ -60,23 +61,25 @@ public class User implements UserDetails {
     private boolean status = false;
 
     @Column
-    @CreatedDate
+    @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateAdded;
 
     @Column
-    @LastModifiedDate
+    @UpdateTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_roles",
-            schema = "users",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "role_id",
+            referencedColumnName = "id"
     )
-    private Set<Roles> roles;
+    private Roles role;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Task> tasks = new HashSet<>();
 
     @Override
     public String getPassword() {
@@ -110,9 +113,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(RoleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+        return Collections.singleton(new SimpleGrantedAuthority(role.getRoleEnum().name()));
     }
 
 //    @PrePersist
