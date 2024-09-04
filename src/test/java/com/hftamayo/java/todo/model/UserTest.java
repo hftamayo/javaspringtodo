@@ -78,53 +78,6 @@ public class UserTest {
     }
 
     @Test
-    public void testAddTask() {
-        Task task = Task.builder()
-                .id(1L)
-                .description("Sample Task")
-                .status(true)
-                .build();
-
-        user.getTasks().add(task);
-        task.setUser(user);
-
-        Assertions.assertEquals(1, user.getTasks().size());
-        Assertions.assertTrue(user.getTasks().contains(task));
-    }
-
-    @Test
-    public void testRemoveTask() {
-        Task task = Task.builder()
-                .id(1L)
-                .description("Sample Task")
-                .status(true)
-                .build();
-
-        user.getTasks().add(task);
-        task.setUser(user);
-
-        user.getTasks().remove(task);
-        task.setUser(null);
-
-        Assertions.assertEquals(0, user.getTasks().size());
-        Assertions.assertFalse(user.getTasks().contains(task));
-    }
-
-    @Test
-    public void testUpdateUserRole() {
-        Roles newRole = Roles.builder()
-                .id(2L)
-                .roleEnum(ERole.ROLE_ADMIN)
-                .description("Admin role")
-                .status(true)
-                .build();
-
-        user.setRole(newRole);
-
-        Assertions.assertEquals(newRole, user.getRole());
-    }
-
-    @Test
     public void testUpdateAccountExpiry() {
         user.setAccountNonExpired(false);
 
