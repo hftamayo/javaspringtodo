@@ -1,8 +1,8 @@
-package com.hftamayo.java.todo.Controller;
+package com.hftamayo.java.todo.deprecated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.model.Task;
-import com.hftamayo.java.todo.services.TaskService;
+import com.hftamayo.java.todo.services.TodoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,14 @@ import java.time.*;
 
 @WebMvcTest
 
-public class TaskControllerITV1 {
+public class EmployeeControllerTests {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private TaskService taskService;
+    private TodoService todoService;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
@@ -61,7 +61,7 @@ public class TaskControllerITV1 {
                 .dateUpdated(LocalDateTime.now())
                 .status(true)
                 .build());
-        given(taskService.getTasks()).willReturn(listOfTasks);
+        given(todoService.getTasks()).willReturn(listOfTasks);
 
         ResultActions response = mockMvc.perform(get("/tasks"));
 
@@ -83,7 +83,7 @@ public class TaskControllerITV1 {
                 .dateUpdated(LocalDateTime.of(2023, 07, 01, 12, 0))
                 .status(true)
                 .build();
-        given(taskService.saveTask(any(Task.class)))
+        given(todoService.saveTask(any(Task.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         ResultActions response = mockMvc.perform(post("/savetask")
@@ -121,8 +121,8 @@ public class TaskControllerITV1 {
                 .dateUpdated(LocalDateTime.of(2023, 07, 01, 14, 0))
                 .status(true)
                 .build();
-        given(taskService.getTaskById(taskId)).willReturn(savedTask);
-        given(taskService.updateTask(eq(1), any(Task.class)))
+        given(todoService.getTaskById(taskId)).willReturn(savedTask);
+        given(todoService.updateTask(eq(1), any(Task.class)))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         ResultActions response = mockMvc.perform(put("/updatetask/{taskId}", taskId)
@@ -173,7 +173,7 @@ public class TaskControllerITV1 {
     @DisplayName("delete a task successfully")
     public void givenTaskId_whenDeleteTask_thenReturnOK() throws Exception{
         long taskId = 1L;
-        willDoNothing().given(taskService).deleteTask(taskId);
+        willDoNothing().given(todoService).deleteTask(taskId);
 
         ResultActions response = mockMvc.perform(delete("/deletetask/{taskId}", taskId));
 
