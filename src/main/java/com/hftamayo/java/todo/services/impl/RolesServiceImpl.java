@@ -21,7 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RolesServiceImpl implements RolesService {
-    @Autowired
+
     private RolesDao rolesDao;
 
     public List<RolesResponseDto> getRoles()

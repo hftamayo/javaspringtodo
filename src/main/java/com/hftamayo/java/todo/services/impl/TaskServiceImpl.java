@@ -22,7 +22,7 @@ import static java.util.Optional.empty;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
-    @Autowired
+
     private final TaskDao taskDao;
 
     public List<TaskResponseDto> getTasks() {
