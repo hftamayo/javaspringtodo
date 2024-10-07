@@ -21,19 +21,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
     private final  PasswordEncoder passwordEncoder;
     private final RolesDao rolesDao;
-
-    @Autowired
-    public UserServiceImpl(UserDao userDao,
-                           PasswordEncoder passwordEncoder, RolesDao rolesDao) {
-        this.userDao = userDao;
-        this.passwordEncoder = passwordEncoder;
-        this.rolesDao = rolesDao;
-    }
 
     @Override
     public List<UserResponseDto> getUsers() {
