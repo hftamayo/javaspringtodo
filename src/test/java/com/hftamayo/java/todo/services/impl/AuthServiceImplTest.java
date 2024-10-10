@@ -66,7 +66,7 @@ public class AuthServiceImplTest {
         assertNotNull(response);
         assertEquals("testuser", response.getUsername());
         assertEquals("test@example.com", response.getEmail());
-        assertEquals(Collections.singletonList("USER"), response.getRoles());
+        assertEquals(Collections.singletonList("ROLE_USER"), response.getRoles());
         assertEquals("token", response.getAccessToken());
         assertEquals("Bearer", response.getTokenType());
         assertEquals(3600L, response.getExpiresIn());
