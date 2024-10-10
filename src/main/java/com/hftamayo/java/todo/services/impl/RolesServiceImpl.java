@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RolesServiceImpl implements RolesService {
 
-    private RolesDao rolesDao;
+    private final RolesDao rolesDao;
 
     public List<RolesResponseDto> getRoles()
     {
