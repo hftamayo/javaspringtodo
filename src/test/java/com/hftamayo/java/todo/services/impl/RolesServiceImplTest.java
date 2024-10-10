@@ -28,16 +28,7 @@ public class RolesServiceImplTest {
     @BeforeEach
     public void setUp() {
         rolesDao = Mockito.mock(RolesDao.class);
-        rolesService = new RolesServiceImpl();
-
-        try {
-            Field rolesDaoField = RolesServiceImpl.class
-                    .getDeclaredField("rolesDao");
-            rolesDaoField.setAccessible(true);
-            rolesDaoField.set(rolesService, rolesDao);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        rolesService = new RolesServiceImpl(rolesDao);
     }
 
     @Test
