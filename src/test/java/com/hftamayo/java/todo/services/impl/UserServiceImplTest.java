@@ -34,22 +34,6 @@ public class UserServiceImplTest {
         passwordEncoder = Mockito.mock(PasswordEncoder.class);
         rolesDao = Mockito.mock(RolesDao.class);
         userService = new UserServiceImpl(userDao, passwordEncoder, rolesDao);
-
-        try {
-            Field userDaoField = UserServiceImpl.class.getDeclaredField("userDao");
-            userDaoField.setAccessible(true);
-            userDaoField.set(userService, userDao);
-
-            Field passwordEncoderField = UserServiceImpl.class.getDeclaredField("passwordEncoder");
-            passwordEncoderField.setAccessible(true);
-            passwordEncoderField.set(userService, passwordEncoder);
-
-            Field rolesDaoField = UserServiceImpl.class.getDeclaredField("rolesDao");
-            rolesDaoField.setAccessible(true);
-            rolesDaoField.set(userService, rolesDao);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test
