@@ -50,23 +50,29 @@ public class TaskControllerTest {
     @Test
     public void testGetTaskByCriteria() {
         TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTaskByCriteria("name", "Test Task")).thenReturn(Optional.of(Collections.singletonList(task)));
+        when(taskService.getTaskByCriteria("name", "Test Task"))
+                .thenReturn(Optional.of(Collections.singletonList(task)));
 
-        Optional<List<TaskResponseDto>> result = taskController.getTaskByCriteria("name", "Test Task");
+        Optional<List<TaskResponseDto>> result = taskController
+                .getTaskByCriteria("name", "Test Task");
         assertTrue(result.isPresent());
         assertEquals(1, result.get().size());
-        verify(taskService, times(1)).getTaskByCriteria("name", "Test Task");
+        verify(taskService, times(1))
+                .getTaskByCriteria("name", "Test Task");
     }
 
     @Test
     public void testGetTaskByCriterias() {
         TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTaskByCriterias("name", "Test Task", "status", "active")).thenReturn(Optional.of(Collections.singletonList(task)));
+        when(taskService.getTaskByCriterias("name", "Test Task", "status", "active"))
+                .thenReturn(Optional.of(Collections.singletonList(task)));
 
-        Optional<List<TaskResponseDto>> result = taskController.getTaskByCriterias("name", "Test Task", "status", "active");
+        Optional<List<TaskResponseDto>> result = taskController
+                .getTaskByCriterias("name", "Test Task", "status", "active");
         assertTrue(result.isPresent());
         assertEquals(1, result.get().size());
-        verify(taskService, times(1)).getTaskByCriterias("name", "Test Task", "status", "active");
+        verify(taskService, times(1))
+                .getTaskByCriterias("name", "Test Task", "status", "active");
     }
 
     @Test
