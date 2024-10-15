@@ -17,6 +17,10 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 
+/*
+this class only requires integration testing
+ */
+
 @RequiredArgsConstructor
 @Component
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
