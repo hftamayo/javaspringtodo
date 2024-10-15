@@ -37,7 +37,7 @@ public class AuthControllerTest {
         LoginRequestDto loginRequestDto = new LoginRequestDto();
         loginRequestDto.setEmail("test@example.com");
         ActiveSessionResponseDto activeSessionResponseDto = new ActiveSessionResponseDto();
-        activeSessionResponseDto.setRoles("ROLE_USER");
+        activeSessionResponseDto.setRoles(Collections.singletonList("ROLE_USER"));
         activeSessionResponseDto.setAccessToken("token");
         activeSessionResponseDto.setTokenType("Bearer");
         activeSessionResponseDto.setExpiresIn(1);
