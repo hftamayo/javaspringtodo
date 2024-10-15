@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+/*
+this class will be tested just with an integration spec
+ */
+
 @Configuration
 @EnableTransactionManagement
 public class HibernateConfig {
