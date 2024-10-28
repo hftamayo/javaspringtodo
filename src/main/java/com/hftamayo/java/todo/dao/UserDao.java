@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.dao;
 
 import com.hftamayo.java.todo.model.User;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -81,25 +82,24 @@ public class UserDao {
         }
     }
 
+    @Transactional
     public User saveUser(User newUser) {
         try {
-            entityManager.getTransaction().begin();
             User existingUser = entityManager.find(User.class, newUser.getId());
             if (existingUser == null) {
                 entityManager.persist(newUser);
             } else {
                 newUser = entityManager.merge(newUser);
             }
-            entityManager.getTransaction().commit();
             return newUser;
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error saving user", pe);
         }
     }
 
+    @Transactional
     public User updateUser(long userId, Map<String, Object> propertiesToUpdate) {
         try {
-            entityManager.getTransaction().begin();
             User existingUser = entityManager.find(User.class, userId);
             if (existingUser != null) {
                 for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
@@ -109,7 +109,6 @@ public class UserDao {
                 }
                 existingUser = entityManager.merge(existingUser);
             }
-            entityManager.getTransaction().commit();
             return existingUser;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Error updating user properties", e);

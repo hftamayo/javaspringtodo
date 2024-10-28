@@ -11,6 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -67,25 +68,24 @@ public class RolesDao {
         }
     }
 
+    @Transactional
     public Roles saveRole(Roles newRole) {
         try {
-            entityManager.getTransaction().begin();
             Roles existingRole = entityManager.find(Roles.class, newRole.getId());
             if (existingRole == null) {
                 entityManager.persist(newRole);
             } else {
                 newRole = entityManager.merge(newRole);
             }
-            entityManager.getTransaction().commit();
             return newRole;
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error saving role", pe);
         }
     }
 
+    @Transactional
     public Roles updateRole(long roleId, Map<String, Object> propertiesToUpdate) {
         try {
-            entityManager.getTransaction().begin();
             Roles existingRole = entityManager.find(Roles.class, roleId);
             if (existingRole != null) {
                 for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
@@ -95,7 +95,6 @@ public class RolesDao {
                 }
                 existingRole = entityManager.merge(existingRole);
             }
-            entityManager.getTransaction().commit();
             return existingRole;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Error updating role properties", e);

@@ -1,8 +1,8 @@
 package com.hftamayo.java.todo.dao;
 
 import com.hftamayo.java.todo.model.Task;
-import com.hftamayo.java.todo.model.User;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -96,25 +96,24 @@ public class TaskDao {
         }
     }
 
+    @Transactional
     public Task saveTask(Task task) {
         try {
-            entityManager.getTransaction().begin();
             Task existingTask = entityManager.find(Task.class, task.getId());
             if (existingTask == null) {
                 entityManager.persist(task);
             } else {
                 task = entityManager.merge(task);
             }
-            entityManager.getTransaction().commit();
             return task;
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error saving task", pe);
         }
     }
 
+    @Transactional
     public Task updateTask(long taskId, Map<String, Object> propertiesToUpdate) {
         try {
-            entityManager.getTransaction().begin();
             Task existingTask = entityManager.find(Task.class, taskId);
             if (existingTask != null) {
                 for (Map.Entry<String, Object> entry : propertiesToUpdate.entrySet()) {
@@ -124,7 +123,6 @@ public class TaskDao {
                 }
                 existingTask = entityManager.merge(existingTask);
             }
-            entityManager.getTransaction().commit();
             return existingTask;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Error updating task properties", e);
