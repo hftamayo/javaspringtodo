@@ -5,11 +5,10 @@ import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.model.Task;
 import com.hftamayo.java.todo.services.TaskService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 import java.util.HashMap;
 import java.util.List;

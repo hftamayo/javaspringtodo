@@ -2,7 +2,6 @@ package com.hftamayo.java.todo;
 
 import com.hftamayo.java.todo.services.DBConnectionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
