@@ -24,6 +24,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskDao taskDao;
 
+    @Override
     public List<TaskResponseDto> getTasks() {
         List<Task> taskList = taskDao.getTasks();
         return taskList.stream().map(this::taskToDto).toList();
@@ -33,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
         return taskDao.getTaskById(taskId);
     }
 
+    @Override
     public Optional<TaskResponseDto> getTask(long taskId) {
         Optional<Task> taskOptional = getTaskById(taskId);
         if(taskOptional.isPresent()){
@@ -44,10 +46,12 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
     public Optional<Task> getTaskByTitle(String taskTitle) {
         return taskDao.getTaskByTitle(taskTitle);
     }
 
+    @Override
     public Optional<List<TaskResponseDto>> getTaskByCriteria(String criteria, String value) {
         Optional<Object> result = taskDao.getTaskByCriteria(criteria, value, false);
         return result.map(object -> {
@@ -59,6 +63,7 @@ public class TaskServiceImpl implements TaskService {
         }).orElse(Optional.empty());
     }
 
+    @Override
     public Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value, String criteria2, String value2) {
         Optional<List<Task>> taskListOptional = taskDao.getTaskByCriterias(criteria, value, criteria2, value2);
         return taskListOptional.map(this::taskListToDto).map(Optional::of).orElse(Optional.empty());
@@ -78,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-@Transactional
+    @Transactional
     @Override
     public TaskResponseDto updateTask(long taskId, Task updatedTask) {
         Optional<Task> requestedTaskOptional = getTaskById(taskId);

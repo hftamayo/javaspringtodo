@@ -23,12 +23,14 @@ public class RolesServiceImpl implements RolesService {
 
     private final RolesDao rolesDao;
 
+    @Override
     public List<RolesResponseDto> getRoles()
     {
         List<Roles> rolesList = rolesDao.getRoles();
         return rolesList.stream().map(this::roleToDto).toList();
     }
 
+    @Override
     public Optional<RolesResponseDto> getRoleByEnum(String roleEnum) {
         ERole eRole = ERole.valueOf(roleEnum);
         Optional<Roles> roleOptional = rolesDao.getRoleByEnum(eRole.toString());
