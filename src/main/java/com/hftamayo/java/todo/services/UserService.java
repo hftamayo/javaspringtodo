@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 
 import java.util.List;
 import java.util.Optional;

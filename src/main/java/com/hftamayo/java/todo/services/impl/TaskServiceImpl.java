@@ -3,7 +3,7 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dao.TaskDao;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

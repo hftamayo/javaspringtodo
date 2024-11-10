@@ -1,15 +1,16 @@
 package com.hftamayo.java.todo.dao;
 
-import com.hftamayo.java.todo.model.ERole;
-import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +22,18 @@ import java.util.Optional;
 @Repository
 public class RolesDao {
 
-    @PersistenceContext
-    public EntityManager entityManager;
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    private Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+
 
     public List<Roles> getRoles() {
         try {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
-            Root<Roles> root = query.from(Roles.class);
-            query.select(root).orderBy(builder.desc(root.get("id")));
-
-            return entityManager.createQuery(query).getResultList();
-
+            Session session = getCurrentSession();
+            return session.createQuery("from Roles order by id desc", Roles.class).list();
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving roles", pe);
         }

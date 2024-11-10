@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.entity.Roles;
 
 import java.util.List;
 import java.util.Optional;

@@ -3,7 +3,7 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;

@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.dao;
 
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

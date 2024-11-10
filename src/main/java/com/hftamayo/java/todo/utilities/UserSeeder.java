@@ -1,10 +1,8 @@
 package com.hftamayo.java.todo.utilities;
 
-import com.hftamayo.java.todo.dao.RolesDao;
-import com.hftamayo.java.todo.dao.UserDao;
-import com.hftamayo.java.todo.model.ERole;
-import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.RolesService;
 import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +19,8 @@ import java.util.HashSet;
 this class only requires integration testing
  */
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private final UserService userService;
     private final RolesService rolesService;
@@ -61,12 +59,12 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
         } catch (Exception e) {
             System.out.println("Error seeding data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void setRoles() {
         System.out.println("Seeding roles started");
-
 
         userRole = new Roles(1, ERole.ROLE_USER, "User role", true,
                 LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());

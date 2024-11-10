@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
