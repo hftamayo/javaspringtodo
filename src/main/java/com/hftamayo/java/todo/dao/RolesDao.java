@@ -25,19 +25,19 @@ public class RolesDao {
     @Autowired
     private SessionFactory sessionFactory;
 
-    private Session getCurrentSession() {
-        return sessionFactory.getCurrentSession();
-    }
-
-
     public List<Roles> getRoles() {
-        try {
-            Session session = getCurrentSession();
-            return session.createQuery("from Roles order by id desc", Roles.class).list();
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
+            Root<Roles> root = query.from(Roles.class);
+            query.select(root).orderBy(builder.desc(root.get("id")));
+            return session.createQuery(query).getResultList();
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving roles", pe);
         }
     }
+
+
 
     public Optional<Roles> getRoleById(long roleId) {
         try {
