@@ -3,6 +3,8 @@ package com.hftamayo.java.todo.dao;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,22 +24,20 @@ import java.util.Optional;
 @Repository
 public class RolesDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public List<Roles> getRoles() {
-        try (Session session = sessionFactory.openSession()) {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
+        try {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<Roles> query = builder.createQuery(Roles.class);
             Root<Roles> root = query.from(Roles.class);
             query.select(root).orderBy(builder.desc(root.get("id")));
-            return session.createQuery(query).getResultList();
+            return entityManager.createQuery(query).getResultList();
         } catch (PersistenceException pe) {
             throw new RuntimeException("Error retrieving roles", pe);
         }
     }
-
-
 
     public Optional<Roles> getRoleById(long roleId) {
         try {
