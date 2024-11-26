@@ -9,7 +9,7 @@ import com.hftamayo.java.todo.services.RolesService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,8 +20,8 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 
-@Entity(name = "User")
-@Table(schema = "users")
+@Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
