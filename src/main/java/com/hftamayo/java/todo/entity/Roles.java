@@ -1,9 +1,9 @@
-package com.hftamayo.java.todo.model;
+package com.hftamayo.java.todo.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

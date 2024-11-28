@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.security.interfaces;
 
-import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.entity.Roles;
 import org.springframework.security.core.GrantedAuthority;
 
 public class RoleGrantedAuthority implements GrantedAuthority {

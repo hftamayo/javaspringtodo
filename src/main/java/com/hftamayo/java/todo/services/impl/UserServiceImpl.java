@@ -1,22 +1,22 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dao.UserDao;
-import com.hftamayo.java.todo.dao.RolesDao;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserDao userDao;
-    private final  PasswordEncoder passwordEncoder;
-    private final RolesDao rolesDao;
+    private final UserRepository userRepository;
+    private final RolesRepository rolesRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponseDto> getUsers() {
-        List<User> usersList = userDao.getUsers();
+        List<User> usersList = userRepository.findAll();
         return usersList.stream().map(this::userToDto).toList();
     }
 
@@ -45,36 +45,45 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         }
     }
+
     @Override
     public Optional<User> getUserById(long userId) {
-        return userDao.getUserById(userId);
+        return userRepository.findUserById(userId);
     }
 
     @Override
     public Optional<User> getUserByEmail(String email) {
-        Optional<Object> result = userDao
-                .getUserByCriteria("email", email, true);
-        return result.map(object -> (User) object);
+        return userRepository.findUserByEmail(email);
     }
 
     @Override
     public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
-        Optional<Object> result = userDao.getUserByCriteria(criteria, value, false);
-        return result.map(object -> {
-            if (object instanceof List<?> &&
-                    !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
-                List<User> usersList = (List<User>) object;
-                return Optional.of(userListToDto(usersList));
-            }
-            return Optional.<List<UserResponseDto>>empty();
-        }).orElse(Optional.empty());
+        Specification<User> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get(criteria), value);
+
+        List<User> usersList = userRepository.findAll(specification);
+        if (!usersList.isEmpty()) {
+            return Optional.of(userListToDto(usersList));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Optional<List<UserResponseDto>> getUserByCriterias(
-            String criteria, String value, String criteria2, String value2) {
-        Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        return userListOptional.map(this::userListToDto).map(Optional::of).orElse(Optional.empty());
+    public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
+                                                              String criteria2, String value2) {
+        Specification<User> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get(criteria), value),
+                criteriaBuilder.equal(root.get(criteria2), value2)
+        );
+
+        List<User> usersList = userRepository.findAll(specification);
+        if (!usersList.isEmpty()) {
+            return Optional.of(userListToDto(usersList));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Transactional
@@ -83,7 +92,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            User savedUser = userDao.saveUser(newUser);
+            User savedUser = userRepository.save(newUser);
             UserResponseDto dto = userToDto(savedUser);
             return dto;
         } else {
@@ -97,15 +106,15 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUser(long userId, User updatedUser) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            Map<String, Object> propertiesToUpdate = new HashMap<>();
-            propertiesToUpdate.put("name", updatedUser.getName());
-            propertiesToUpdate.put("email", updatedUser.getEmail());
-            propertiesToUpdate.put("password", updatedUser.getPassword());
-            propertiesToUpdate.put("age", updatedUser.getAge());
-            propertiesToUpdate.put("isAdmin", updatedUser.isAdmin());
-            propertiesToUpdate.put("status", updatedUser.isStatus());
-            User user = userDao.updateUser(userId, propertiesToUpdate);
-            return userToDto(user);
+            User existingUser = requestedUserOptional.get();
+            existingUser.setName(updatedUser.getName());
+            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setPassword(updatedUser.getPassword());
+            existingUser.setAge(updatedUser.getAge());
+            existingUser.setAdmin(updatedUser.isAdmin());
+            existingUser.setStatus(updatedUser.isStatus());
+            User savedUser = userRepository.save(existingUser);
+            return userToDto(savedUser);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -116,10 +125,10 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUserStatus(long userId, boolean status) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            Map<String, Object> propertiesToUpdate = new HashMap<>();
-            propertiesToUpdate.put("status", status);
-            User user = userDao.updateUser(userId, propertiesToUpdate);
-            return userToDto(user);
+            User existingUser = requestedUserOptional.get();
+            existingUser.setStatus(status);
+            User savedUser = userRepository.save(existingUser);
+            return userToDto(savedUser);
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -135,15 +144,13 @@ public class UserServiceImpl implements UserService {
         User user = requestedUserOptional.get();
         user.setStatus(status);
 
-        Optional<Roles> roleOptional = rolesDao.getRoleByEnum(roleEnum);
+        Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
         if (!roleOptional.isPresent()) {
             throw new EntityNotFoundException("Role not found");
         }
-        Map<String, Object> propertiesToUpdate = new HashMap<>();
-        propertiesToUpdate.put("status", status);
-        propertiesToUpdate.put("role", roleOptional.get());
-        User updatedUser = userDao.updateUser(userId, propertiesToUpdate);
-        return userToDto(updatedUser);
+        user.setRole(roleOptional.get());
+        User savedUser = userRepository.save(user);
+        return userToDto(savedUser);
     }
 
     @Transactional
@@ -151,7 +158,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(long userId) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
-            userDao.deleteUser(requestedUserOptional.get().getId());
+            userRepository.deleteUserById(requestedUserOptional.get().getId());
         } else {
             throw new EntityNotFoundException("User not found");
         }

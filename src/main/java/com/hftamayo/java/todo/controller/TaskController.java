@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;

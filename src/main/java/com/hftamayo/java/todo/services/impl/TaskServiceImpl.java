@@ -1,13 +1,14 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dao.TaskDao;
+import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
-import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -23,17 +24,19 @@ import static java.util.Optional.empty;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-    private final TaskDao taskDao;
+    private final TaskRepository taskRepository;
 
+    @Override
     public List<TaskResponseDto> getTasks() {
-        List<Task> taskList = taskDao.getTasks();
+        List<Task> taskList = taskRepository.findAll();
         return taskList.stream().map(this::taskToDto).toList();
     }
 
     public Optional<Task> getTaskById(long taskId){
-        return taskDao.getTaskById(taskId);
+        return taskRepository.findTaskById(taskId);
     }
 
+    @Override
     public Optional<TaskResponseDto> getTask(long taskId) {
         Optional<Task> taskOptional = getTaskById(taskId);
         if(taskOptional.isPresent()){
@@ -45,24 +48,39 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
     public Optional<Task> getTaskByTitle(String taskTitle) {
-        return taskDao.getTaskByTitle(taskTitle);
+        return taskRepository.findTaskByTitle(taskTitle);
     }
 
+    @Override
     public Optional<List<TaskResponseDto>> getTaskByCriteria(String criteria, String value) {
-        Optional<Object> result = taskDao.getTaskByCriteria(criteria, value, false);
-        return result.map(object -> {
-            if (object instanceof List<?> && !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof Task) {
-                List<Task> taskList = (List<Task>) object;
-                return Optional.of(taskListToDto(taskList));
-            }
-            return Optional.<List<TaskResponseDto>>empty();
-        }).orElse(Optional.empty());
+        Specification<Task> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get(criteria), value);
+
+        List<Task> taskList = taskRepository.findAll(specification);
+        if (!taskList.isEmpty()) {
+            return Optional.of(taskListToDto(taskList));
+        } else {
+            return Optional.empty();
+        }
     }
 
-    public Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value, String criteria2, String value2) {
-        Optional<List<Task>> taskListOptional = taskDao.getTaskByCriterias(criteria, value, criteria2, value2);
-        return taskListOptional.map(this::taskListToDto).map(Optional::of).orElse(Optional.empty());
+    @Override
+    public Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value,
+                                                              String criteria2, String value2) {
+        Specification<Task> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get(criteria), value),
+                criteriaBuilder.equal(root.get(criteria2), value2)
+        );
+
+        List<Task> taskList = taskRepository.findAll(specification);
+        if (!taskList.isEmpty()) {
+            return Optional.of(taskListToDto(taskList));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Transactional
@@ -70,7 +88,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto saveTask(Task newTask) {
         Optional<Task> requestedTask = getTaskByTitle(newTask.getTitle());
         if (!requestedTask.isPresent()) {
-            Task savedTask = taskDao.saveTask(newTask);
+            Task savedTask = taskRepository.save(newTask);
             TaskResponseDto dto = taskToDto(savedTask);
             return dto;
         } else {
@@ -79,19 +97,19 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-@Transactional
+    @Transactional
     @Override
     public TaskResponseDto updateTask(long taskId, Task updatedTask) {
         Optional<Task> requestedTaskOptional = getTaskById(taskId);
         if (requestedTaskOptional.isPresent()) {
-            Map<String, Object> propertiesToUpdate = new HashMap<>();
-            propertiesToUpdate.put("title", updatedTask.getTitle());
-            propertiesToUpdate.put("description", updatedTask.getDescription());
-            propertiesToUpdate.put("status", updatedTask.isStatus());
-            Task task = taskDao.updateTask(taskId, propertiesToUpdate);
-            return taskToDto(task);
+            Task existingTask = requestedTaskOptional.get();
+            existingTask.setTitle(updatedTask.getTitle());
+            existingTask.setDescription(updatedTask.getDescription());
+            existingTask.setStatus(updatedTask.isStatus());
+            Task savedTask = taskRepository.save(existingTask);
+            return taskToDto(savedTask);
         } else {
-            throw new EntityNotFoundException("Task does not exist");
+            throw new EntityNotFoundException("User not found");
         }
     }
 
@@ -100,7 +118,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(long taskId) {
         Optional<Task> requestedTask = getTaskById(taskId);
         if (requestedTask.isPresent()) {
-            taskDao.deleteTask(requestedTask.get().getId());
+            taskRepository.deleteTaskById(requestedTask.get().getId());
         } else {
             throw new EntityNotFoundException("Task does not exist");
         }
