@@ -46,16 +46,16 @@ public class CustomTokenProvider {
         secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public String getToken(String username) {
-        return getToken(new HashMap<>(), username);
+    public String getToken(String email) {
+        return getToken(new HashMap<>(), email);
     }
 
-    private String getToken(Map<String, Object> extraClaims, String username) {
+    private String getToken(Map<String, Object> extraClaims, String email) {
         extraClaims.put("sessionIdentifier", sessionIdentifier);
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationDate))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
@@ -74,12 +74,12 @@ public class CustomTokenProvider {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, String username) {
-        final UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
-        final String tokenUsername = getUsernameFromToken(token);
+    public boolean isTokenValid(String token, String email) {
+        final UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
+        final String tokenEmail = getEmailFromToken(token);
         final String tokenSessionIdentifier = getClaim(token,
                 claims -> claims.get("sessionIdentifier", String.class));
-        return tokenUsername.equals(userDetails.getUsername()) && !isTokenExpired(token)
+        return tokenEmail.equals(userDetails.getUsername()) && !isTokenExpired(token)
                 && sessionIdentifier.equals(tokenSessionIdentifier);
     }
 
