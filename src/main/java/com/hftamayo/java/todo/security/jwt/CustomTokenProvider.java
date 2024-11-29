@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@Component
 @RequiredArgsConstructor
 public class CustomTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(CustomTokenProvider.class);
@@ -36,7 +37,7 @@ public class CustomTokenProvider {
     private final JwtConfig jwtConfig;
     private final UserInfoProviderManager userInfoProviderManager;
 
-    public String sessionIdentifier = UUID.randomUUID().toString();
+    public volatile String sessionIdentifier = UUID.randomUUID().toString();
 
     private SecretKey secretKey;
 
@@ -103,8 +104,7 @@ public class CustomTokenProvider {
     public long getRemainingExpirationTime(String token) {
         Date expirationDate = getExpirationDateFromToken(token);
         long diffInMillies = Math.abs(expirationDate.getTime() - new Date().getTime());
-        long diffInHours = TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return diffInHours;
+        return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
 
     private boolean isTokenExpired(String token) {
