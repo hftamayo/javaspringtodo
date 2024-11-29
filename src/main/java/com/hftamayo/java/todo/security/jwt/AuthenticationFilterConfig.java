@@ -6,15 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class AuthenticationFilterConfig {
     private final UserInfoProviderManager userInfoProviderManager;
     private final CustomTokenProvider customTokenProvider;
-
-    @Autowired
-    public AuthenticationFilterConfig(UserInfoProviderManager userInfoProviderManager, CustomTokenProvider customTokenProvider) {
-        this.userInfoProviderManager = userInfoProviderManager;
-        this.customTokenProvider = customTokenProvider;
-    }
 
     @Bean
     public AuthenticationFilter authenticationFilter() {
