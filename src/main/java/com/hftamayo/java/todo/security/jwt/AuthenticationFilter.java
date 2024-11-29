@@ -45,9 +45,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String username = customTokenProvider.getUsernameFromToken(token);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                authenticateUser(request, token, username);
+            String email = customTokenProvider.getEmailFromToken(token);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                authenticateUser(request, token, email);
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
@@ -61,9 +61,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         return path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register") || path.startsWith("/api/health");
     }
 
-    private void authenticateUser(HttpServletRequest request, String token, String username) {
-        if (customTokenProvider.isTokenValid(token, username)) {
-            UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
+    private void authenticateUser(HttpServletRequest request, String token, String email) {
+        if (customTokenProvider.isTokenValid(token, email)) {
+            UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
