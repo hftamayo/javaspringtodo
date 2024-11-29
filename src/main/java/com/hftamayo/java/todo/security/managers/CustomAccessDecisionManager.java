@@ -41,7 +41,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
     }
 
     private boolean isPublicEndpoint(String url) {
-        return url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register");
+        return url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register") || url.startsWith("/api/health");
     }
 
     private Set<String> getRequiredRoles(Collection<ConfigAttribute> configAttributes) {
