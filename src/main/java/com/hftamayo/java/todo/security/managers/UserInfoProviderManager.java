@@ -7,14 +7,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @RequiredArgsConstructor
+@Service
 public class UserInfoProviderManager implements UserInfoProvider {
     private final UserService userService;
 
     @Override
-    public UserDetails getUserDetails(String username) {
-        return userService.getUserByEmail(username)
+    public UserDetails getUserDetails(String email) {
+        return userService.getUserByEmail(email)
                 .orElseThrow(() -> new
                         UsernameNotFoundException(
-                        "Invalid Credentials: Username or Password not found"));
+                        "Invalid Credentials: Email or Password not found"));
     }
 }
