@@ -2,6 +2,8 @@ package com.hftamayo.java.todo.security.jwt;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.SecretKey;
 
