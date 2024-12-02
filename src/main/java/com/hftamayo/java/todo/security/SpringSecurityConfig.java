@@ -19,21 +19,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @Import(PasswordEncoderConfig.class)
+@RequiredArgsConstructor
 public class SpringSecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
 
-    private UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final UserInfoProviderManager userInfoProviderManager;
-
-    @Autowired
-    public SpringSecurityConfig(PasswordEncoder passwordEncoder,
-                                UserInfoProviderManager userInfoProviderManager, UserService userService) {
-        this.passwordEncoder = passwordEncoder;
-        this.userInfoProviderManager = userInfoProviderManager;
-        this.userService = userService;
-    }
+    private UserService userService;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -44,8 +37,7 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration
-                                                               authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
