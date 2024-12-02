@@ -22,11 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class SpringSecurityConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
-
     private final PasswordEncoder passwordEncoder;
     private final UserInfoProviderManager userInfoProviderManager;
-    private UserService userService;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
