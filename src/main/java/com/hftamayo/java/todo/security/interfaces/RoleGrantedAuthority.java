@@ -1,6 +1,10 @@
 package com.hftamayo.java.todo.security.interfaces;
 
 import com.hftamayo.java.todo.entity.Roles;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 @Getter
