@@ -23,56 +23,58 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 
 public class FilterConfig {
+    private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
+
     private final AuthenticationFilter authenticationFilter;
     private final AuthenticationProvider authenticationProvider;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAccessDecisionManager customAccessDecisionManager;
-    private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    FilterSecurityInterceptor filterSecurityInterceptor)
             throws Exception {
         logger.info("Configuring Security Filter Chain");
-        return httpSecurity
+        httpSecurity
                 .csrf(csrf -> {
                     csrf.disable();
                     logger.info("CSRF is disabled");
                 })
 
-                .authorizeRequests(authorizeRequests -> {
-                    try {
-                        authorizeRequests
-                                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
-                                .requestMatchers("/api/health/**").permitAll()
-                                .requestMatchers("/api/users/manager/**").hasAnyRole("SUPERVISOR", "ADMIN")
-                                .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()
-                                .and()
-                                .logout()
-                                .logoutUrl("/api/auth/logout")
-                                .logoutSuccessUrl("/api/auth/logged-out")
-                                .permitAll();
-                    } catch (Exception e) {
-                        logger.error("Error in authorization: " + e.getMessage());
-                    }
-                    logger.info("Authorization requests configured");
-                })
+               .authorizeRequests(authorizeRequests -> configureAuthorization(authorizeRequests))
                 .exceptionHandling(exceptionHandling -> {
-                    exceptionHandling
-                            .accessDeniedHandler(accessDeniedHandler);
+                    exceptionHandling.accessDeniedHandler(accessDeniedHandler);
                     logger.info("Exception handling configured");
                 })
-                .sessionManagement(sessionManager -> {
-                    sessionManager
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement(sessionManagement -> {
+                    sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                     logger.info("Session management configured");
                 })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class)
-                .build();
+                .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class);
+
+        return httpSecurity.build();
+    }
+
+    private void configureAuthorization(HttpSecurity.AuthorizeRequestsConfigurer authorizeRequests) {
+        try {
+            authorizeRequests
+                    .antMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
+                    .antMatchers("/api/health/**").permitAll()
+                    .antMatchers("/api/users/manager/**").hasAnyRole("SUPERVISOR", "ADMIN")
+                    .antMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
+                    .antMatchers("/api/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+                    .and()
+                    .logout()
+                    .logoutUrl("/api/auth/logout")
+                    .logoutSuccessUrl("/api/auth/logged-out")
+                    .permitAll();
+            logger.info("Authorization requests configured");
+        } catch (Exception e) {
+            logger.error("Error in authorization: " + e.getMessage(), e);
+        }
     }
 
     @Bean
@@ -84,5 +86,4 @@ public class FilterConfig {
         filterSecurityInterceptor.setSecurityMetadataSource(cfisMetadataSource);
         return filterSecurityInterceptor;
     }
-
 }
