@@ -3,6 +3,7 @@ package com.hftamayo.java.todo.security;
 import com.hftamayo.java.todo.security.jwt.JwtConfig;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import com.hftamayo.java.todo.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
