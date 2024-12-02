@@ -21,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
 public class FilterConfig {
     private static final Logger logger = LoggerFactory.getLogger(FilterConfig.class);
 
@@ -35,13 +34,13 @@ public class FilterConfig {
                                                    FilterSecurityInterceptor filterSecurityInterceptor)
             throws Exception {
         logger.info("Configuring Security Filter Chain");
+
         httpSecurity
                 .csrf(csrf -> {
                     csrf.disable();
                     logger.info("CSRF is disabled");
                 })
-
-               .authorizeRequests(authorizeRequests -> configureAuthorization(authorizeRequests))
+                .authorizeRequests(authorizeRequests -> configureAuthorization(authorizeRequests))
                 .exceptionHandling(exceptionHandling -> {
                     exceptionHandling.accessDeniedHandler(accessDeniedHandler);
                     logger.info("Exception handling configured");
@@ -57,7 +56,7 @@ public class FilterConfig {
         return httpSecurity.build();
     }
 
-    private void configureAuthorization(HttpSecurity.AuthorizeRequestsConfigurer authorizeRequests) {
+    private void configureAuthorization(HttpSecurity.ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests) {
         try {
             authorizeRequests
                     .antMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
