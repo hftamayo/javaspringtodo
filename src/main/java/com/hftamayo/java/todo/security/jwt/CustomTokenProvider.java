@@ -70,7 +70,7 @@ public class CustomTokenProvider {
         return "Bearer";
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
