@@ -91,6 +91,9 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto saveUser(User newUser) {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
+            Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+            newUser.setRole(defaultRole);
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             User savedUser = userRepository.save(newUser);
             UserResponseDto dto = userToDto(savedUser);
