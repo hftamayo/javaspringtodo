@@ -2,7 +2,6 @@ package com.hftamayo.java.todo.security.managers;
 
 import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,7 +11,8 @@ public class UserInfoProviderManagerConfig {
     private final UserService userService;
 
     @Bean
-    public UserInfoProviderManager userInfoProviderManager() {
+    public UserInfoProviderManager createUserInfoProviderManager() {
+
         return new UserInfoProviderManager(userService);
     }
 }
