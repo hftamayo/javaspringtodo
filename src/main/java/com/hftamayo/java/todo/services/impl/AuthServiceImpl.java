@@ -58,9 +58,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7); // Remove "Bearer " prefix
-        String username = customTokenProvider.getUsernameFromToken(token);
+        String email = customTokenProvider.getEmailFromToken(token);
 
-        if (!customTokenProvider.isTokenValid(token, username)) {
+        if (!customTokenProvider.isTokenValid(token, email)) {
             throw new UnauthorizedException("Invalid token: the session is not valid");
         }
         customTokenProvider.invalidateToken();
