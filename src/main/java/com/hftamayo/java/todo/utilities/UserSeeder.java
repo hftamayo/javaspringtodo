@@ -83,23 +83,29 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void seedDevelopment() {
         System.out.println("Seeding data for development environment started");
-        User adminUser = new User(1L, "Herbert Tamayo", "hftamayo@gmail.com",
-                passwordEncoder.encode("password123"), 25, true,
+        User adminUser = new User(1L, "Herbert Tamayo", "administrador@tamayo.com",
+                passwordEncoder.encode("milucito1"), 25, true,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
         userService.saveUser(adminUser);
 
-        User supervisorUser = new User(2L, "Sebastian Fernandez", "sebas@gmail.com",
-                passwordEncoder.encode("password123"), 20, false,
+        User supervisorUser = new User(2L, "Sebastian Fernandez", "supervisor@tamayo.com",
+                passwordEncoder.encode("milucito2"), 20, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), supervisorRole, new HashSet<>());
         userService.saveUser(supervisorUser);
 
-        User operatorUser = new User(3L, "Milu Martinez", "milu@gmail.com",
-                passwordEncoder.encode("password123"), 18, false,
+        User operator1User = new User(3L, "Bob Doe", "bob@tamayo.com",
+                passwordEncoder.encode("milucito3"), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
-        userService.saveUser(operatorUser);
+        userService.saveUser(operator1User);
+
+        User operator2User = new User(3L, "Mary Doe", "mary@tamayo.com",
+                passwordEncoder.encode("milucito4"), 18, false,
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
+        userService.saveUser(operator2User);
 
         System.out.println("Seeding data for development environment completed");
     }
