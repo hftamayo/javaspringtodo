@@ -108,6 +108,15 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
         userService.saveUser(operatorUser);
 
         System.out.println("Seeding data for development environment completed");
+
+        System.out.println("Starting password salting verification");
+        String rawPassword = "milucito3";
+        String storedHash = "$2a$10$ZWeqtp.sCj4qIJWCf8tnnOs/f.268iKeTICNLdGLz9owOUMNzVdUu";
+
+        boolean matches = passwordEncoder.matches(rawPassword, storedHash);
+        System.out.println("Password matches: " + matches);
+
+        System.out.println("Password salting verification completed");
     }
 
     private void seedProduction() {
