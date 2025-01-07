@@ -95,17 +95,17 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
                 LocalDateTime.now(), LocalDateTime.now(), supervisorRole, new HashSet<>());
         userService.saveUser(supervisorUser);
 
-        User operator1User = new User(3L, "Bob Doe", "bob@tamayo.com",
+        User operatorUser = new User(3L, "Bob Doe", "bob@tamayo.com",
                 passwordEncoder.encode("milucito3"), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
-        userService.saveUser(operator1User);
+        userService.saveUser(operatorUser);
 
-        User operator2User = new User(3L, "Mary Doe", "mary@tamayo.com",
+        operatorUser = new User(4L, "Mary Doe", "mary@tamayo.com",
                 passwordEncoder.encode("milucito4"), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
-        userService.saveUser(operator2User);
+        userService.saveUser(operatorUser);
 
         System.out.println("Seeding data for development environment completed");
     }
