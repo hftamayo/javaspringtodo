@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -24,7 +23,6 @@ this class only requires integration testing
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private final UserService userService;
     private final RolesService rolesService;
-    private final PasswordEncoder passwordEncoder;
 
     @Value("${seed.development}")
     private boolean seedDevelopment;
@@ -95,37 +93,37 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void seedDevelopment() {
         System.out.println("Seeding data for development environment started");
+
         User adminUser = new User(1L, "Herbert Tamayo", "administrador@tamayo.com",
-                passwordEncoder.encode(adminPasswod), 25, true,
+                adminPasswod.trim(), 25, true,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
         userService.saveUser(adminUser);
 
         User supervisorUser = new User(2L, "Sebastian Fernandez", "supervisor@tamayo.com",
-                passwordEncoder.encode(supervisorPassword), 20, false,
+                supervisorPassword.trim(), 20, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), supervisorRole, new HashSet<>());
         userService.saveUser(supervisorUser);
 
         User operatorUser = new User(3L, "Bob Doe", "bob@tamayo.com",
-                passwordEncoder.encode(user1Password), 18, false,
+                user1Password.trim(), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
         userService.saveUser(operatorUser);
 
         operatorUser = new User(4L, "Mary Doe", "mary@tamayo.com",
-                passwordEncoder.encode(user2Password), 18, false,
+                user2Password.trim(), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
         userService.saveUser(operatorUser);
-
         System.out.println("Seeding data for development environment completed");
     }
 
     private void seedProduction() {
         System.out.println("Seeding data for production environment started");
         User adminUser = new User(1L, "Administrator", "administrador@tamayo.com",
-                passwordEncoder.encode(adminPasswod), 25, true,
+                adminPasswod.trim(), 25, true,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
 
