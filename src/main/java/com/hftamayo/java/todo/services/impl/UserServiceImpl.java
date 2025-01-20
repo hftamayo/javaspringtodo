@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final RolesRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
@@ -94,7 +93,8 @@ public class UserServiceImpl implements UserService {
             Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
                     .orElseThrow(() -> new EntityNotFoundException("Role not found"));
             newUser.setRole(defaultRole);
-            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+            String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
+            newUser.setPassword(encodedPassword);
             User savedUser = userRepository.save(newUser);
             UserResponseDto dto = userToDto(savedUser);
             return dto;
@@ -191,4 +191,5 @@ public class UserServiceImpl implements UserService {
                 .map(this::userToDto)
                 .collect(Collectors.toList());
     }
+
 }
