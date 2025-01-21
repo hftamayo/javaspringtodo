@@ -1,6 +1,5 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.controller.AuthController;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,29 +35,38 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ActiveSessionResponseDto login(LoginRequestDto loginRequest) {
-        logger.info("Authenticating user: {}", loginRequest.getEmail());
-        authenticateUser(loginRequest);
         User user = fetchUser(loginRequest.getEmail());
-        return generateActiveSessionResponse(user);
-    }
-
-    private void authenticateUser(LoginRequestDto loginRequest) {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(), loginRequest.getPassword()));
-            logger.info("Authentication successful for user: {}", loginRequest.getEmail());
-        } catch (Exception e) {
-            logger.error("Authentication failed for user: {}: {}", loginRequest.getEmail(), e.getMessage());
-            throw new UnauthorizedException("Invalid Credentials: Email or Password not found");
+        if(user.isStatus()){
+            boolean passwordValidation = authenticateUser(loginRequest.getPassword(), user.getPassword());
+            if(passwordValidation){
+                logger.info("User authenticated: {}", loginRequest.getEmail());
+                return generateActiveSessionResponse(user);
+            } else {
+                throw new UnauthorizedException("Invalid Credentials: Error 002");
+            }
+        } else {
+            throw new UnauthorizedException("Invalid Credentials: Error 001");
         }
     }
 
     private User fetchUser(String email) {
-        return userService.getUserByEmail(email)
+        User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> {
-                    logger.error("User not found: {}", email);
+                    logger.error("LOGIN_ATTEMPT: User requested not found: {}", email);
                     return new UsernameNotFoundException("Invalid Credentials: Email or Password not found");
                 });
+        return user;
+    }
+
+    private boolean authenticateUser(String rawPassword, String storedPassword) {
+        boolean matches = passwordEncoder.matches(rawPassword.trim(), storedPassword);
+        if (!matches) {
+            logger.error("LOGIN_ATTEMPT: Password validation failed");
+        } else {
+            logger.info("LOGIN_ATTEMPT: Password validation successful");
+        }
+
+        return matches;
     }
 
     private ActiveSessionResponseDto generateActiveSessionResponse(User user) {
@@ -74,8 +81,8 @@ public class AuthServiceImpl implements AuthService {
         String tokenType = customTokenProvider.getTokenType();
         long expiresIn = customTokenProvider.getRemainingExpirationTime(token);
 
-        logger.info("User authenticated: {}, roles: {}", username, roles);
-        logger.info("Generated token: {}, type: {}, expires in: {} ms", token, tokenType, expiresIn);
+        logger.info("LOGIN_ATTEMPT: Session created for: {}, roles: {}", username, roles);
+        //logger.info("Generated token: {}, type: {}, expires in: {} ms", token, tokenType, expiresIn);
 
         return new ActiveSessionResponseDto(username, email, roles, token, tokenType, expiresIn);
     }
@@ -94,6 +101,7 @@ public class AuthServiceImpl implements AuthService {
     public void invalidateToken() {
         customTokenProvider.invalidateToken();
     }
+
 
 //    @Override
 //    public AuthResponse register(RegisterRequest registerRequest) {
