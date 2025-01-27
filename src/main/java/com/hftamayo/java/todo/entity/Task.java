@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true, name = "task_title")
     private String title;
