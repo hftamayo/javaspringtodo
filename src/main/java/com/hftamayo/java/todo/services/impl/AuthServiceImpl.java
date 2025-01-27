@@ -4,14 +4,12 @@ import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
 import com.hftamayo.java.todo.entity.User;
-import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import com.hftamayo.java.todo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,8 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final CustomTokenProvider customTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final UserInfoProviderManager userInfoProviderManager;
     private final UserService userService;
 
     @Override
