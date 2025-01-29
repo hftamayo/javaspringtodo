@@ -90,9 +90,11 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto saveUser(User newUser) {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
-            Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
-                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
-            newUser.setRole(defaultRole);
+            if (newUser.getRole() == null) {
+                Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
+                        .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                newUser.setRole(defaultRole);
+            }
             String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
             newUser.setPassword(encodedPassword);
             User savedUser = userRepository.save(newUser);
