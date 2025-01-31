@@ -29,7 +29,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
             return;
         }
 
-        logger.info("entering to the requiredRoles loop");
+        //logger.info("entering to the requiredRoles loop");
 
         Set<String> requiredRoles = getRequiredRoles(configAttributes);
         Set<String> userRoles = getUserRoles(authentication);
