@@ -37,10 +37,10 @@ public class AuthController {
                     activeSessionResponseDto.getTokenType() + " expires in: " +
                     activeSessionResponseDto.getExpiresIn() + " hours");
 
-            return ResponseEntity.ok("LOGIN_SUCCESSFUL" + loginRequestDto.getEmail() + "!" +
+            return ResponseEntity.ok("LOGIN_SUCCESSFUL " + loginRequestDto.getEmail() + "!" +
                     ", your role is: " + activeSessionResponseDto.getRoles());
         } catch (Exception e) {
-            logger.error("LOGIN_INVALID_ATTEMPT" + e.getMessage());
+            logger.error("LOGIN_INVALID_ATTEMPT " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("LOGIN_INVALID_CREDENTIALS");
         }
     }
