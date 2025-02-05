@@ -19,25 +19,25 @@ import java.util.Optional;
 public class RolesController {
     private final RolesService rolesService;
 
-    @GetMapping(value = "/allroles")
+    @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
     public List<RolesResponseDto> getRoles() {
         return rolesService.getRoles();
     }
 
-    @GetMapping(value = "/getrolebyname/{roleName}")
+    @GetMapping(value = "/rolebn/{roleName}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<RolesResponseDto> getRoleByName(@PathVariable String roleName) {
         return rolesService.getRoleByEnum(roleName);
     }
 
-    @PostMapping(value = "/saverole")
+    @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public RolesResponseDto saveRole(@RequestBody Roles role) {
         return rolesService.saveRole(role);
     }
 
-    @PutMapping(value = "/updaterole/{roleId}")
+    @PutMapping(value = "/update/{roleId}")
     @ResponseStatus(HttpStatus.OK)
     public RolesResponseDto updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
@@ -47,7 +47,7 @@ public class RolesController {
         }
     }
 
-    @DeleteMapping(value = "/deleterole/{roleId}")
+    @DeleteMapping(value = "/delete/{roleId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteRole(@PathVariable long roleId) {
         try {
