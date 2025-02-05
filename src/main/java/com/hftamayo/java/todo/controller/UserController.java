@@ -24,37 +24,37 @@ public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping(value = "/allusers")
+    @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponseDto> getUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/getuser/{userId}")
+    @GetMapping(value = "/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
-    @GetMapping(value = "/getuserbycriteria/{criteria}/{value}")
+    @GetMapping(value = "/userbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<List<UserResponseDto>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return userService.getUserByCriteria(criteria, value);
     }
 
-    @GetMapping(value = "/getuserbycriterias/{criteria}/{value}/{criteria2}/{value2}")
+    @GetMapping(value = "/userbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<List<UserResponseDto>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 
-    @PostMapping(value = "/saveuser")
+    @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
-    @PutMapping(value = "/updateuser/{userId}")
+    @PutMapping(value = "/update/{userId}")
     public UserResponseDto updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
             return userService.updateUser(userId, user);
@@ -64,7 +64,7 @@ public class UserController {
 
     }
 
-    @PatchMapping(value = "/userstatus/{userId}")
+    @PatchMapping(value = "/ustatus/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
@@ -75,7 +75,7 @@ public class UserController {
         }
     }
 
-    @PatchMapping(value = "/activateuser/{userId}")
+    @PatchMapping(value = "/activate/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
@@ -87,7 +87,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping(value = "/deleteuser/{userId}")
+    @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteUser(@PathVariable long userId) {
