@@ -64,7 +64,7 @@ public class UserController {
 
     }
 
-    @PatchMapping(value = "/ustatus/{userId}")
+    @PatchMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
