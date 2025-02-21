@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.user.UserOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
@@ -160,12 +161,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void deleteUser(long userId) {
+    public UserOperationResponseDto deleteUser(long userId) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             userRepository.deleteUserById(requestedUserOptional.get().getId());
+            return new UserOperationResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
-            throw new EntityNotFoundException("User not found");
+            return new UserOperationResponseDto(404, "USER NOT FOUND");
         }
     }
 

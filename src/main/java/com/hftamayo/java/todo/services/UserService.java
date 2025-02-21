@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services;
 
+import com.hftamayo.java.todo.dto.user.UserOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 
@@ -24,7 +25,7 @@ public interface UserService {
 
     UserResponseDto updateUser(long userId, User updatedUser);
 
-    void deleteUser(long userId);
+    UserOperationResponseDto deleteUser(long userId);
 
     UserResponseDto updateUserStatus(long userId, boolean status);
 
