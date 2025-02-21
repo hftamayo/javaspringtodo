@@ -1,6 +1,5 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
@@ -12,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
