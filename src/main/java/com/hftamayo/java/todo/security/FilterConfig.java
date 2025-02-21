@@ -47,6 +47,7 @@ public class FilterConfig {
                             .requestMatchers("/api/users/manager/**").hasAnyRole("SUPERVISOR", "ADMIN")
                             .requestMatchers("/api/supervisor/**").hasAnyRole("SUPERVISOR", "ADMIN")
                             .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/api/tasks/**").authenticated()
                             .anyRequest().authenticated();
                 })
                 .exceptionHandling(exceptionHandling -> {
