@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.persistence.EntityNotFoundException;
@@ -63,16 +64,11 @@ public class TaskController {
 
     @DeleteMapping(value = "/delete/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> deleteTask(@PathVariable long taskId) {
+    public CrudOperationResponseDto deleteTask(@PathVariable long taskId) {
         try {
-            taskService.deleteTask(taskId);
-            return ResponseEntity.ok().build();
+            return taskService.deleteTask(taskId);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(enf.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
-
-
 }

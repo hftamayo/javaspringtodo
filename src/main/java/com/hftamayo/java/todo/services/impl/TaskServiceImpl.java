@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
@@ -112,12 +113,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public void deleteTask(long taskId) {
+    public CrudOperationResponseDto deleteTask(long taskId) {
         Optional<Task> requestedTask = getTaskById(taskId);
         if (requestedTask.isPresent()) {
             taskRepository.deleteTaskById(requestedTask.get().getId());
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
-            throw new EntityNotFoundException("Task does not exist");
+            return new CrudOperationResponseDto(404, "TASK NOT FOUND");
         }
     }
 

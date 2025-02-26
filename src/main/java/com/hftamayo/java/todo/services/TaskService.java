@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 
@@ -15,7 +16,7 @@ public interface TaskService {
     Optional<Task> getTaskByTitle(String title);
     TaskResponseDto saveTask(Task newTask);
     TaskResponseDto updateTask(long taskId, Task updatedTask);
-    void deleteTask(long taskId);
+    CrudOperationResponseDto deleteTask(long taskId);
     TaskResponseDto taskToDto(Task task);
 }
 
