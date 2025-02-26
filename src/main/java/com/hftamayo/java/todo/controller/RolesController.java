@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.services.RolesService;
@@ -49,14 +50,11 @@ public class RolesController {
 
     @DeleteMapping(value = "/delete/{roleId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> deleteRole(@PathVariable long roleId) {
+    public CrudOperationResponseDto deleteRole(@PathVariable long roleId) {
         try {
-            rolesService.deleteRole(roleId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return rolesService.deleteRole(roleId);
         } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }

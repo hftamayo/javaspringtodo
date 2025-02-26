@@ -1,5 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
@@ -76,12 +78,13 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public void deleteRole(long roleId) {
+    public CrudOperationResponseDto deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             rolesRepository.deleteRolesById(requestedRoleOptional.get().getId());
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
-            throw new EntityNotFoundException("Role not found");
+            return new CrudOperationResponseDto(404, "ROLE NOT FOUND");
         }
     }
 

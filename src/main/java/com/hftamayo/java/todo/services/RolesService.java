@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.entity.Roles;
 
@@ -12,7 +13,7 @@ public interface RolesService {
 
     RolesResponseDto saveRole(Roles newRole);
     RolesResponseDto updateRole(long roleId, Roles updatedRole);
-    void deleteRole(long roleId);
+    CrudOperationResponseDto deleteRole(long roleId);
 
     RolesResponseDto roleToDto(Roles role);
 }
