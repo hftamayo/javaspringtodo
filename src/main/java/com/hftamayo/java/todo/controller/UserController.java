@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
@@ -91,7 +92,7 @@ public class UserController {
     @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    public UserOperationResponseDto deleteUser(@PathVariable long userId) {
+    public CrudOperationResponseDto deleteUser(@PathVariable long userId) {
         try {
             return userService.deleteUser(userId);
         } catch (EntityNotFoundException enf) {
