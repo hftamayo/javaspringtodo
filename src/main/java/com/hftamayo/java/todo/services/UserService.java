@@ -1,7 +1,6 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
-import com.hftamayo.java.todo.dto.user.UserOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 
