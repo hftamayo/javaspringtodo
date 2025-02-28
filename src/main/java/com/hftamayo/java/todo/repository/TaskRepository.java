@@ -14,5 +14,5 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     List<Task> findAll();
     Optional<Task> findTaskById(long id);
     Optional<Task> findTaskByTitle(String title);
-    void deleteTaskById(long id);
+    Optional<Task> deleteTaskById(long id);
 }
