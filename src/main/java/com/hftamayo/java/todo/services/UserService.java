@@ -21,7 +21,7 @@ public interface UserService {
     Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
                                                        String criteria2, String value2);
 
-    UserResponseDto saveUser(User newUser);
+    CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
 
     UserResponseDto updateUser(long userId, User updatedUser);
 

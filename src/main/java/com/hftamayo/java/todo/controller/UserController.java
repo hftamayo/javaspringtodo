@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto saveUser(@RequestBody User user) {
+    public CrudOperationResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 

@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserResponseDto saveUser(User newUser) {
+    public CrudOperationResponseDto<UserResponseDto> saveUser(User newUser) {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
             if (newUser.getRole() == null) {
@@ -99,8 +99,9 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
             newUser.setPassword(encodedPassword);
             User savedUser = userRepository.save(newUser);
-            UserResponseDto dto = userToDto(savedUser);
-            return dto;
+            UserResponseDto dtoObject = userToDto(savedUser);
+            CrudOperationResponseDto<UserResponseDto> response = new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", dtoObject);
+            return response;
         } else {
             throw new EntityAlreadyExistsException("The email is already registered by this user: " +
                     requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
