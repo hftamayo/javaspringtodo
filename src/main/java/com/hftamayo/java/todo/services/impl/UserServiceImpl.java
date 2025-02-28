@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserResponseDto updateUser(long userId, User updatedUser) {
+    public CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             User existingUser = requestedUserOptional.get();
@@ -121,7 +121,9 @@ public class UserServiceImpl implements UserService {
             existingUser.setAdmin(updatedUser.isAdmin());
             existingUser.setStatus(updatedUser.isStatus());
             User savedUser = userRepository.save(existingUser);
-            return userToDto(savedUser);
+            UserResponseDto dtoObject = userToDto(savedUser);
+            CrudOperationResponseDto<UserResponseDto> response = new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", dtoObject);
+            return response;
         } else {
             throw new EntityNotFoundException("User not found");
         }
@@ -163,12 +165,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public CrudOperationResponseDto deleteUser(long userId) {
+        try{
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             userRepository.deleteUserById(requestedUserOptional.get().getId());
             return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
             return new CrudOperationResponseDto(404, "USER NOT FOUND");
+        }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 

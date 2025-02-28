@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/update/{userId}")
-    public UserResponseDto updateUser(@PathVariable long userId, @RequestBody User user) {
+    public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
             return userService.updateUser(userId, user);
         } catch (EntityNotFoundException enf) {
@@ -91,10 +91,6 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     public CrudOperationResponseDto deleteUser(@PathVariable long userId) {
-        try {
             return userService.deleteUser(userId);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
+     }
 }

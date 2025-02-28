@@ -23,7 +23,7 @@ public interface UserService {
 
     CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
 
-    UserResponseDto updateUser(long userId, User updatedUser);
+    CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser);
 
     CrudOperationResponseDto deleteUser(long userId);
 
