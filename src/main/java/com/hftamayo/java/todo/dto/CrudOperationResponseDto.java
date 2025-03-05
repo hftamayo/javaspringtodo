@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
+import java.util.List;
 
 @Builder
 @Getter
@@ -14,7 +14,7 @@ public class CrudOperationResponseDto<T> {
     private int code;
     private String resultMessage;
     private T data;
-    private Map<String, T> dataMap;
+    private List<T> dataList;
 
     public CrudOperationResponseDto(int code, String resultMessage) {
         this.code = code;
@@ -27,9 +27,9 @@ public class CrudOperationResponseDto<T> {
         this.data = data;
     }
 
-    public CrudOperationResponseDto(int code, String resultMessage, Map<String, T> dataMap) {
+    public CrudOperationResponseDto(int code, String resultMessage, List<T> dataMap) {
         this.code = code;
         this.resultMessage = resultMessage;
-        this.dataMap = dataMap;
+        this.dataList = dataList;
     }
 }
