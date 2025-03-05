@@ -56,41 +56,28 @@ public class UserController {
 
     @PutMapping(value = "/update/{userId}")
     public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
-        try {
-            return userService.updateUser(userId, user);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
+        return userService.updateUser(userId, user);
     }
 
     @PatchMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
-        try {
-            boolean status = (boolean) updates.get("status");
-            return userService.updateUserStatus(userId, status);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        boolean status = (boolean) updates.get("status");
+        return userService.updateUserStatus(userId, status);
     }
 
     @PatchMapping(value = "/activate/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
-        try {
-            boolean status = (boolean) updates.get("status");
-            String roleEnum = (String) updates.get("role");
-            return userService.updateUserStatusAndRole(userId, status, roleEnum);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        boolean status = (boolean) updates.get("status");
+        String roleEnum = (String) updates.get("role");
+        return userService.updateUserStatusAndRole(userId, status, roleEnum);
     }
 
     @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     public CrudOperationResponseDto deleteUser(@PathVariable long userId) {
-            return userService.deleteUser(userId);
-     }
+        return userService.deleteUser(userId);
+    }
 }
