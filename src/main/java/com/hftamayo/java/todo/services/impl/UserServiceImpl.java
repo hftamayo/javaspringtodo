@@ -28,6 +28,18 @@ public class UserServiceImpl implements UserService {
     private final RolesRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
 
+    //helper methods
+    @Override
+    public Optional<User> getUserById(long userId) {
+        return userRepository.findUserById(userId);
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    //persistence methods
     @Override
     public CrudOperationResponseDto<UserResponseDto> getUsers() {
         try {
@@ -60,25 +72,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(long userId) {
-        return userRepository.findUserById(userId);
-    }
+    public CrudOperationResponseDto<UserResponseDto>  getUserByCriteria(String criteria, String value) {
+        try {
+            Specification<User> specification = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get(criteria), value);
 
-    @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
-    }
-
-    @Override
-    public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
-        Specification<User> specification = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get(criteria), value);
-
-        List<User> usersList = userRepository.findAll(specification);
-        if (!usersList.isEmpty()) {
-            return Optional.of(userListToDto(usersList));
-        } else {
-            return Optional.empty();
+            List<User> usersList = userRepository.findAll(specification);
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList );
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
+            }
+        }catch (Exception e){
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 

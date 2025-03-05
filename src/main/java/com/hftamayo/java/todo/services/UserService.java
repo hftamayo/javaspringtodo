@@ -16,7 +16,7 @@ public interface UserService {
 
     Optional<User> getUserByEmail(String userEmail);
 
-    Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value);
+    CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
 
     Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
                                                        String criteria2, String value2);

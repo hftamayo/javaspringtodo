@@ -38,7 +38,8 @@ public class UserController {
 
     @GetMapping(value = "/userbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<UserResponseDto>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public CrudOperationResponseDto<UserResponseDto>
+    getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return userService.getUserByCriteria(criteria, value);
     }
 
