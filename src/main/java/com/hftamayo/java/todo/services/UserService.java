@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    List<UserResponseDto> getUsers();
+    CrudOperationResponseDto<UserResponseDto> getUsers();
 
-    Optional<UserResponseDto> getUser(long userId);
+    CrudOperationResponseDto<UserResponseDto> getUser(long userId);
 
     Optional<User> getUserById(long userId);
 

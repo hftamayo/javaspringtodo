@@ -26,13 +26,13 @@ public class UserController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDto> getUsers() {
+    public CrudOperationResponseDto<UserResponseDto> getUsers() {
         return userService.getUsers();
     }
 
     @GetMapping(value = "/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<UserResponseDto> getUser(@PathVariable long userId) {
+    public CrudOperationResponseDto<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 

@@ -29,20 +29,33 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public List<UserResponseDto> getUsers() {
-        List<User> usersList = userRepository.findAll();
-        return usersList.stream().map(this::userToDto).toList();
+    public CrudOperationResponseDto<UserResponseDto> getUsers() {
+        try {
+            List<User> usersList = userRepository.findAll();
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
     @Override
-    public Optional<UserResponseDto> getUser(long userId) {
-        Optional<User> userOptional = getUserById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserResponseDto dto = userToDto(user);
-            return Optional.of(dto);
-        } else {
-            return Optional.empty();
+    public CrudOperationResponseDto<UserResponseDto> getUser(long userId) {
+        try {
+            Optional<User> userOptional = getUserById(userId);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                UserResponseDto userToDto = userToDto(user);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
@@ -165,14 +178,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public CrudOperationResponseDto deleteUser(long userId) {
-        try{
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            userRepository.deleteUserById(requestedUserOptional.get().getId());
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
-        } else {
-            return new CrudOperationResponseDto(404, "USER NOT FOUND");
-        }
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                userRepository.deleteUserById(requestedUserOptional.get().getId());
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
         } catch (Exception e) {
             return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
