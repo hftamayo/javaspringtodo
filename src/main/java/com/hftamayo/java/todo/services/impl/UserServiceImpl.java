@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CrudOperationResponseDto<UserResponseDto>  getUserByCriteria(String criteria, String value) {
+    public CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value) {
         try {
             Specification<User> specification = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get(criteria), value);
@@ -80,29 +80,34 @@ public class UserServiceImpl implements UserService {
             List<User> usersList = userRepository.findAll(specification);
             if (!usersList.isEmpty()) {
                 List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList );
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
             } else {
                 return new CrudOperationResponseDto(404, "NO USERS FOUND");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Override
-    public Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
-                                                              String criteria2, String value2) {
-        Specification<User> specification = (root, query, criteriaBuilder)
-                -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get(criteria), value),
-                criteriaBuilder.equal(root.get(criteria2), value2)
-        );
+    public CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
+                                                                        String criteria2, String value2) {
+        try {
+            Specification<User> specification = (root, query, criteriaBuilder)
+                    -> criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get(criteria), value),
+                    criteriaBuilder.equal(root.get(criteria2), value2)
+            );
 
-        List<User> usersList = userRepository.findAll(specification);
-        if (!usersList.isEmpty()) {
-            return Optional.of(userListToDto(usersList));
-        } else {
-            return Optional.empty();
+            List<User> usersList = userRepository.findAll(specification);
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 

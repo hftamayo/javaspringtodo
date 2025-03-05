@@ -45,7 +45,9 @@ public class UserController {
 
     @GetMapping(value = "/userbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<UserResponseDto>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public CrudOperationResponseDto<UserResponseDto>
+    getUserByCriterias(@PathVariable String criteria, @PathVariable String value,
+                       @PathVariable String criteria2, @PathVariable String value2) {
         return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 

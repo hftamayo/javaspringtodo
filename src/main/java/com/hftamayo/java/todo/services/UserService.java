@@ -18,7 +18,7 @@ public interface UserService {
 
     CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
 
-    Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
+    CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
                                                        String criteria2, String value2);
 
     CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
