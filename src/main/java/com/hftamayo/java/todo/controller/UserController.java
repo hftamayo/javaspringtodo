@@ -57,19 +57,19 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @PutMapping(value = "/update/{userId}")
+    @PatchMapping(value = "/update/{userId}")
     public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
         return userService.updateUser(userId, user);
     }
 
-    @PatchMapping(value = "/status/{userId}")
+    @PutMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
         return userService.updateUserStatus(userId, status);
     }
 
-    @PatchMapping(value = "/activate/{userId}")
+    @PutMapping(value = "/activate/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
