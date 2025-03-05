@@ -25,11 +25,11 @@ public interface UserService {
 
     CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser);
 
-    CrudOperationResponseDto deleteUser(long userId);
-
     UserResponseDto updateUserStatus(long userId, boolean status);
 
     UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
+
+    CrudOperationResponseDto deleteUser(long userId);
 
     UserResponseDto userToDto(User user);
 }
