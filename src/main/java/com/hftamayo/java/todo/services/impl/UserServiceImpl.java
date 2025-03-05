@@ -191,21 +191,28 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+        try{
         Optional<User> requestedUserOptional = getUserById(userId);
-        if (!requestedUserOptional.isPresent()) {
-            throw new EntityNotFoundException("User not found");
-        }
-        User user = requestedUserOptional.get();
-        user.setStatus(status);
+        if (requestedUserOptional.isPresent()) {
+            User existingUser = requestedUserOptional.get();
+            existingUser.setStatus(status);
 
-        Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
-        if (!roleOptional.isPresent()) {
-            throw new EntityNotFoundException("Role not found");
+            Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
+            if (!roleOptional.isPresent()) {
+                return new CrudOperationResponseDto(401, "ROLE NOT FOUND");
+            }
+            existingUser.setRole(roleOptional.get());
+            User savedUser = userRepository.save(existingUser);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", savedUser);
+        } else {
+            return new CrudOperationResponseDto(404, "USER NOT FOUND");
         }
-        user.setRole(roleOptional.get());
-        User savedUser = userRepository.save(user);
-        return userToDto(savedUser);
+
+    } catch (Exception e) {
+        return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
     @Transactional

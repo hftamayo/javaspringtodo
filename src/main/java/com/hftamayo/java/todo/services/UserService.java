@@ -27,7 +27,7 @@ public interface UserService {
 
     CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status);
 
-    UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
+    CrudOperationResponseDto<UserResponseDto> updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
     CrudOperationResponseDto deleteUser(long userId);
 
