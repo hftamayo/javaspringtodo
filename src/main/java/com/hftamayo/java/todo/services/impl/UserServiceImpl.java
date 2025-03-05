@@ -10,6 +10,7 @@ import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
+    }
+
+    @NotNull
+    private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
+        List<User> usersList = userRepository.findAll(specification);
+        if (!usersList.isEmpty()) {
+            List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+        } else {
+            return new CrudOperationResponseDto(404, "NO USERS FOUND");
+        }
     }
 
     //persistence methods
@@ -77,13 +89,7 @@ public class UserServiceImpl implements UserService {
             Specification<User> specification = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get(criteria), value);
 
-            List<User> usersList = userRepository.findAll(specification);
-            if (!usersList.isEmpty()) {
-                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
-            } else {
-                return new CrudOperationResponseDto(404, "NO USERS FOUND");
-            }
+            return searchUserByCriteria(specification);
         } catch (Exception e) {
             return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
@@ -99,13 +105,7 @@ public class UserServiceImpl implements UserService {
                     criteriaBuilder.equal(root.get(criteria2), value2)
             );
 
-            List<User> usersList = userRepository.findAll(specification);
-            if (!usersList.isEmpty()) {
-                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
-            } else {
-                return new CrudOperationResponseDto(404, "NO USERS FOUND");
-            }
+            return searchUserByCriteria(specification);
         } catch (Exception e) {
             return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
@@ -114,22 +114,24 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public CrudOperationResponseDto<UserResponseDto> saveUser(User newUser) {
-        Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
-        if (!requestedUser.isPresent()) {
-            if (newUser.getRole() == null) {
-                Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
-                        .orElseThrow(() -> new EntityNotFoundException("Role not found"));
-                newUser.setRole(defaultRole);
+        try {
+            Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
+            if (!requestedUser.isPresent()) {
+                if (newUser.getRole() == null) {
+                    Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
+                            .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                    newUser.setRole(defaultRole);
+                }
+                String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
+                newUser.setPassword(encodedPassword);
+                User savedUser = userRepository.save(newUser);
+                UserResponseDto dtoObject = userToDto(savedUser);
+                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", dtoObject);
+            } else {
+                return new CrudOperationResponseDto(400, "USER ALREADY EXISTS");
             }
-            String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
-            newUser.setPassword(encodedPassword);
-            User savedUser = userRepository.save(newUser);
-            UserResponseDto dtoObject = userToDto(savedUser);
-            CrudOperationResponseDto<UserResponseDto> response = new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", dtoObject);
-            return response;
-        } else {
-            throw new EntityAlreadyExistsException("The email is already registered by this user: " +
-                    requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
