@@ -172,15 +172,20 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserResponseDto updateUserStatus(long userId, boolean status) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            User existingUser = requestedUserOptional.get();
-            existingUser.setStatus(status);
-            User savedUser = userRepository.save(existingUser);
-            return userToDto(savedUser);
-        } else {
-            throw new EntityNotFoundException("User not found");
+    public CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status) {
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = requestedUserOptional.get();
+                existingUser.setStatus(status);
+                User savedUser = userRepository.save(existingUser);
+                UserResponseDto dtoObject = userToDto(savedUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 

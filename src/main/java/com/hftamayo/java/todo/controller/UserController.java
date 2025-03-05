@@ -64,14 +64,16 @@ public class UserController {
 
     @PutMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
         return userService.updateUserStatus(userId, status);
     }
 
     @PutMapping(value = "/activate/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
         String roleEnum = (String) updates.get("role");
         return userService.updateUserStatusAndRole(userId, status, roleEnum);
