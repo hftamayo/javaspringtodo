@@ -8,7 +8,6 @@ import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
-import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
@@ -49,6 +48,22 @@ public class UserServiceImpl implements UserService {
         } else {
             return new CrudOperationResponseDto(404, "NO USERS FOUND");
         }
+    }
+
+    private static @NotNull User getExistingUser(User updatedUser, Optional<User> requestedUserOptional) {
+        User existingUser = requestedUserOptional.get();
+
+        if (updatedUser.getName() != null) {
+            existingUser.setName(updatedUser.getName());
+        }
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getAge() >= 18 && updatedUser.getAge() != existingUser.getAge()) {
+            existingUser.setAge(updatedUser.getAge());
+        }
+        //isAdmin, isStatus, role and password have to be updated separately
+        return existingUser;
     }
 
     //persistence methods
@@ -138,21 +153,20 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            User existingUser = requestedUserOptional.get();
-            existingUser.setName(updatedUser.getName());
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPassword(updatedUser.getPassword());
-            existingUser.setAge(updatedUser.getAge());
-            existingUser.setAdmin(updatedUser.isAdmin());
-            existingUser.setStatus(updatedUser.isStatus());
-            User savedUser = userRepository.save(existingUser);
-            UserResponseDto dtoObject = userToDto(savedUser);
-            CrudOperationResponseDto<UserResponseDto> response = new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", dtoObject);
-            return response;
-        } else {
-            throw new EntityNotFoundException("User not found");
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = getExistingUser(updatedUser, requestedUserOptional);
+
+                User savedUser = userRepository.save(existingUser);
+                UserResponseDto dtoObject = userToDto(savedUser);
+
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
