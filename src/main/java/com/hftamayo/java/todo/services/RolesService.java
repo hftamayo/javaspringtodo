@@ -14,6 +14,4 @@ public interface RolesService {
     RolesResponseDto saveRole(Roles newRole);
     RolesResponseDto updateRole(long roleId, Roles updatedRole);
     CrudOperationResponseDto deleteRole(long roleId);
-
-    RolesResponseDto roleToDto(Roles role);
 }
