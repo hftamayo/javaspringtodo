@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    CrudOperationResponseDto<UserResponseDto> getUsers();
-
-    CrudOperationResponseDto<UserResponseDto> getUser(long userId);
-
     Optional<User> getUserById(long userId);
 
     Optional<User> getUserByEmail(String userEmail);
 
+    CrudOperationResponseDto<UserResponseDto> getUsers();
+
+    CrudOperationResponseDto<UserResponseDto> getUser(long userId);
+
     CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
 
     CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
-                                                       String criteria2, String value2);
+                                                                 String criteria2, String value2);
 
     CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
 
@@ -31,5 +31,4 @@ public interface UserService {
 
     CrudOperationResponseDto deleteUser(long userId);
 
-    UserResponseDto userToDto(User user);
 }
