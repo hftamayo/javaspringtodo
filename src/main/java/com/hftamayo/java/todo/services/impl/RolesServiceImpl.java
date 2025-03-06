@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
-import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
-
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,12 +20,13 @@ import java.util.Optional;
 public class RolesServiceImpl implements RolesService {
 
     private final RolesRepository rolesRepository;
+    private final RoleMapper roleMapper;
 
     @Override
     public List<RolesResponseDto> getRoles()
     {
         List<Roles> rolesList = rolesRepository.findAll();
-        return rolesList.stream().map(this::roleToDto).toList();
+        return rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
     }
 
     @Override
@@ -36,7 +35,7 @@ public class RolesServiceImpl implements RolesService {
         Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(eRole);
         if(roleOptional.isPresent()){
             Roles role = roleOptional.get();
-            RolesResponseDto dto = roleToDto(role);
+            RolesResponseDto dto = roleMapper.toRolesResponseDto(role);
             return Optional.of(dto);
         } else {
             return Optional.empty();
@@ -53,7 +52,7 @@ public class RolesServiceImpl implements RolesService {
         Optional<RolesResponseDto> requestedRole = getRoleByEnum(newRole.getRoleEnum().toString());
         if (!requestedRole.isPresent()) {
             Roles savedRole = rolesRepository.save(newRole);
-            RolesResponseDto dto = roleToDto(savedRole);
+            RolesResponseDto dto = roleMapper.toRolesResponseDto(savedRole);
             return dto;
         } else {
             throw new EntityAlreadyExistsException("Role already exists");
@@ -70,7 +69,7 @@ public class RolesServiceImpl implements RolesService {
             existingRole.setDescription(updatedRole.getDescription());
             existingRole.setStatus(updatedRole.isStatus());
             Roles savedRole = rolesRepository.save(existingRole);
-            return roleToDto(savedRole);
+            return roleMapper.toRolesResponseDto(savedRole);
         } else {
             throw new EntityNotFoundException("Role not found");
         }
@@ -86,20 +85,5 @@ public class RolesServiceImpl implements RolesService {
         } else {
             return new CrudOperationResponseDto(404, "ROLE NOT FOUND");
         }
-    }
-
-    @Override
-    public RolesResponseDto roleToDto(Roles role) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-        String formattedDate = role.getDateAdded().format(formatter);
-        String roleName = role.getRoleEnum().name();
-
-        return new RolesResponseDto(
-                role.getId(),
-                roleName,
-                role.getDescription(),
-                role.isStatus(),
-                formattedDate
-        );
     }
 }
