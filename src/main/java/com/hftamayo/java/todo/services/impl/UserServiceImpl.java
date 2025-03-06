@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.mapper.UserMapper;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
@@ -19,7 +20,6 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RolesRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     //helper methods
     @Override
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
     private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
         List<User> usersList = userRepository.findAll(specification);
         if (!usersList.isEmpty()) {
-            List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+            List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
             return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
         } else {
             return new CrudOperationResponseDto(404, "NO USERS FOUND");
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> usersList = userRepository.findAll();
             if (!usersList.isEmpty()) {
-                List<UserResponseDto> usersDtoList = usersList.stream().map(this::userToDto).toList();
+                List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
                 return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
             } else {
                 return new CrudOperationResponseDto(404, "NO USERS FOUND");
@@ -88,7 +89,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> userOptional = getUserById(userId);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                UserResponseDto userToDto = userToDto(user);
+                UserResponseDto userToDto = userMapper.userToDto(user);
                 return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
             } else {
                 return new CrudOperationResponseDto(404, "USER NOT FOUND");
@@ -140,7 +141,7 @@ public class UserServiceImpl implements UserService {
                 String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
                 newUser.setPassword(encodedPassword);
                 User savedUser = userRepository.save(newUser);
-                UserResponseDto dtoObject = userToDto(savedUser);
+                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
                 return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", dtoObject);
             } else {
                 return new CrudOperationResponseDto(400, "USER ALREADY EXISTS");
@@ -159,7 +160,7 @@ public class UserServiceImpl implements UserService {
                 User existingUser = getExistingUser(updatedUser, requestedUserOptional);
 
                 User savedUser = userRepository.save(existingUser);
-                UserResponseDto dtoObject = userToDto(savedUser);
+                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
 
                 return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
             } else {
@@ -179,7 +180,7 @@ public class UserServiceImpl implements UserService {
                 User existingUser = requestedUserOptional.get();
                 existingUser.setStatus(status);
                 User savedUser = userRepository.save(existingUser);
-                UserResponseDto dtoObject = userToDto(savedUser);
+                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
                 return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
             } else {
                 return new CrudOperationResponseDto(404, "USER NOT FOUND");
@@ -193,25 +194,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public CrudOperationResponseDto<UserResponseDto>
     updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
-        try{
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            User existingUser = requestedUserOptional.get();
-            existingUser.setStatus(status);
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = requestedUserOptional.get();
+                existingUser.setStatus(status);
 
-            Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
-            if (!roleOptional.isPresent()) {
-                return new CrudOperationResponseDto(401, "ROLE NOT FOUND");
+                Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
+                if (!roleOptional.isPresent()) {
+                    return new CrudOperationResponseDto(401, "ROLE NOT FOUND");
+                }
+                existingUser.setRole(roleOptional.get());
+                User savedUser = userRepository.save(existingUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", savedUser);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
             }
-            existingUser.setRole(roleOptional.get());
-            User savedUser = userRepository.save(existingUser);
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", savedUser);
-        } else {
-            return new CrudOperationResponseDto(404, "USER NOT FOUND");
-        }
 
-    } catch (Exception e) {
-        return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
@@ -229,31 +230,6 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
-    }
-
-    @Override
-    public UserResponseDto userToDto(User user) {
-        String formattedRoleName = user.getRole().getRoleEnum().name();
-
-        return new UserResponseDto(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getAge(),
-                user.isAdmin(),
-                user.isAccountNonExpired(),
-                user.isAccountNonLocked(),
-                user.isCredentialsNonExpired(),
-                user.isStatus(),
-                user.getDateAdded().toString(),
-                formattedRoleName
-        );
-    }
-
-    private List<UserResponseDto> userListToDto(List<User> users) {
-        return users.stream()
-                .map(this::userToDto)
-                .collect(Collectors.toList());
     }
 
 }
