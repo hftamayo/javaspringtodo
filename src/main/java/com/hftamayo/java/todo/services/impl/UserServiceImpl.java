@@ -30,25 +30,13 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     //helper methods
-    @Override
-    public Optional<User> getUserById(long userId) {
+
+    private Optional<User> getUserById(long userId) {
         return userRepository.findUserById(userId);
     }
 
-    @Override
-    public Optional<User> getUserByEmail(String email) {
+    private Optional<User> getUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
-    }
-
-    @NotNull
-    private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
-        List<User> usersList = userRepository.findAll(specification);
-        if (!usersList.isEmpty()) {
-            List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
-        } else {
-            return new CrudOperationResponseDto(404, "NO USERS FOUND");
-        }
     }
 
     private static @NotNull User getExistingUser(User updatedUser, Optional<User> requestedUserOptional) {
@@ -65,6 +53,21 @@ public class UserServiceImpl implements UserService {
         }
         //isAdmin, isStatus, role and password have to be updated separately
         return existingUser;
+    }
+
+    @NotNull
+    private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
+        try {
+            List<User> usersList = userRepository.findAll(specification);
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
     //persistence methods

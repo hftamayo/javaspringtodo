@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<User> getUserById(long userId);
-
-    Optional<User> getUserByEmail(String userEmail);
-
     CrudOperationResponseDto<UserResponseDto> getUsers();
 
     CrudOperationResponseDto<UserResponseDto> getUser(long userId);
