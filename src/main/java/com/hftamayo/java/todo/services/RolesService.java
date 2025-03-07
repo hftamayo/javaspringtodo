@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface RolesService {
     CrudOperationResponseDto<UserResponseDto> getRoles();
-    CrudOperationResponseDto<UserResponseDto> getRoleByEnum(String roleEnum);
+    CrudOperationResponseDto<UserResponseDto> getRoleByName(String name);
 
     CrudOperationResponseDto<UserResponseDto> saveRole(Roles newRole);
     CrudOperationResponseDto<UserResponseDto> updateRole(long roleId, Roles updatedRole);
