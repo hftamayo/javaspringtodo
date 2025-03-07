@@ -58,6 +58,7 @@ public class UserController {
     }
 
     @PatchMapping(value = "/update/{userId}")
+    @ResponseStatus(HttpStatus.OK)
     public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
         return userService.updateUser(userId, user);
     }
