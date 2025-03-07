@@ -29,8 +29,8 @@ public class RolesController {
 
     @GetMapping(value = "/rolebn/{roleName}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<RolesResponseDto> getRoleByName(@PathVariable String roleName) {
-        return rolesService.getRoleByEnum(roleName);
+    public CrudOperationResponseDto<RolesResponseDto> getRoleByName(@PathVariable String name) {
+        return rolesService.getRoleByName(name);
     }
 
     @PostMapping(value = "/create")
