@@ -144,8 +144,8 @@ public class UserServiceImpl implements UserService {
                 String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
                 newUser.setPassword(encodedPassword);
                 User savedUser = userRepository.save(newUser);
-                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
-                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", dtoObject);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", userToDto);
             } else {
                 return new CrudOperationResponseDto(400, "USER ALREADY EXISTS");
             }
@@ -163,9 +163,9 @@ public class UserServiceImpl implements UserService {
                 User existingUser = getExistingUser(updatedUser, requestedUserOptional);
 
                 User savedUser = userRepository.save(existingUser);
-                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
 
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
             } else {
                 return new CrudOperationResponseDto(404, "USER NOT FOUND");
             }
@@ -183,8 +183,8 @@ public class UserServiceImpl implements UserService {
                 User existingUser = requestedUserOptional.get();
                 existingUser.setStatus(status);
                 User savedUser = userRepository.save(existingUser);
-                UserResponseDto dtoObject = userMapper.userToDto(savedUser);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", dtoObject);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
             } else {
                 return new CrudOperationResponseDto(404, "USER NOT FOUND");
             }
@@ -209,7 +209,8 @@ public class UserServiceImpl implements UserService {
                 }
                 existingUser.setRole(roleOptional.get());
                 User savedUser = userRepository.save(existingUser);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", savedUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
             } else {
                 return new CrudOperationResponseDto(404, "USER NOT FOUND");
             }
