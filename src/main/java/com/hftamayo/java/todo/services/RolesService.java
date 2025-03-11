@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RolesService {
-    CrudOperationResponseDto<UserResponseDto> getRoles();
-    CrudOperationResponseDto<UserResponseDto> getRoleByName(String name);
+    CrudOperationResponseDto<RolesResponseDto> getRoles();
+    CrudOperationResponseDto<RolesResponseDto> getRoleByName(String name);
 
-    CrudOperationResponseDto<UserResponseDto> saveRole(Roles newRole);
-    CrudOperationResponseDto<UserResponseDto> updateRole(long roleId, Roles updatedRole);
+    CrudOperationResponseDto<RolesResponseDto> saveRole(Roles newRole);
+    CrudOperationResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole);
     CrudOperationResponseDto deleteRole(long roleId);
 }
