@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
@@ -23,21 +24,31 @@ import static java.util.Optional.empty;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     @Override
-    public List<TaskResponseDto> getTasks() {
-        List<Task> taskList = taskRepository.findAll();
-        return taskList.stream().map(this::taskToDto).toList();
+    public CrudOperationResponseDto<TaskResponseDto> getTasks() {
+        try {
+            List<Task> taskList = taskRepository.findAll();
+            if (!taskList.isEmpty()) {
+                List<TaskResponseDto> tasksDtoList = taskList.stream().map(taskMapper::taskToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", tasksDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO TASKS FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
-    public Optional<Task> getTaskById(long taskId){
+    public Optional<Task> getTaskById(long taskId) {
         return taskRepository.findTaskById(taskId);
     }
 
     @Override
     public Optional<TaskResponseDto> getTask(long taskId) {
         Optional<Task> taskOptional = getTaskById(taskId);
-        if(taskOptional.isPresent()){
+        if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
             TaskResponseDto dto = taskToDto(task);
             return Optional.of(dto);
