@@ -25,50 +25,43 @@ public class TaskController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<TaskResponseDto> getTasks() {
+    public CrudOperationResponseDto<TaskResponseDto> getTasks() {
         return taskService.getTasks();
     }
 
     @GetMapping(value = "/task/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<TaskResponseDto> getTask(@PathVariable long taskId) {
+    public CrudOperationResponseDto<TaskResponseDto> getTask(@PathVariable long taskId) {
         return taskService.getTask(taskId);
     }
 
     @GetMapping(value = "/taskbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto>> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return taskService.getTaskByCriteria(criteria, value);
     }
 
     @GetMapping(value = "/taskbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto>> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         return taskService.getTaskByCriterias(criteria, value, criteria2, value2);
     }
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponseDto saveTask(@RequestBody Task task) {
+    public CrudOperationResponseDto<TaskResponseDto> saveTask(@RequestBody Task task) {
         return taskService.saveTask(task);
     }
 
-    @PutMapping(value = "/update/{taskId}")
-    public TaskResponseDto updateTask(@PathVariable long taskId, @RequestBody Task task) {
-        try {
-            return taskService.updateTask(taskId, task);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    @PatchMapping(value = "/update/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CrudOperationResponseDto<TaskResponseDto> updateTask(@PathVariable long taskId, @RequestBody Task task) {
+        return taskService.updateTask(taskId, task);
     }
 
     @DeleteMapping(value = "/delete/{taskId}")
     @ResponseStatus(HttpStatus.OK)
     public CrudOperationResponseDto deleteTask(@PathVariable long taskId) {
-        try {
-            return taskService.deleteTask(taskId);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        return taskService.deleteTask(taskId);
     }
 }
