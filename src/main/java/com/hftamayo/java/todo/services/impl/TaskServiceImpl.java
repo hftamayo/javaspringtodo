@@ -7,6 +7,7 @@ import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,27 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
+    //helper methods:
+    private Optional<Task> getTaskById(long taskId) {
+        return taskRepository.findTaskById(taskId);
+    }
+
+    private Optional<Task> getTaskByTitle(String taskTitle) {
+        return taskRepository.findTaskByTitle(taskTitle);
+    }
+
+    @NotNull
+    private CrudOperationResponseDto<TaskResponseDto> searchTaskByCriteria(Specification<Task> specification) {
+        List<Task> taskList = taskRepository.findAll(specification);
+        if (!taskList.isEmpty()) {
+            List<TaskResponseDto> tasksDtoList = taskList.stream().map(taskMapper::taskToDto).toList();
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", tasksDtoList);
+        } else {
+            return new CrudOperationResponseDto(404, "NO TASKS FOUND");
+        }
+    }
+
+    //persistence methods
     @Override
     public CrudOperationResponseDto<TaskResponseDto> getTasks() {
         try {
@@ -41,54 +63,45 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    public Optional<Task> getTaskById(long taskId) {
-        return taskRepository.findTaskById(taskId);
-    }
-
     @Override
-    public Optional<TaskResponseDto> getTask(long taskId) {
+    public CrudOperationResponseDto<TaskResponseDto> getTask(long taskId) {
+        try{
         Optional<Task> taskOptional = getTaskById(taskId);
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
-            TaskResponseDto dto = taskToDto(task);
-            return Optional.of(dto);
+            TaskResponseDto taskToDto = taskMapper.taskToDto(task);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", taskToDto);
         } else {
-            return empty();
+            return new CrudOperationResponseDto(404, "TASK NOT FOUND");
+        }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Override
-    public Optional<Task> getTaskByTitle(String taskTitle) {
-        return taskRepository.findTaskByTitle(taskTitle);
-    }
-
-    @Override
-    public Optional<List<TaskResponseDto>> getTaskByCriteria(String criteria, String value) {
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriteria(String criteria, String value) {
+        try{
         Specification<Task> specification = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get(criteria), value);
-
-        List<Task> taskList = taskRepository.findAll(specification);
-        if (!taskList.isEmpty()) {
-            return Optional.of(taskListToDto(taskList));
-        } else {
-            return Optional.empty();
+        return searchTaskByCriteria(specification);
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Override
-    public Optional<List<TaskResponseDto>> getTaskByCriterias(String criteria, String value,
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriterias(String criteria, String value,
                                                               String criteria2, String value2) {
+        try{
         Specification<Task> specification = (root, query, criteriaBuilder)
                 -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get(criteria), value),
                 criteriaBuilder.equal(root.get(criteria2), value2)
         );
-
-        List<Task> taskList = taskRepository.findAll(specification);
-        if (!taskList.isEmpty()) {
-            return Optional.of(taskListToDto(taskList));
-        } else {
-            return Optional.empty();
+        return searchTaskByCriteria(specification);
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
