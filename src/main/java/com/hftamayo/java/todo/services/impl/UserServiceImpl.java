@@ -57,7 +57,6 @@ public class UserServiceImpl implements UserService {
 
     @NotNull
     private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
-        try {
             List<User> usersList = userRepository.findAll(specification);
             if (!usersList.isEmpty()) {
                 List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
@@ -65,9 +64,6 @@ public class UserServiceImpl implements UserService {
             } else {
                 return new CrudOperationResponseDto(404, "NO USERS FOUND");
             }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
-        }
     }
 
     //persistence methods
