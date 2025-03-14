@@ -17,9 +17,13 @@ public class CustomFilterInvocationSecurityMetadataSource implements FilterInvoc
         FilterInvocation filterInvocation = (FilterInvocation) object;
         String url = filterInvocation.getRequestUrl();
 
+        return getRolesForUrl(url);
+    }
+
+    private Collection<ConfigAttribute> getRolesForUrl(String url) {
         // Here you would typically load the roles from a database or other source
         // based on the URL. For simplicity, we'll just hard-code some roles.
-        if (url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register")) {
+        if (url.startsWith("/api/auth/login") || url.startsWith("/api/auth/register") || url.startsWith("/api/health")) {
             return List.of(new SecurityConfig("ROLE_ANONYMOUS"));
         } else {
             return List.of(new SecurityConfig("ROLE_USER"),

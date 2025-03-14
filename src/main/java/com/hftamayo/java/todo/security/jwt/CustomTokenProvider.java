@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@Component
 @RequiredArgsConstructor
 public class CustomTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(CustomTokenProvider.class);
@@ -36,7 +37,7 @@ public class CustomTokenProvider {
     private final JwtConfig jwtConfig;
     private final UserInfoProviderManager userInfoProviderManager;
 
-    public String sessionIdentifier = UUID.randomUUID().toString();
+    public volatile String sessionIdentifier = UUID.randomUUID().toString();
 
     private SecretKey secretKey;
 
@@ -45,16 +46,16 @@ public class CustomTokenProvider {
         secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public String getToken(String username) {
-        return getToken(new HashMap<>(), username);
+    public String getToken(String email) {
+        return getToken(new HashMap<>(), email);
     }
 
-    private String getToken(Map<String, Object> extraClaims, String username) {
+    private String getToken(Map<String, Object> extraClaims, String email) {
         extraClaims.put("sessionIdentifier", sessionIdentifier);
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationDate))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
@@ -69,16 +70,16 @@ public class CustomTokenProvider {
         return "Bearer";
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, String username) {
-        final UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
-        final String tokenUsername = getUsernameFromToken(token);
+    public boolean isTokenValid(String token, String email) {
+        final UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
+        final String tokenEmail = getEmailFromToken(token);
         final String tokenSessionIdentifier = getClaim(token,
                 claims -> claims.get("sessionIdentifier", String.class));
-        return tokenUsername.equals(userDetails.getUsername()) && !isTokenExpired(token)
+        return tokenEmail.equals(userDetails.getUsername()) && !isTokenExpired(token)
                 && sessionIdentifier.equals(tokenSessionIdentifier);
     }
 
@@ -103,8 +104,7 @@ public class CustomTokenProvider {
     public long getRemainingExpirationTime(String token) {
         Date expirationDate = getExpirationDateFromToken(token);
         long diffInMillies = Math.abs(expirationDate.getTime() - new Date().getTime());
-        long diffInHours = TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return diffInHours;
+        return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
 
     private boolean isTokenExpired(String token) {

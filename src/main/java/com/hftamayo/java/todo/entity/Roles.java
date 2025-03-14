@@ -22,7 +22,7 @@ import java.util.Set;
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NonNull
     @Enumerated(EnumType.STRING)

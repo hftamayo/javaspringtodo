@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -24,13 +23,24 @@ this class only requires integration testing
 public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private final UserService userService;
     private final RolesService rolesService;
-    private final PasswordEncoder passwordEncoder;
 
     @Value("${seed.development}")
     private boolean seedDevelopment;
 
     @Value("${seed.production}")
     private boolean seedProduction;
+
+    @Value("${seed.admin.password}")
+    private String adminPasswod;
+
+    @Value("${seed.supervisor.password}")
+    private String supervisorPassword;
+
+    @Value("${seed.user1.password}")
+    private String user1Password;
+
+    @Value("${seed.user2.password}")
+    private String user2Password;
 
     private Roles adminRole;
     private Roles supervisorRole;
@@ -66,15 +76,15 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private void setRoles() {
         System.out.println("Seeding roles started");
 
-        userRole = new Roles(1, ERole.ROLE_USER, "User role", true,
+        userRole = new Roles(null, ERole.ROLE_USER, "User role", true,
                 LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
         rolesService.saveRole(userRole);
 
-        supervisorRole = new Roles(2, ERole.ROLE_SUPERVISOR, "Supervisor role", true,
+        supervisorRole = new Roles(null, ERole.ROLE_SUPERVISOR, "Supervisor role", true,
                 LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
         rolesService.saveRole(supervisorRole);
 
-        adminRole = new Roles(3, ERole.ROLE_ADMIN, "Admin role", true,
+        adminRole = new Roles(null, ERole.ROLE_ADMIN, "Admin role", true,
                 LocalDateTime.now(), LocalDateTime.now(), new HashSet<>());
         rolesService.saveRole(adminRole);
 
@@ -83,31 +93,37 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private void seedDevelopment() {
         System.out.println("Seeding data for development environment started");
-        User adminUser = new User(1L, "Herbert Tamayo", "hftamayo@gmail.com",
-                passwordEncoder.encode("password123"), 25, true,
+
+        User adminUser = new User(null, "Herbert Tamayo", "administrador@tamayo.com",
+                adminPasswod.trim(), 25, true,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
         userService.saveUser(adminUser);
 
-        User supervisorUser = new User(2L, "Sebastian Fernandez", "sebas@gmail.com",
-                passwordEncoder.encode("password123"), 20, false,
+        User supervisorUser = new User(null, "Sebastian Fernandez", "supervisor@tamayo.com",
+                supervisorPassword.trim(), 20, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), supervisorRole, new HashSet<>());
         userService.saveUser(supervisorUser);
 
-        User operatorUser = new User(3L, "Milu Martinez", "milu@gmail.com",
-                passwordEncoder.encode("password123"), 18, false,
+        User operatorUser = new User(null, "Bob Doe", "bob@tamayo.com",
+                user1Password.trim(), 18, false,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
         userService.saveUser(operatorUser);
 
+        operatorUser = new User(null, "Mary Doe", "mary@tamayo.com",
+                user2Password.trim(), 18, false,
+                true, true, true, true,
+                LocalDateTime.now(), LocalDateTime.now(), userRole, new HashSet<>());
+        userService.saveUser(operatorUser);
         System.out.println("Seeding data for development environment completed");
     }
 
     private void seedProduction() {
         System.out.println("Seeding data for production environment started");
-        User adminUser = new User(1L, "Administrator", "administrator@gmail.com",
-                passwordEncoder.encode("password123"), 25, true,
+        User adminUser = new User(null, "Administrator", "administrador@tamayo.com",
+                adminPasswod.trim(), 25, true,
                 true, true, true, true,
                 LocalDateTime.now(), LocalDateTime.now(), adminRole, new HashSet<>());
 
