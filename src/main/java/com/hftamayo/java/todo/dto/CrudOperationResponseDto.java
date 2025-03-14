@@ -1,15 +1,14 @@
 package com.hftamayo.java.todo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Builder
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CrudOperationResponseDto<T> {
     private int code;
     private String resultMessage;
@@ -27,7 +26,7 @@ public class CrudOperationResponseDto<T> {
         this.data = data;
     }
 
-    public CrudOperationResponseDto(int code, String resultMessage, List<T> dataMap) {
+    public CrudOperationResponseDto(int code, String resultMessage, List<T> dataList) {
         this.code = code;
         this.resultMessage = resultMessage;
         this.dataList = dataList;
