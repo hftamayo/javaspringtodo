@@ -15,7 +15,7 @@ public class UserInfoProviderManager implements UserInfoProvider {
 
     @Override
     public UserDetails getUserDetails(String email) {
-        User user = userService.getUserByEmail(email)
+        User user = userService.loginRequest(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
