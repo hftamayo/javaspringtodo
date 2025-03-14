@@ -68,6 +68,11 @@ public class UserServiceImpl implements UserService {
 
     //persistence methods
     @Override
+    public Optional<User> loginRequest(String email) {
+        return getUserByEmail(email);
+    }
+
+    @Override
     public CrudOperationResponseDto<UserResponseDto> getUsers() {
         try {
             List<User> usersList = userRepository.findAll();

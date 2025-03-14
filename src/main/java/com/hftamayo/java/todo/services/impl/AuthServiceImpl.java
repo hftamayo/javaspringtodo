@@ -46,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private User fetchUser(String email) {
-        User user = userService.getUserByEmail(email)
+        User user = userService.loginRequest(email)
                 .orElseThrow(() -> {
                     logger.error("LOGIN_ATTEMPT: User requested not found: {}", email);
                     return new UsernameNotFoundException("Invalid Credentials: Email or Password not found");
