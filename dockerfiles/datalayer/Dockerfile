@@ -18,3 +18,4 @@ CMD ["mysqld"]
 #how to run this file:
 #docker build -t hftamayo/mysqlrestapi:0.0.1 .
 #docker run --name mysqlrestapi -p 3307:3306 -d --restart=always --env-file .env hftamayo/mysqlrestapi:0.0.1
+#mysql -h localhost -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE

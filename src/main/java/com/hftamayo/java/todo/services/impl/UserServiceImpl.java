@@ -1,184 +1,240 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dao.UserDao;
-import com.hftamayo.java.todo.dao.RolesDao;
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.mapper.UserMapper;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
-import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final RolesRepository rolesRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    private final UserDao userDao;
-    private final  PasswordEncoder passwordEncoder;
-    private final RolesDao rolesDao;
+    //helper methods
 
-    @Override
-    public List<UserResponseDto> getUsers() {
-        List<User> usersList = userDao.getUsers();
-        return usersList.stream().map(this::userToDto).toList();
+    private Optional<User> getUserById(long userId) {
+        return userRepository.findUserById(userId);
     }
 
-    @Override
-    public Optional<UserResponseDto> getUser(long userId) {
-        Optional<User> userOptional = getUserById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserResponseDto dto = userToDto(user);
-            return Optional.of(dto);
-        } else {
-            return Optional.empty();
+    private Optional<User> getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    private static @NotNull User getExistingUser(User updatedUser, Optional<User> requestedUserOptional) {
+        User existingUser = requestedUserOptional.get();
+
+        if (updatedUser.getName() != null) {
+            existingUser.setName(updatedUser.getName());
         }
-    }
-    @Override
-    public Optional<User> getUserById(long userId) {
-        return userDao.getUserById(userId);
-    }
-
-    @Override
-    public Optional<User> getUserByEmail(String email) {
-        Optional<Object> result = userDao
-                .getUserByCriteria("email", email, true);
-        return result.map(object -> (User) object);
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getAge() >= 18 && updatedUser.getAge() != existingUser.getAge()) {
+            existingUser.setAge(updatedUser.getAge());
+        }
+        //isAdmin, isStatus, role and password have to be updated separately
+        return existingUser;
     }
 
-    @Override
-    public Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value) {
-        Optional<Object> result = userDao.getUserByCriteria(criteria, value, false);
-        return result.map(object -> {
-            if (object instanceof List<?> &&
-                    !((List<?>) object).isEmpty() && ((List<?>) object).get(0) instanceof User) {
-                List<User> usersList = (List<User>) object;
-                return Optional.of(userListToDto(usersList));
+    @NotNull
+    private CrudOperationResponseDto<UserResponseDto> searchUserByCriteria(Specification<User> specification) {
+            List<User> usersList = userRepository.findAll(specification);
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
             }
-            return Optional.<List<UserResponseDto>>empty();
-        }).orElse(Optional.empty());
+    }
+
+    //persistence methods
+    @Override
+    public Optional<User> loginRequest(String email) {
+        return getUserByEmail(email);
     }
 
     @Override
-    public Optional<List<UserResponseDto>> getUserByCriterias(
-            String criteria, String value, String criteria2, String value2) {
-        Optional<List<User>> userListOptional = userDao.getUserByCriterias(criteria, value, criteria2, value2);
-        return userListOptional.map(this::userListToDto).map(Optional::of).orElse(Optional.empty());
+    public CrudOperationResponseDto<UserResponseDto> getUsers() {
+        try {
+            List<User> usersList = userRepository.findAll();
+            if (!usersList.isEmpty()) {
+                List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            } else {
+                return new CrudOperationResponseDto(404, "NO USERS FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
-    @Transactional
     @Override
-    public UserResponseDto saveUser(User newUser) {
-        Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
-        if (!requestedUser.isPresent()) {
-            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            User savedUser = userDao.saveUser(newUser);
-            UserResponseDto dto = userToDto(savedUser);
-            return dto;
-        } else {
-            throw new EntityAlreadyExistsException("The email is already registered by this user: " +
-                    requestedUser.get().getEmail() + " with the name: " + requestedUser.get().getName());
+    public CrudOperationResponseDto<UserResponseDto> getUser(long userId) {
+        try {
+            Optional<User> userOptional = getUserById(userId);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                UserResponseDto userToDto = userMapper.userToDto(user);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
+    }
+
+    @Override
+    public CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value) {
+        try {
+            Specification<User> specification = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get(criteria), value);
+
+            return searchUserByCriteria(specification);
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
+    }
+
+    @Override
+    public CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
+                                                                        String criteria2, String value2) {
+        try {
+            Specification<User> specification = (root, query, criteriaBuilder)
+                    -> criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get(criteria), value),
+                    criteriaBuilder.equal(root.get(criteria2), value2)
+            );
+
+            return searchUserByCriteria(specification);
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Transactional
     @Override
-    public UserResponseDto updateUser(long userId, User updatedUser) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            Map<String, Object> propertiesToUpdate = new HashMap<>();
-            propertiesToUpdate.put("name", updatedUser.getName());
-            propertiesToUpdate.put("email", updatedUser.getEmail());
-            propertiesToUpdate.put("password", updatedUser.getPassword());
-            propertiesToUpdate.put("age", updatedUser.getAge());
-            propertiesToUpdate.put("isAdmin", updatedUser.isAdmin());
-            propertiesToUpdate.put("status", updatedUser.isStatus());
-            User user = userDao.updateUser(userId, propertiesToUpdate);
-            return userToDto(user);
-        } else {
-            throw new EntityNotFoundException("User not found");
+    public CrudOperationResponseDto<UserResponseDto> saveUser(User newUser) {
+        try {
+            Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
+            if (!requestedUser.isPresent()) {
+                if (newUser.getRole() == null) {
+                    Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
+                            .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                    newUser.setRole(defaultRole);
+                }
+                String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
+                newUser.setPassword(encodedPassword);
+                User savedUser = userRepository.save(newUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(400, "USER ALREADY EXISTS");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Transactional
     @Override
-    public UserResponseDto updateUserStatus(long userId, boolean status) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            Map<String, Object> propertiesToUpdate = new HashMap<>();
-            propertiesToUpdate.put("status", status);
-            User user = userDao.updateUser(userId, propertiesToUpdate);
-            return userToDto(user);
-        } else {
-            throw new EntityNotFoundException("User not found");
+    public CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser) {
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = getExistingUser(updatedUser, requestedUserOptional);
+
+                User savedUser = userRepository.save(existingUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
     @Transactional
     @Override
-    public UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (!requestedUserOptional.isPresent()) {
-            throw new EntityNotFoundException("User not found");
+    public CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status) {
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = requestedUserOptional.get();
+                existingUser.setStatus(status);
+                User savedUser = userRepository.save(existingUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
-        User user = requestedUserOptional.get();
-        user.setStatus(status);
-
-        Optional<Roles> roleOptional = rolesDao.getRoleByEnum(roleEnum);
-        if (!roleOptional.isPresent()) {
-            throw new EntityNotFoundException("Role not found");
-        }
-        Map<String, Object> propertiesToUpdate = new HashMap<>();
-        propertiesToUpdate.put("status", status);
-        propertiesToUpdate.put("role", roleOptional.get());
-        User updatedUser = userDao.updateUser(userId, propertiesToUpdate);
-        return userToDto(updatedUser);
     }
 
     @Transactional
     @Override
-    public void deleteUser(long userId) {
-        Optional<User> requestedUserOptional = getUserById(userId);
-        if (requestedUserOptional.isPresent()) {
-            userDao.deleteUser(requestedUserOptional.get().getId());
-        } else {
-            throw new EntityNotFoundException("User not found");
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                User existingUser = requestedUserOptional.get();
+                existingUser.setStatus(status);
+
+                Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
+                if (!roleOptional.isPresent()) {
+                    return new CrudOperationResponseDto(401, "ROLE NOT FOUND");
+                }
+                existingUser.setRole(roleOptional.get());
+                User savedUser = userRepository.save(existingUser);
+                UserResponseDto userToDto = userMapper.userToDto(savedUser);
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
         }
     }
 
+    @Transactional
     @Override
-    public UserResponseDto userToDto(User user) {
-        String formattedRoleName = user.getRole().getRoleEnum().name();
-
-        return new UserResponseDto(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getAge(),
-                user.isAdmin(),
-                user.isAccountNonExpired(),
-                user.isAccountNonLocked(),
-                user.isCredentialsNonExpired(),
-                user.isStatus(),
-                user.getDateAdded().toString(),
-                formattedRoleName
-        );
+    public CrudOperationResponseDto deleteUser(long userId) {
+        try {
+            Optional<User> requestedUserOptional = getUserById(userId);
+            if (requestedUserOptional.isPresent()) {
+                userRepository.deleteUserById(requestedUserOptional.get().getId());
+                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
+            } else {
+                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            }
+        } catch (Exception e) {
+            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        }
     }
 
-    private List<UserResponseDto> userListToDto(List<User> users) {
-        return users.stream()
-                .map(this::userToDto)
-                .collect(Collectors.toList());
-    }
 }
