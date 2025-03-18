@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -17,62 +18,50 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/todos")
+@RequestMapping("/api/tasks")
 public class TaskController {
     private final TaskService taskService;
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
-    @GetMapping(value = "/alltasks")
+    @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<TaskResponseDto> getTasks() {
+    public CrudOperationResponseDto<TaskResponseDto> getTasks() {
         return taskService.getTasks();
     }
 
-    @GetMapping(value = "/gettaskbyid/{taskId}")
+    @GetMapping(value = "/task/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<TaskResponseDto> getTask(@PathVariable long taskId) {
+    public CrudOperationResponseDto<TaskResponseDto> getTask(@PathVariable long taskId) {
         return taskService.getTask(taskId);
     }
 
-    @GetMapping(value = "/gettaskbycriteria/{criteria}/{value}")
+    @GetMapping(value = "/taskbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto>> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return taskService.getTaskByCriteria(criteria, value);
     }
 
-    @GetMapping(value = "/gettaskbycriterias/{criteria}/{value}/{criteria2}/{value2}")
+    @GetMapping(value = "/taskbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<TaskResponseDto>> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         return taskService.getTaskByCriterias(criteria, value, criteria2, value2);
     }
 
-    @PostMapping(value = "/savetask")
+    @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponseDto saveTask(@RequestBody Task task) {
+    public CrudOperationResponseDto<TaskResponseDto> saveTask(@RequestBody Task task) {
         return taskService.saveTask(task);
     }
 
-    @PutMapping(value = "/updatetask/{taskId}")
-    public TaskResponseDto updateTask(@PathVariable long taskId, @RequestBody Task task) {
-        try {
-            return taskService.updateTask(taskId, task);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping(value = "/deletetask/{taskId}")
+    @PatchMapping(value = "/update/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> deleteTask(@PathVariable long taskId) {
-        try {
-            taskService.deleteTask(taskId);
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(enf.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public CrudOperationResponseDto<TaskResponseDto> updateTask(@PathVariable long taskId, @RequestBody Task task) {
+        return taskService.updateTask(taskId, task);
     }
 
-
+    @DeleteMapping(value = "/delete/{taskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CrudOperationResponseDto deleteTask(@PathVariable long taskId) {
+        return taskService.deleteTask(taskId);
+    }
 }

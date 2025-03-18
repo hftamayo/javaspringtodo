@@ -17,7 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
+@RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final UserInfoProviderManager userInfoProviderManager;
@@ -25,51 +27,48 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-    @Autowired
-    public AuthenticationFilter(UserInfoProviderManager userInfoProviderManager, CustomTokenProvider customTokenProvider) {
-        this.userInfoProviderManager = userInfoProviderManager;
-        this.customTokenProvider = customTokenProvider;
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         logger.info("Request path: " + path);
-        if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")) {
+        if (isPublicEndpoint(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
             final String token = getTokenFromRequest(request);
-            final String username;
-
             if (token == null) {
                 logger.info("No token found in request");
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            username = customTokenProvider.getUsernameFromToken(token);
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if (customTokenProvider.isTokenValid(token, username)) {
-                    UserDetails userDetails = userInfoProviderManager.getUserDetails(username);
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userDetails, null,
-                                    userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.info("User authenticated successfully");
-                }
+            String email = customTokenProvider.getEmailFromToken(token);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                authenticateUser(request, token, email);
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            logger.error("Error in AuthenticationFilter: " + e.getMessage());
+            logger.error("Error in AuthenticationFilter: " + e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            logger.error("message from Authentication Filter workflow: Unauthorized access");
             response.getWriter().write("A problem occurred during the authentication process. Please try again.");
+        }
+    }
+
+    private boolean isPublicEndpoint(String path) {
+        return path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register") || path.startsWith("/api/health");
+    }
+
+    private void authenticateUser(HttpServletRequest request, String token, String email) {
+        if (customTokenProvider.isTokenValid(token, email)) {
+            UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.info("User authenticated successfully");
         }
     }
 
@@ -80,5 +79,4 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

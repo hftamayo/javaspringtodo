@@ -1,7 +1,7 @@
-package com.hftamayo.java.todo.model;
+package com.hftamayo.java.todo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,13 +20,13 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 
-@Entity(name = "User")
-@Table(schema = "users")
+@Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true, name = "user_name")
     private String name;
@@ -70,7 +70,7 @@ public class User implements UserDetails {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "America/El_Salvador")
     private LocalDateTime dateUpdated;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "role_id",
             referencedColumnName = "id"

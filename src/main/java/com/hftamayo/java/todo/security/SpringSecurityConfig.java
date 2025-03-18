@@ -2,10 +2,7 @@ package com.hftamayo.java.todo.security;
 
 import com.hftamayo.java.todo.security.jwt.JwtConfig;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
-import com.hftamayo.java.todo.services.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,21 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @Import(PasswordEncoderConfig.class)
+@RequiredArgsConstructor
 public class SpringSecurityConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringSecurityConfig.class);
-
-    private UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final UserInfoProviderManager userInfoProviderManager;
-
-    @Autowired
-    public SpringSecurityConfig(PasswordEncoder passwordEncoder,
-                                UserInfoProviderManager userInfoProviderManager, UserService userService) {
-        this.passwordEncoder = passwordEncoder;
-        this.userInfoProviderManager = userInfoProviderManager;
-        this.userService = userService;
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -44,13 +31,12 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration
-                                                               authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    public JwtConfig jwtConfig() {
+    public JwtConfig jwtConfiguration() {
         return new JwtConfig();
     }
 

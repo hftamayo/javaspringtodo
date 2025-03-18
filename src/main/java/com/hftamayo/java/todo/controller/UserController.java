@@ -1,14 +1,14 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,80 +24,66 @@ public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping(value = "/allusers")
+    @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDto> getUsers() {
+    public CrudOperationResponseDto<UserResponseDto> getUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping(value = "/getuser/{userId}")
+    @GetMapping(value = "/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<UserResponseDto> getUser(@PathVariable long userId) {
+    public CrudOperationResponseDto<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
-    @GetMapping(value = "/getuserbycriteria/{criteria}/{value}")
+    @GetMapping(value = "/userbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<UserResponseDto>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public CrudOperationResponseDto<UserResponseDto>
+    getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return userService.getUserByCriteria(criteria, value);
     }
 
-    @GetMapping(value = "/getuserbycriterias/{criteria}/{value}/{criteria2}/{value2}")
+    @GetMapping(value = "/userbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<UserResponseDto>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public CrudOperationResponseDto<UserResponseDto>
+    getUserByCriterias(@PathVariable String criteria, @PathVariable String value,
+                       @PathVariable String criteria2, @PathVariable String value2) {
         return userService.getUserByCriterias(criteria, value, criteria2, value2);
     }
 
-    @PostMapping(value = "/saveuser")
+    @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto saveUser(@RequestBody User user) {
+    public CrudOperationResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
-    @PutMapping(value = "/updateuser/{userId}")
-    public UserResponseDto updateUser(@PathVariable long userId, @RequestBody User user) {
-        try {
-            return userService.updateUser(userId, user);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-    }
-
-    @PatchMapping(value = "/userstatus/{userId}")
+    @PatchMapping(value = "/update/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
-        try {
-            boolean status = (boolean) updates.get("status");
-            return userService.updateUserStatus(userId, status);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
+        return userService.updateUser(userId, user);
     }
 
-    @PatchMapping(value = "/activateuser/{userId}")
+    @PutMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
-        try {
-            boolean status = (boolean) updates.get("status");
-            String roleEnum = (String) updates.get("role");
-            return userService.updateUserStatusAndRole(userId, status, roleEnum);
-        } catch (EntityNotFoundException enf) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+        boolean status = (boolean) updates.get("status");
+        return userService.updateUserStatus(userId, status);
     }
 
-    @DeleteMapping(value = "/deleteuser/{userId}")
+    @PutMapping(value = "/activate/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CrudOperationResponseDto<UserResponseDto>
+    updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
+        boolean status = (boolean) updates.get("status");
+        String roleEnum = (String) updates.get("role");
+        return userService.updateUserStatusAndRole(userId, status, roleEnum);
+    }
+
+    @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> deleteUser(@PathVariable long userId) {
-        try {
-            userService.deleteUser(userId);
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException enf) {
-            return new ResponseEntity<>(enf.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public CrudOperationResponseDto deleteUser(@PathVariable long userId) {
+        return userService.deleteUser(userId);
     }
 }

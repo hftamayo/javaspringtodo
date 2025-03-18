@@ -1,9 +1,10 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,17 +38,17 @@ public class AuthController {
                     activeSessionResponseDto.getTokenType() + " expires in: " +
                     activeSessionResponseDto.getExpiresIn() + " hours");
 
-            return ResponseEntity.ok("Login successful, welcome: " + loginRequestDto.getEmail() + "!" +
+            return ResponseEntity.ok("LOGIN_SUCCESSFUL " + loginRequestDto.getEmail() + "!" +
                     ", your role is: " + activeSessionResponseDto.getRoles());
         } catch (Exception e) {
-            logger.error("Error in login: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            logger.error("LOGIN_INVALID_ATTEMPT " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("LOGIN_INVALID_CREDENTIALS");
         }
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto saveUser(@RequestBody User user) {
+    public CrudOperationResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 

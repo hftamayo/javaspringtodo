@@ -1,36 +1,32 @@
 package com.hftamayo.java.todo.services;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    List<UserResponseDto> getUsers();
+    Optional<User> loginRequest(String email);
 
-    Optional<UserResponseDto> getUser(long userId);
+    CrudOperationResponseDto<UserResponseDto> getUsers();
 
-    Optional<User> getUserById(long userId);
+    CrudOperationResponseDto<UserResponseDto> getUser(long userId);
 
-    Optional<User> getUserByEmail(String userEmail);
+    CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
 
-    Optional<List<UserResponseDto>> getUserByCriteria(String criteria, String value);
+    CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
+                                                                 String criteria2, String value2);
 
-    Optional<List<UserResponseDto>> getUserByCriterias(String criteria, String value,
-                                                       String criteria2, String value2);
+    CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
 
-    UserResponseDto saveUser(User newUser);
+    CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser);
 
-    UserResponseDto updateUser(long userId, User updatedUser);
+    CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status);
 
-    void deleteUser(long userId);
+    CrudOperationResponseDto<UserResponseDto> updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
-    UserResponseDto updateUserStatus(long userId, boolean status);
-
-    UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum);
-
-    UserResponseDto userToDto(User user);
-
+    CrudOperationResponseDto deleteUser(long userId);
 
 }

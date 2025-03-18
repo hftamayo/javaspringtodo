@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.services.DBConnectionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
@@ -15,11 +15,11 @@ import java.sql.SQLException;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DBConnectionServiceImpl implements DBConnectionService, ApplicationRunner {
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     private boolean isDatabaseOnline = false;
 

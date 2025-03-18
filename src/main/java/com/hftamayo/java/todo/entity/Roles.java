@@ -1,9 +1,9 @@
-package com.hftamayo.java.todo.model;
+package com.hftamayo.java.todo.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,7 +22,7 @@ import java.util.Set;
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NonNull
     @Enumerated(EnumType.STRING)
