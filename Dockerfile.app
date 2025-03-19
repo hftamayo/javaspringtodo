@@ -37,8 +37,10 @@ CMD ["java", \
 
 #how to run this file:
 #multiplatform image
-     #docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t myimage:latest .
+#docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t myimage:latest .
 #docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t hftamayo/jsbtodo:0.1.3-experimental -f Dockerfile.app .
+
 #specific platform
 #docker buildx build --no-cache --platform linux/amd64 -t hftamayo/jsbtodo:0.1.3-experimental -f Dockerfile.app .
-#docker run --name jsbtodo -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
+
+#docker run --name jsbtodo --network mysqldev_network -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
