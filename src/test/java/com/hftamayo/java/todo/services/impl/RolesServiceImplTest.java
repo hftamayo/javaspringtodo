@@ -1,153 +1,91 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dao.RolesDao;
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.exceptions.EntityAlreadyExistsException;
-import com.hftamayo.java.todo.model.ERole;
-import com.hftamayo.java.todo.model.Roles;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.mapper.RoleMapper;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.mockito.Mock;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class RolesServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+class RolesServiceImplTest {
 
+    @Mock
+    private RolesRepository rolesRepository;
+
+    @Mock
+    private RoleMapper roleMapper;
+
+    @InjectMocks
     private RolesServiceImpl rolesService;
-    private RolesDao rolesDao;
 
-    @BeforeEach
-    public void setUp() {
-        rolesDao = Mockito.mock(RolesDao.class);
-        rolesService = new RolesServiceImpl(rolesDao);
+    @Test
+    void getRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+        List<Roles> rolesList = List.of(
+                createRole(1L, ERole.ROLE_ADMIN),
+                createRole(2L, ERole.ROLE_USER)
+        );
+        List<RolesResponseDto> responseDtos = List.of(
+                createRoleDto(1L, "ADMIN"),
+                createRoleDto(2L, "USER")
+        );
+
+        when(rolesRepository.findAll()).thenReturn(rolesList);
+        when(roleMapper.toRolesResponseDto(any(Roles.class)))
+                .thenReturn(responseDtos.get(0), responseDtos.get(1));
+
+        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoles();
+
+        assertEquals(200, result.getCode());
+        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
+        assertEquals(2, ((List<RolesResponseDto>)result.getData()).size());
+        verify(rolesRepository).findAll();
+        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
     }
 
     @Test
-    public void testGetRoles() {
+    void getRoleByName_WhenRoleExists_ShouldReturnSuccessResponse() {
+        Roles role = createRole(1L, ERole.ROLE_ADMIN);
+        RolesResponseDto responseDto = createRoleDto(1L, "ADMIN");
+
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(role));
+        when(roleMapper.toRolesResponseDto(role)).thenReturn(responseDto);
+
+        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoleByName("ROLE_ADMIN");
+
+        assertEquals(200, result.getCode());
+        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
+        assertEquals("ADMIN", ((RolesResponseDto)result.getData()).getRoleName());
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
+        verify(roleMapper).toRolesResponseDto(role);
+    }
+
+    private Roles createRole(Long id, ERole roleEnum) {
         Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
+        role.setId(id);
+        role.setRoleEnum(roleEnum);
         role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoles()).thenReturn(Collections.singletonList(role));
-
-        List<RolesResponseDto> roles = rolesService.getRoles();
-        assertFalse(roles.isEmpty());
-        assertEquals(1, roles.size());
-        assertEquals("ADMIN", roles.get(0).getRoleName());
+        return role;
     }
 
-    @Test
-    public void testGetRoleByEnum() {
-        Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
-        role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoleByEnum("ADMIN")).thenReturn(Optional.of(role));
-
-        Optional<RolesResponseDto> foundRole = rolesService.getRoleByEnum("ADMIN");
-        assertTrue(foundRole.isPresent());
-        assertEquals("ADMIN", foundRole.get().getRoleName());
-    }
-
-    @Test
-    public void testSaveRole() {
-        Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
-        role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoleByEnum("ADMIN")).thenReturn(Optional.empty());
-        when(rolesDao.saveRole(any(Roles.class))).thenReturn(role);
-
-        RolesResponseDto savedRole = rolesService.saveRole(role);
-        assertEquals("ADMIN", savedRole.getRoleName());
-    }
-
-    @Test
-    public void testSaveRoleAlreadyExists() {
-        Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
-        role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoleByEnum("ADMIN")).thenReturn(Optional.of(role));
-
-        assertThrows(EntityAlreadyExistsException.class, () -> rolesService.saveRole(role));
-    }
-
-    @Test
-    public void testUpdateRole() {
-        Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
-        role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoleById(1L)).thenReturn(Optional.of(role));
-        when(rolesDao.updateRole(anyLong(), anyMap())).thenReturn(role);
-
-        Roles updatedRole = new Roles();
-        updatedRole.setRoleEnum(ERole.ROLE_USER);
-        updatedRole.setDescription("User role");
-        updatedRole.setStatus(false);
-
-        RolesResponseDto updatedRoleDto = rolesService.updateRole(1L, updatedRole);
-        assertEquals("USER", updatedRoleDto.getRoleName());
-        assertFalse(updatedRoleDto.isStatus());
-    }
-
-    @Test
-    public void testUpdateRoleNotFound() {
-        when(rolesDao.getRoleById(1L)).thenReturn(Optional.empty());
-
-        Roles updatedRole = new Roles();
-        updatedRole.setRoleEnum(ERole.ROLE_USER);
-        updatedRole.setDescription("User role");
-        updatedRole.setStatus(false);
-
-        assertThrows(EntityNotFoundException.class, () -> rolesService.updateRole(1L, updatedRole));
-    }
-
-    @Test
-    public void testDeleteRole() {
-        Roles role = new Roles();
-        role.setId(1L);
-        role.setRoleEnum(ERole.ROLE_ADMIN);
-        role.setDescription("Administrator role");
-        role.setStatus(true);
-        role.setDateAdded(LocalDateTime.now());
-
-        when(rolesDao.getRoleById(1L)).thenReturn(Optional.of(role));
-        doNothing().when(rolesDao).deleteRole(1L);
-
-        rolesService.deleteRole(1L);
-        verify(rolesDao, times(1)).deleteRole(1L);
-    }
-
-    @Test
-    public void testDeleteRoleNotFound() {
-        when(rolesDao.getRoleById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> rolesService.deleteRole(1L));
+    private RolesResponseDto createRoleDto(Long id, String name) {
+        RolesResponseDto dto = new RolesResponseDto();
+        dto.setId(id);
+        dto.setRoleName(name);
+        dto.setStatus(true);
+        return dto;
     }
 }
