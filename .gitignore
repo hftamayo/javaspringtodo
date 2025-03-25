@@ -73,7 +73,7 @@ build/
 ### hftamayo ###
 enviro.properties
 src/main/resources/*.properties
-
+src/test/resources/*.properties
 .env
 dockerfiles/datalayer/datalayerschema.sql
 .dockerignore
