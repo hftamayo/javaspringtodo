@@ -1,112 +1,138 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
+import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
+import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.exceptions.UnauthorizedException;
-import com.hftamayo.java.todo.model.ERole;
-import com.hftamayo.java.todo.model.Roles;
-import com.hftamayo.java.todo.model.User;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
-import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import com.hftamayo.java.todo.services.UserService;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class AuthServiceImplTest {
-
-    private AuthServiceImpl authService;
+@ExtendWith(MockitoExtension.class)
+class AuthServiceImplTest {
+    @Mock
     private CustomTokenProvider customTokenProvider;
+    @Mock
     private PasswordEncoder passwordEncoder;
-    private AuthenticationManager authenticationManager;
-    private UserInfoProviderManager userInfoProviderManager;
+    @Mock
     private UserService userService;
-
-    @BeforeEach
-    public void setUp() {
-        customTokenProvider = Mockito.mock(CustomTokenProvider.class);
-        passwordEncoder = Mockito.mock(PasswordEncoder.class);
-        authenticationManager = Mockito.mock(AuthenticationManager.class);
-        userInfoProviderManager = Mockito.mock(UserInfoProviderManager.class);
-        userService = Mockito.mock(UserService.class);
-
-        authService = new AuthServiceImpl(customTokenProvider, passwordEncoder,
-                authenticationManager, userInfoProviderManager, userService);
-    }
+    @InjectMocks
+    private AuthServiceImpl authService;
 
     @Test
-    public void testLogin_Success() {
-        LoginRequestDto loginRequest = new LoginRequestDto("test@example.com", "password");
-        User user = new User();
-        user.setName("testuser");
-        user.setEmail("test@example.com");
+    void login_WhenValidCredentials_ShouldReturnActiveSession() {
+        // Arrange
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("password123");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
-        when(userService.getUserByEmail(anyString())).thenReturn(Optional.of(user));
-        when(customTokenProvider.getToken(anyString())).thenReturn("token");
+        User user = createUser();
+        when(userService.loginRequest("test@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+        when(customTokenProvider.getToken(user.getUsername())).thenReturn("token123");
         when(customTokenProvider.getTokenType()).thenReturn("Bearer");
-        when(customTokenProvider.getRemainingExpirationTime(anyString())).thenReturn(3600L);
+        when(customTokenProvider.getRemainingExpirationTime("token123")).thenReturn(3600L);
 
-        ActiveSessionResponseDto response = authService.login(loginRequest);
+        // Act
+        ActiveSessionResponseDto result = authService.login(loginRequest);
 
-        assertNotNull(response);
-        assertEquals("testuser", response.getUsername());
-        assertEquals("test@example.com", response.getEmail());
-        assertEquals(Collections.singletonList("ROLE_USER"), response.getRoles());
-        assertEquals("token", response.getAccessToken());
-        assertEquals("Bearer", response.getTokenType());
-        assertEquals(3600L, response.getExpiresIn());
+        // Assert
+        assertNotNull(result);
+        assertEquals("testuser", result.getUsername());
+        assertEquals("test@example.com", result.getEmail());
+        assertEquals("token123", result.getAccessToken());
+        assertEquals("Bearer", result.getTokenType());
+        assertEquals(3600L, result.getExpiresIn());
+        assertTrue(result.getRoles().contains("ROLE_USER"));
     }
 
     @Test
-    public void testLogin_InvalidCredentials() {
-        LoginRequestDto loginRequest = new LoginRequestDto("test@example.com", "password");
+    void login_WhenUserInactive_ShouldThrowUnauthorizedException() {
+        // Arrange
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setEmail("test@example.com");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new UsernameNotFoundException("Invalid Credentials"));
+        User inactiveUser = createUser();
+        inactiveUser.setStatus(false);
 
-        assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequest));
+        when(userService.loginRequest("test@example.com")).thenReturn(Optional.of(inactiveUser));
+
+        // Act & Assert
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authService.login(loginRequest));
+        assertEquals("Invalid Credentials: Error 001", exception.getMessage());
     }
 
     @Test
-    public void testLogout_Success() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(customTokenProvider.getUsernameFromToken(anyString())).thenReturn("testuser");
-        when(customTokenProvider.isTokenValid(anyString(), anyString())).thenReturn(true);
+    void login_WhenInvalidPassword_ShouldThrowUnauthorizedException() {
+        // Arrange
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("wrongpass");
 
+        User user = createUser();
+        when(userService.loginRequest("test@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+        // Act & Assert
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authService.login(loginRequest));
+        assertEquals("Invalid Credentials: Error 002", exception.getMessage());
+    }
+
+    @Test
+    void logout_WhenValidToken_ShouldInvalidateToken() {
+        // Arrange
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
+        when(customTokenProvider.getEmailFromToken("validToken")).thenReturn("test@example.com");
+        when(customTokenProvider.isTokenValid("validToken", "test@example.com")).thenReturn(true);
+
+        // Act
         authService.logout(request);
 
-        verify(customTokenProvider, times(1)).invalidateToken();
+        // Assert
+        verify(customTokenProvider).invalidateToken();
     }
 
     @Test
-    public void testLogout_InvalidToken() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(customTokenProvider.getUsernameFromToken(anyString())).thenReturn("testuser");
-        when(customTokenProvider.isTokenValid(anyString(), anyString())).thenReturn(false);
+    void logout_WhenInvalidToken_ShouldThrowUnauthorizedException() {
+        // Arrange
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("Authorization")).thenReturn("Bearer invalidToken");
+        when(customTokenProvider.getEmailFromToken("invalidToken")).thenReturn("test@example.com");
+        when(customTokenProvider.isTokenValid("invalidToken", "test@example.com")).thenReturn(false);
 
+        // Act & Assert
         assertThrows(UnauthorizedException.class, () -> authService.logout(request));
     }
 
-    @Test
-    public void testInvalidateToken() {
-        authService.invalidateToken();
-        verify(customTokenProvider, times(1)).invalidateToken();
+    private User createUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("testuser");
+        user.setEmail("test@example.com");
+        user.setPassword("hashedPassword");
+        user.setStatus(true);
+
+        Roles role = new Roles();
+        role.setRoleEnum(ERole.ROLE_USER);
+        user.setRole(role);
+
+        return user;
     }
 }
