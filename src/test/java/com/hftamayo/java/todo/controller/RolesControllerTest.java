@@ -1,110 +1,124 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.model.Roles;
+import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.services.RolesService;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class RolesControllerTest {
+@ExtendWith(MockitoExtension.class)
+class RolesControllerTest {
 
-    private RolesController rolesController;
+    @Mock
     private RolesService rolesService;
 
-    @BeforeEach
-    public void setUp() {
-        rolesService = Mockito.mock(RolesService.class);
-        rolesController = new RolesController(rolesService);
+    @InjectMocks
+    private RolesController rolesController;
+
+    @Test
+    void getRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData((RolesResponseDto) List.of(new RolesResponseDto()));
+
+        when(rolesService.getRoles()).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<RolesResponseDto> response = rolesController.getRoles();
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertEquals(1, ((List<?>) response.getData()).size()),
+                () -> verify(rolesService).getRoles()
+        );
     }
 
     @Test
-    public void testGetRoles() {
-        RolesResponseDto role = new RolesResponseDto();
-        when(rolesService.getRoles()).thenReturn(Collections.singletonList(role));
+    void getRoleByName_WhenRoleExists_ShouldReturnSuccessResponse() {
+        String roleName = "ROLE_ADMIN";
+        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new RolesResponseDto());
 
-        List<RolesResponseDto> roles = rolesController.getRoles();
-        assertEquals(1, roles.size());
-        verify(rolesService, times(1)).getRoles();
+        when(rolesService.getRoleByName(roleName)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<RolesResponseDto> response = rolesController.getRoleByName(roleName);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(rolesService).getRoleByName(roleName)
+        );
     }
 
     @Test
-    public void testGetRoleByName() {
-        RolesResponseDto role = new RolesResponseDto();
-        when(rolesService.getRoleByEnum("ROLE_USER")).thenReturn(Optional.of(role));
-
-        Optional<RolesResponseDto> result = rolesController.getRoleByName("ROLE_USER");
-        assertEquals(true, result.isPresent());
-        verify(rolesService, times(1)).getRoleByEnum("ROLE_USER");
-    }
-
-    @Test
-    public void testSaveRole() {
+    void saveRole_WhenValidRole_ShouldReturnSuccessResponse() {
         Roles role = new Roles();
-        RolesResponseDto roleResponse = new RolesResponseDto();
-        when(rolesService.saveRole(role)).thenReturn(roleResponse);
+        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(201);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new RolesResponseDto());
 
-        RolesResponseDto result = rolesController.saveRole(role);
-        assertEquals(roleResponse, result);
-        verify(rolesService, times(1)).saveRole(role);
+        when(rolesService.saveRole(role)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<RolesResponseDto> response = rolesController.saveRole(role);
+
+        assertAll(
+                () -> assertEquals(201, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(rolesService).saveRole(role)
+        );
     }
 
     @Test
-    public void testUpdateRole_Success() {
+    void updateRole_WhenRoleExists_ShouldReturnSuccessResponse() {
+        long roleId = 1L;
         Roles role = new Roles();
-        RolesResponseDto roleResponse = new RolesResponseDto();
-        when(rolesService.updateRole(1L, role)).thenReturn(roleResponse);
+        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new RolesResponseDto());
 
-        RolesResponseDto result = rolesController.updateRole(1L, role);
-        assertEquals(roleResponse, result);
-        verify(rolesService, times(1)).updateRole(1L, role);
+        when(rolesService.updateRole(roleId, role)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<RolesResponseDto> response = rolesController.updateRole(roleId, role);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(rolesService).updateRole(roleId, role)
+        );
     }
 
     @Test
-    public void testUpdateRole_NotFound() {
-        Roles role = new Roles();
-        when(rolesService.updateRole(1L, role)).thenThrow(new EntityNotFoundException());
+    void deleteRole_WhenRoleExists_ShouldReturnSuccessResponse() {
+        long roleId = 1L;
+        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
 
-        assertThrows(ResponseStatusException.class, () -> rolesController.updateRole(1L, role));
-        verify(rolesService, times(1)).updateRole(1L, role);
-    }
+        when(rolesService.deleteRole(roleId)).thenReturn(expectedResponse);
 
-    @Test
-    public void testDeleteRole_Success() {
-        doNothing().when(rolesService).deleteRole(1L);
+        CrudOperationResponseDto<RolesResponseDto> response = rolesController.deleteRole(roleId);
 
-        ResponseEntity<?> response = rolesController.deleteRole(1L);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(rolesService, times(1)).deleteRole(1L);
-    }
-
-    @Test
-    public void testDeleteRole_NotFound() {
-        doThrow(new EntityNotFoundException()).when(rolesService).deleteRole(1L);
-
-        ResponseEntity<?> response = rolesController.deleteRole(1L);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(rolesService, times(1)).deleteRole(1L);
-    }
-
-    @Test
-    public void testDeleteRole_InternalServerError() {
-        doThrow(new RuntimeException()).when(rolesService).deleteRole(1L);
-
-        ResponseEntity<?> response = rolesController.deleteRole(1L);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(rolesService, times(1)).deleteRole(1L);
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> verify(rolesService).deleteRole(roleId)
+        );
     }
 }
