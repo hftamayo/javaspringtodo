@@ -1,184 +1,215 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.UserService;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class UserControllerTest {
+@ExtendWith(MockitoExtension.class)
+class UserControllerTest {
 
-    private UserController userController;
+    @Mock
     private UserService userService;
 
-    @BeforeEach
-    public void setUp() {
-        userService = Mockito.mock(UserService.class);
-        userController = new UserController(userService);
+    @InjectMocks
+    private UserController userController;
+
+    @Test
+    void getUsers_WhenUsersExist_ShouldReturnSuccessResponse() {
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData((UserResponseDto) List.of(new UserResponseDto()));
+
+        when(userService.getUsers()).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.getUsers();
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).getUsers()
+        );
     }
 
     @Test
-    public void testGetUsers() {
-        UserResponseDto user = new UserResponseDto();
-        when(userService.getUsers()).thenReturn(Collections.singletonList(user));
+    void getUser_WhenUserExists_ShouldReturnSuccessResponse() {
+        long userId = 1L;
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        List<UserResponseDto> users = userController.getUsers();
-        assertEquals(1, users.size());
-        verify(userService, times(1)).getUsers();
+        when(userService.getUser(userId)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.getUser(userId);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).getUser(userId)
+        );
     }
 
     @Test
-    public void testGetUser() {
-        UserResponseDto user = new UserResponseDto();
-        when(userService.getUser(1L)).thenReturn(Optional.of(user));
+    void getUserByCriteria_WhenUserExists_ShouldReturnSuccessResponse() {
+        String criteria = "email";
+        String value = "test@example.com";
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        Optional<UserResponseDto> result = userController.getUser(1L);
-        assertTrue(result.isPresent());
-        verify(userService, times(1)).getUser(1L);
+        when(userService.getUserByCriteria(criteria, value)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.getUserByCriteria(criteria, value);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).getUserByCriteria(criteria, value)
+        );
     }
 
     @Test
-    public void testGetUserByCriteria() {
-        UserResponseDto user = new UserResponseDto();
-        when(userService.getUserByCriteria("name", "John"))
-                .thenReturn(Optional.of(Collections.singletonList(user)));
+    void getUserByCriterias_WhenUserExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        String criteria = "email";
+        String value = "test@example.com";
+        String criteria2 = "status";
+        String value2 = "active";
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        Optional<List<UserResponseDto>> result = userController.getUserByCriteria("name", "John");
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
-        verify(userService, times(1)).getUserByCriteria("name", "John");
+        when(userService.getUserByCriterias(criteria, value, criteria2, value2)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.getUserByCriterias(criteria, value, criteria2, value2);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).getUserByCriterias(criteria, value, criteria2, value2)
+        );
     }
 
     @Test
-    public void testGetUserByCriterias() {
-        UserResponseDto user = new UserResponseDto();
-        when(userService.getUserByCriterias("name", "John", "status", "active"))
-                .thenReturn(Optional.of(Collections.singletonList(user)));
-
-        Optional<List<UserResponseDto>> result = userController
-                .getUserByCriterias("name", "John", "status", "active");
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
-        verify(userService, times(1))
-                .getUserByCriterias("name", "John", "status", "active");
-    }
-
-    @Test
-    public void testSaveUser() {
+    void saveUser_WhenValidUser_ShouldReturnSuccessResponse() {
         User user = new User();
-        UserResponseDto userResponse = new UserResponseDto();
-        when(userService.saveUser(user)).thenReturn(userResponse);
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(201);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        UserResponseDto result = userController.saveUser(user);
-        assertEquals(userResponse, result);
-        verify(userService, times(1)).saveUser(user);
+        when(userService.saveUser(user)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.saveUser(user);
+
+        assertAll(
+                () -> assertEquals(201, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).saveUser(user)
+        );
     }
 
     @Test
-    public void testUpdateUser_Success() {
+    void updateUser_WhenUserExists_ShouldReturnSuccessResponse() {
+        long userId = 1L;
         User user = new User();
-        UserResponseDto userResponse = new UserResponseDto();
-        when(userService.updateUser(1L, user)).thenReturn(userResponse);
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        UserResponseDto result = userController.updateUser(1L, user);
-        assertEquals(userResponse, result);
-        verify(userService, times(1)).updateUser(1L, user);
+        when(userService.updateUser(userId, user)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.updateUser(userId, user);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).updateUser(userId, user)
+        );
     }
 
     @Test
-    public void testUpdateUser_NotFound() {
-        User user = new User();
-        when(userService.updateUser(1L, user)).thenThrow(new EntityNotFoundException());
+    void updateUserStatus_WhenUserExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        long userId = 1L;
+        Map<String, Object> updates = Map.of("status", true);
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        assertThrows(ResponseStatusException.class, () -> userController.updateUser(1L, user));
-        verify(userService, times(1)).updateUser(1L, user);
+        when(userService.updateUserStatus(userId, true)).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.updateUserStatus(userId, updates);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).updateUserStatus(userId, true)
+        );
     }
 
     @Test
-    public void testUpdateUserStatus_Success() {
-        UserResponseDto userResponse = new UserResponseDto();
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", true);
-        when(userService.updateUserStatus(1L, true)).thenReturn(userResponse);
+    void updateUserStatusAndRole_WhenUserExists_ShouldReturnSuccessResponse() {
+        long userId = 1L;
+        Map<String, Object> updates = Map.of(
+                "status", true,
+                "role", "ROLE_ADMIN"
+        );
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        UserResponseDto result = userController.updateUserStatus(1L, updates);
-        assertEquals(userResponse, result);
-        verify(userService, times(1)).updateUserStatus(1L, true);
+        when(userService.updateUserStatusAndRole(userId, true, "ROLE_ADMIN")).thenReturn(expectedResponse);
+
+        CrudOperationResponseDto<UserResponseDto> response = userController.updateUserStatusAndRole(userId, updates);
+
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).updateUserStatusAndRole(userId, true, "ROLE_ADMIN")
+        );
     }
 
     @Test
-    public void testUpdateUserStatus_NotFound() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", true);
-        when(userService.updateUserStatus(1L, true)).thenThrow(new EntityNotFoundException());
+    void deleteUser_WhenUserExists_ShouldReturnSuccessResponse() {
+        long userId = 1L;
+        CrudOperationResponseDto expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
 
-        assertThrows(ResponseStatusException.class, () -> userController.updateUserStatus(1L, updates));
-        verify(userService, times(1)).updateUserStatus(1L, true);
-    }
+        when(userService.deleteUser(userId)).thenReturn(expectedResponse);
 
-    @Test
-    public void testUpdateUserStatusAndRole_Success() {
-        UserResponseDto userResponse = new UserResponseDto();
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", true);
-        updates.put("role", "ROLE_ADMIN");
-        when(userService.updateUserStatusAndRole(1L, true, "ROLE_ADMIN"))
-                .thenReturn(userResponse);
+        CrudOperationResponseDto response = userController.deleteUser(userId);
 
-        UserResponseDto result = userController.updateUserStatusAndRole(1L, updates);
-        assertEquals(userResponse, result);
-        verify(userService, times(1))
-                .updateUserStatusAndRole(1L, true, "ROLE_ADMIN");
-    }
-
-    @Test
-    public void testUpdateUserStatusAndRole_NotFound() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", true);
-        updates.put("role", "ROLE_ADMIN");
-        when(userService.updateUserStatusAndRole(1L, true, "ROLE_ADMIN"))
-                .thenThrow(new EntityNotFoundException());
-
-        assertThrows(ResponseStatusException.class, () -> userController
-                .updateUserStatusAndRole(1L, updates));
-        verify(userService, times(1))
-                .updateUserStatusAndRole(1L, true, "ROLE_ADMIN");
-    }
-
-    @Test
-    public void testDeleteUser_Success() {
-        doNothing().when(userService).deleteUser(1L);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(userService, times(1)).deleteUser(1L);
-    }
-
-    @Test
-    public void testDeleteUser_NotFound() {
-        doThrow(new EntityNotFoundException()).when(userService).deleteUser(1L);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(userService, times(1)).deleteUser(1L);
-    }
-
-    @Test
-    public void testDeleteUser_InternalServerError() {
-        doThrow(new RuntimeException()).when(userService).deleteUser(1L);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(userService, times(1)).deleteUser(1L);
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> verify(userService).deleteUser(userId)
+        );
     }
 }
