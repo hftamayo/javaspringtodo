@@ -1,135 +1,189 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
-import com.hftamayo.java.todo.model.Task;
+import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TaskControllerTest {
+@ExtendWith(MockitoExtension.class)
+class TaskControllerTest {
 
-    private TaskController taskController;
+    @Mock
     private TaskService taskService;
 
-    @BeforeEach
-    public void setUp() {
-        taskService = Mockito.mock(TaskService.class);
-        taskController = new TaskController(taskService);
+    @InjectMocks
+    private TaskController taskController;
+
+    @Test
+    void getTasks_WhenTasksExist_ShouldReturnSuccessResponse() {
+        // Arrange
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData((TaskResponseDto) List.of(new TaskResponseDto()));
+
+        when(taskService.getTasks()).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.getTasks();
+
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).getTasks()
+        );
     }
 
     @Test
-    public void testGetTasks() {
-        TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTasks()).thenReturn(Collections.singletonList(task));
+    void getTask_WhenTaskExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        long taskId = 1L;
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new TaskResponseDto());
 
-        List<TaskResponseDto> tasks = taskController.getTasks();
-        assertEquals(1, tasks.size());
-        verify(taskService, times(1)).getTasks();
+        when(taskService.getTask(taskId)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.getTask(taskId);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).getTask(taskId)
+        );
     }
 
     @Test
-    public void testGetTask() {
-        TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTask(1L)).thenReturn(Optional.of(task));
+    void getTaskByCriteria_WhenTaskExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        String criteria = "status";
+        String value = "pending";
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new TaskResponseDto());
 
-        Optional<TaskResponseDto> result = taskController.getTask(1L);
-        assertTrue(result.isPresent());
-        verify(taskService, times(1)).getTask(1L);
+        when(taskService.getTaskByCriteria(criteria, value)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.getTaskByCriteria(criteria, value);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).getTaskByCriteria(criteria, value)
+        );
     }
 
     @Test
-    public void testGetTaskByCriteria() {
-        TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTaskByCriteria("name", "Test Task"))
-                .thenReturn(Optional.of(Collections.singletonList(task)));
+    void getTaskByCriterias_WhenTaskExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        String criteria = "status";
+        String value = "pending";
+        String criteria2 = "priority";
+        String value2 = "high";
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new TaskResponseDto());
 
-        Optional<List<TaskResponseDto>> result = taskController
-                .getTaskByCriteria("name", "Test Task");
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
-        verify(taskService, times(1))
-                .getTaskByCriteria("name", "Test Task");
+        when(taskService.getTaskByCriterias(criteria, value, criteria2, value2)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.getTaskByCriterias(criteria, value, criteria2, value2);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).getTaskByCriterias(criteria, value, criteria2, value2)
+        );
     }
 
     @Test
-    public void testGetTaskByCriterias() {
-        TaskResponseDto task = new TaskResponseDto();
-        when(taskService.getTaskByCriterias("name", "Test Task", "status", "active"))
-                .thenReturn(Optional.of(Collections.singletonList(task)));
-
-        Optional<List<TaskResponseDto>> result = taskController
-                .getTaskByCriterias("name", "Test Task", "status", "active");
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
-        verify(taskService, times(1))
-                .getTaskByCriterias("name", "Test Task", "status", "active");
-    }
-
-    @Test
-    public void testSaveTask() {
+    void saveTask_WhenValidTask_ShouldReturnSuccessResponse() {
+        // Arrange
         Task task = new Task();
-        TaskResponseDto taskResponse = new TaskResponseDto();
-        when(taskService.saveTask(task)).thenReturn(taskResponse);
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(201);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new TaskResponseDto());
 
-        TaskResponseDto result = taskController.saveTask(task);
-        assertEquals(taskResponse, result);
-        verify(taskService, times(1)).saveTask(task);
+        when(taskService.saveTask(task)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.saveTask(task);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(201, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).saveTask(task)
+        );
     }
 
     @Test
-    public void testUpdateTask_Success() {
+    void updateTask_WhenTaskExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        long taskId = 1L;
         Task task = new Task();
-        TaskResponseDto taskResponse = new TaskResponseDto();
-        when(taskService.updateTask(1L, task)).thenReturn(taskResponse);
+        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new TaskResponseDto());
 
-        TaskResponseDto result = taskController.updateTask(1L, task);
-        assertEquals(taskResponse, result);
-        verify(taskService, times(1)).updateTask(1L, task);
+        when(taskService.updateTask(taskId, task)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<TaskResponseDto> response = taskController.updateTask(taskId, task);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(taskService).updateTask(taskId, task)
+        );
     }
 
     @Test
-    public void testUpdateTask_NotFound() {
-        Task task = new Task();
-        when(taskService.updateTask(1L, task)).thenThrow(new EntityNotFoundException());
+    void deleteTask_WhenTaskExists_ShouldReturnSuccessResponse() {
+        // Arrange
+        long taskId = 1L;
+        CrudOperationResponseDto expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(200);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
 
-        assertThrows(ResponseStatusException.class, () -> taskController.updateTask(1L, task));
-        verify(taskService, times(1)).updateTask(1L, task);
-    }
+        when(taskService.deleteTask(taskId)).thenReturn(expectedResponse);
 
-    @Test
-    public void testDeleteTask_Success() {
-        doNothing().when(taskService).deleteTask(1L);
+        // Act
+        CrudOperationResponseDto response = taskController.deleteTask(taskId);
 
-        ResponseEntity<?> response = taskController.deleteTask(1L);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(taskService, times(1)).deleteTask(1L);
-    }
-
-    @Test
-    public void testDeleteTask_NotFound() {
-        doThrow(new EntityNotFoundException()).when(taskService).deleteTask(1L);
-
-        ResponseEntity<?> response = taskController.deleteTask(1L);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(taskService, times(1)).deleteTask(1L);
-    }
-
-    @Test
-    public void testDeleteTask_InternalServerError() {
-        doThrow(new RuntimeException()).when(taskService).deleteTask(1L);
-
-        ResponseEntity<?> response = taskController.deleteTask(1L);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(taskService, times(1)).deleteTask(1L);
+        // Assert
+        assertAll(
+                () -> assertEquals(200, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> verify(taskService).deleteTask(taskId)
+        );
     }
 }
