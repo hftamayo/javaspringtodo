@@ -36,7 +36,6 @@ class AuthControllerTest {
 
     @Test
     void authenticate_WhenValidCredentials_ShouldReturnSuccessResponse() {
-        // Arrange
         LoginRequestDto loginRequest = new LoginRequestDto();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("password");
@@ -49,10 +48,8 @@ class AuthControllerTest {
 
         when(authService.login(loginRequest)).thenReturn(sessionResponse);
 
-        // Act
         ResponseEntity<String> response = authController.authenticate(loginRequest);
 
-        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
                 () -> assertTrue(response.getBody().contains("LOGIN_SUCCESSFUL")),
@@ -63,17 +60,14 @@ class AuthControllerTest {
 
     @Test
     void authenticate_WhenInvalidCredentials_ShouldReturnUnauthorized() {
-        // Arrange
         LoginRequestDto loginRequest = new LoginRequestDto();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("wrong");
 
         when(authService.login(loginRequest)).thenThrow(new RuntimeException("Invalid credentials"));
 
-        // Act
         ResponseEntity<String> response = authController.authenticate(loginRequest);
 
-        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()),
                 () -> assertEquals("LOGIN_INVALID_CREDENTIALS", response.getBody()),
@@ -83,7 +77,6 @@ class AuthControllerTest {
 
     @Test
     void saveUser_WhenValidUser_ShouldReturnSuccessResponse() {
-        // Arrange
         User user = new User();
         CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(201);
@@ -92,10 +85,8 @@ class AuthControllerTest {
 
         when(userService.saveUser(user)).thenReturn(expectedResponse);
 
-        // Act
         CrudOperationResponseDto<UserResponseDto> response = authController.saveUser(user);
 
-        // Assert
         assertAll(
                 () -> assertEquals(201, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
@@ -106,14 +97,11 @@ class AuthControllerTest {
 
     @Test
     void logout_WhenSuccessful_ShouldReturnOkResponse() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         doNothing().when(authService).logout(request);
 
-        // Act
         ResponseEntity<?> response = authController.logout(request);
 
-        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
                 () -> assertTrue(((Map<?,?>)response.getBody()).get("message").toString()
@@ -124,14 +112,11 @@ class AuthControllerTest {
 
     @Test
     void logout_WhenError_ShouldReturnErrorResponse() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         doThrow(new RuntimeException("Logout error")).when(authService).logout(request);
 
-        // Act
         ResponseEntity<?> response = authController.logout(request);
 
-        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
                 () -> assertEquals("An error occurred during logout: Logout error", response.getBody()),
@@ -141,10 +126,8 @@ class AuthControllerTest {
 
     @Test
     void loggedOut_ShouldReturnOkResponse() {
-        // Act
         ResponseEntity<String> response = authController.loggedOut();
 
-        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
                 () -> assertEquals("You have been logged out", response.getBody())
