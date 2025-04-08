@@ -1,103 +1,153 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.model.User;
+import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class AuthControllerTest {
+@ExtendWith(MockitoExtension.class)
+class AuthControllerTest {
 
-    private AuthController authController;
+    @Mock
     private AuthService authService;
+
+    @Mock
     private UserService userService;
 
-    @BeforeEach
-    public void setUp() {
-        authService = Mockito.mock(AuthService.class);
-        userService = Mockito.mock(UserService.class);
-        authController = new AuthController(authService, userService);
+    @InjectMocks
+    private AuthController authController;
+
+    @Test
+    void authenticate_WhenValidCredentials_ShouldReturnSuccessResponse() {
+        // Arrange
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("password");
+
+        ActiveSessionResponseDto sessionResponse = new ActiveSessionResponseDto();
+        sessionResponse.setAccessToken("token");
+        sessionResponse.setTokenType("Bearer");
+        sessionResponse.setExpiresIn(28800000L);
+        sessionResponse.setRoles(List.of("ROLE_USER"));
+
+        when(authService.login(loginRequest)).thenReturn(sessionResponse);
+
+        // Act
+        ResponseEntity<String> response = authController.authenticate(loginRequest);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertTrue(response.getBody().contains("LOGIN_SUCCESSFUL")),
+                () -> assertTrue(response.getBody().contains(loginRequest.getEmail())),
+                () -> verify(authService).login(loginRequest)
+        );
     }
 
     @Test
-    public void testAuthenticate_Success() {
-        LoginRequestDto loginRequestDto = new LoginRequestDto();
-        loginRequestDto.setEmail("test@example.com");
-        ActiveSessionResponseDto activeSessionResponseDto = new ActiveSessionResponseDto();
-        activeSessionResponseDto.setRoles(Collections.singletonList("ROLE_USER"));
-        activeSessionResponseDto.setAccessToken("token");
-        activeSessionResponseDto.setTokenType("Bearer");
-        activeSessionResponseDto.setExpiresIn(1);
+    void authenticate_WhenInvalidCredentials_ShouldReturnUnauthorized() {
+        // Arrange
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("wrong");
 
-        when(authService.login(loginRequestDto)).thenReturn(activeSessionResponseDto);
+        when(authService.login(loginRequest)).thenThrow(new RuntimeException("Invalid credentials"));
 
-        ResponseEntity<String> response = authController.authenticate(loginRequestDto);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody()
-                .contains("Login successful, welcome: test@example.com!"));
+        // Act
+        ResponseEntity<String> response = authController.authenticate(loginRequest);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()),
+                () -> assertEquals("LOGIN_INVALID_CREDENTIALS", response.getBody()),
+                () -> verify(authService).login(loginRequest)
+        );
     }
 
     @Test
-    public void testAuthenticate_Failure() {
-        LoginRequestDto loginRequestDto = new LoginRequestDto();
-        loginRequestDto.setEmail("test@example.com");
-
-        when(authService.login(loginRequestDto)).thenThrow(new RuntimeException("Invalid credentials"));
-
-        ResponseEntity<String> response = authController.authenticate(loginRequestDto);
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertEquals("Invalid credentials", response.getBody());
-    }
-
-    @Test
-    public void testSaveUser() {
+    void saveUser_WhenValidUser_ShouldReturnSuccessResponse() {
+        // Arrange
         User user = new User();
-        UserResponseDto userResponseDto = new UserResponseDto();
-        when(userService.saveUser(user)).thenReturn(userResponseDto);
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
+        expectedResponse.setCode(201);
+        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
+        expectedResponse.setData(new UserResponseDto());
 
-        UserResponseDto response = authController.saveUser(user);
-        assertEquals(userResponseDto, response);
-        verify(userService, times(1)).saveUser(user);
+        when(userService.saveUser(user)).thenReturn(expectedResponse);
+
+        // Act
+        CrudOperationResponseDto<UserResponseDto> response = authController.saveUser(user);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(201, response.getCode()),
+                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> verify(userService).saveUser(user)
+        );
     }
 
     @Test
-    public void testLogout_Success() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+    void logout_WhenSuccessful_ShouldReturnOkResponse() {
+        // Arrange
+        HttpServletRequest request = mock(HttpServletRequest.class);
         doNothing().when(authService).logout(request);
 
+        // Act
         ResponseEntity<?> response = authController.logout(request);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Session destroyed as expected, logout successful, have a nice day",
-                ((Map<String, String>) response.getBody()).get("message"));
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertTrue(((Map<?,?>)response.getBody()).get("message").toString()
+                        .contains("Session destroyed as expected")),
+                () -> verify(authService).logout(request)
+        );
     }
 
     @Test
-    public void testLogout_Failure() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+    void logout_WhenError_ShouldReturnErrorResponse() {
+        // Arrange
+        HttpServletRequest request = mock(HttpServletRequest.class);
         doThrow(new RuntimeException("Logout error")).when(authService).logout(request);
 
+        // Act
         ResponseEntity<?> response = authController.logout(request);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("An error occurred during logout: Logout error", response.getBody());
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
+                () -> assertEquals("An error occurred during logout: Logout error", response.getBody()),
+                () -> verify(authService).logout(request)
+        );
     }
 
     @Test
-    public void testLoggedOut() {
+    void loggedOut_ShouldReturnOkResponse() {
+        // Act
         ResponseEntity<String> response = authController.loggedOut();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("You have been logged out", response.getBody());
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals("You have been logged out", response.getBody())
+        );
     }
 }
