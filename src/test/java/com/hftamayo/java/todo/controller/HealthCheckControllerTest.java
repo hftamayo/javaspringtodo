@@ -2,7 +2,11 @@ package com.hftamayo.java.todo.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,53 +15,70 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class HealthCheckControllerTest {
+@ExtendWith(MockitoExtension.class)
+class HealthCheckControllerTest {
 
-    private HealthCheckController healthCheckController;
+    @Mock
     private JdbcTemplate jdbcTemplate;
+
+    @Mock
     private DataSource dataSource;
+
+    @Mock
     private Connection connection;
 
-    @BeforeEach
-    public void setUp() throws SQLException {
-        jdbcTemplate = Mockito.mock(JdbcTemplate.class);
-        dataSource = Mockito.mock(DataSource.class);
-        connection = Mockito.mock(Connection.class);
+    @InjectMocks
+    private HealthCheckController healthCheckController;
 
+    @BeforeEach
+    void setUp() throws SQLException {
         when(jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(dataSource.getConnection()).thenReturn(connection);
-
-        healthCheckController = new HealthCheckController(jdbcTemplate);
+        doNothing().when(connection).close();
     }
 
     @Test
-    public void testCheckAppHealth() {
+    void checkAppHealth_WhenApplicationIsRunning_ShouldReturnOkStatus() {
         ResponseEntity<String> response = healthCheckController.checkAppHealth();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody()
-                .contains("HealthCheck: Application is up and running."));
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertTrue(response.getBody().contains("HealthCheck: Application is up and running")),
+                () -> assertTrue(response.getBody().contains("Timestamp:"))
+        );
     }
 
     @Test
-    public void testCheckDbHealth_Success() throws SQLException {
+    void checkDbHealth_WhenDatabaseIsConnected_ShouldReturnOkStatus() throws SQLException {
         ResponseEntity<String> response = healthCheckController.checkDbHealth();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody()
-                .contains("HealthCheck: The connection to the data layer is up and running."));
-        verify(connection, times(1)).close();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertTrue(response.getBody().contains("HealthCheck: The connection to the data layer is up and running")),
+                () -> assertTrue(response.getBody().contains("Timestamp:")),
+                () -> verify(connection).close(),
+                () -> verify(dataSource).getConnection(),
+                () -> verify(jdbcTemplate).getDataSource()
+        );
     }
 
     @Test
-    public void testCheckDbHealth_Failure() throws SQLException {
-        when(dataSource.getConnection()).thenThrow(
-                new SQLException("Database connection error"));
+    void checkDbHealth_WhenDatabaseIsNotConnected_ShouldReturnError() throws SQLException {
+        String errorMessage = "Database connection error";
+        when(dataSource.getConnection()).thenThrow(new SQLException(errorMessage));
 
         ResponseEntity<String> response = healthCheckController.checkDbHealth();
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(true, response.getBody()
-                .contains("HealthCheck: The connection to the data layer is down."));
+
+        assertAll(
+                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
+                () -> assertTrue(response.getBody().contains("HealthCheck: The connection to the data layer is down")),
+                () -> assertTrue(response.getBody().contains("Timestamp:")),
+                () -> assertTrue(response.getBody().contains(errorMessage)),
+                () -> verify(dataSource).getConnection(),
+                () -> verify(jdbcTemplate).getDataSource()
+        );
     }
 }
