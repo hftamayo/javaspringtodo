@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomAccessDecisionManagerTest {
@@ -35,11 +35,9 @@ class CustomAccessDecisionManagerTest {
 
     @Test
     void decide_PublicEndpoint_ShouldAllowAccess() {
-        // Arrange
         when(filterInvocation.getRequestUrl()).thenReturn("/api/auth/login");
         Collection<ConfigAttribute> attributes = Collections.emptyList();
 
-        // Act & Assert
         assertDoesNotThrow(() ->
                 accessDecisionManager.decide(authentication, filterInvocation, attributes)
         );
@@ -47,18 +45,16 @@ class CustomAccessDecisionManagerTest {
 
     @Test
     void decide_MatchingRoles_ShouldAllowAccess() {
-        // Arrange
         when(filterInvocation.getRequestUrl()).thenReturn("/api/secured/endpoint");
         Collection<ConfigAttribute> attributes = List.of(
                 new SecurityConfig("ROLE_USER")
         );
 
-        Set<GrantedAuthority> authorities = Set.of(
+        List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER")
         );
-        when(authentication.getAuthorities()).thenReturn(authorities);
+        when(authentication.getAuthorities()).thenAnswer(invocation -> authorities);
 
-        // Act & Assert
         assertDoesNotThrow(() ->
                 accessDecisionManager.decide(authentication, filterInvocation, attributes)
         );
@@ -66,18 +62,16 @@ class CustomAccessDecisionManagerTest {
 
     @Test
     void decide_NonMatchingRoles_ShouldDenyAccess() {
-        // Arrange
         when(filterInvocation.getRequestUrl()).thenReturn("/api/secured/endpoint");
         Collection<ConfigAttribute> attributes = List.of(
                 new SecurityConfig("ROLE_ADMIN")
         );
 
-        Set<GrantedAuthority> authorities = Set.of(
+        List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER")
         );
-        when(authentication.getAuthorities()).thenReturn(authorities);
+        when(authentication.getAuthorities()).thenAnswer(invocation -> authorities);
 
-        // Act & Assert
         assertThrows(AccessDeniedException.class, () ->
                 accessDecisionManager.decide(authentication, filterInvocation, attributes)
         );
@@ -85,19 +79,17 @@ class CustomAccessDecisionManagerTest {
 
     @Test
     void decide_MultipleRoles_ShouldAllowAccessWithOneMatch() {
-        // Arrange
         when(filterInvocation.getRequestUrl()).thenReturn("/api/secured/endpoint");
         Collection<ConfigAttribute> attributes = List.of(
                 new SecurityConfig("ROLE_ADMIN"),
                 new SecurityConfig("ROLE_USER")
         );
 
-        Set<GrantedAuthority> authorities = Set.of(
+        List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER")
         );
-        when(authentication.getAuthorities()).thenReturn(authorities);
+        when(authentication.getAuthorities()).thenAnswer(invocation -> authorities);
 
-        // Act & Assert
         assertDoesNotThrow(() ->
                 accessDecisionManager.decide(authentication, filterInvocation, attributes)
         );
