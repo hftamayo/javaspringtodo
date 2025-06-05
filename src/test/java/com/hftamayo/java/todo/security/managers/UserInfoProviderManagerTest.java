@@ -37,7 +37,7 @@ class UserInfoProviderManagerTest {
         testUser = new User();
         testUser.setEmail(TEST_EMAIL);
         testUser.setPassword(TEST_PASSWORD);
-        testUser.setEnabled(true);
+        testUser.setStatus(true);
         testUser.setAccountNonExpired(true);
         testUser.setCredentialsNonExpired(true);
         testUser.setAccountNonLocked(true);
@@ -88,7 +88,7 @@ class UserInfoProviderManagerTest {
     @Test
     void getUserDetails_WhenUserIsDisabled_ShouldReturnDisabledUserDetails() {
         // Arrange
-        testUser.setEnabled(false);
+        testUser.setStatus(false);
         when(userService.loginRequest(TEST_EMAIL)).thenReturn(Optional.of(testUser));
 
         // Act
