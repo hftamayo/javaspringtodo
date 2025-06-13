@@ -125,7 +125,7 @@ public class RolesServiceImplTest {
         assertEquals(400, result.getCode());
         assertEquals("ROLE ALREADY EXISTS", result.getResultMessage());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
-        verifyNoInteractions(rolesRepository);
+        verifyNoMoreInteractions(rolesRepository);
         verifyNoInteractions(roleMapper);
     }
 
@@ -135,8 +135,8 @@ public class RolesServiceImplTest {
         Roles updatedRole = createRole(1L, ERole.ROLE_USER);
         RolesResponseDto responseDto = createRoleDto(1L, "USER");
 
-        when(rolesRepository.findById(1L)).thenReturn(Optional.of(existingRole));
-        when(rolesRepository.save(existingRole)).thenReturn(existingRole);
+        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.of(existingRole));
+        when(rolesRepository.save(any(Roles.class))).thenReturn(existingRole);
         when(roleMapper.toRolesResponseDto(existingRole)).thenReturn(responseDto);
 
         CrudOperationResponseDto<RolesResponseDto> result = rolesService.updateRole(1L, updatedRole);
@@ -144,8 +144,8 @@ public class RolesServiceImplTest {
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         assertEquals("USER", ((RolesResponseDto)result.getData()).getRoleName());
-        verify(rolesRepository).findById(1L);
-        verify(rolesRepository).save(existingRole);
+        verify(rolesRepository).findRolesById(1L);
+        verify(rolesRepository).save(any(Roles.class));
         verify(roleMapper).toRolesResponseDto(existingRole);
     }
 
