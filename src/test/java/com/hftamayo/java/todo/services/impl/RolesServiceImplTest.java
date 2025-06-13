@@ -44,14 +44,14 @@ public class RolesServiceImplTest {
         );
 
         when(rolesRepository.findAll()).thenReturn(rolesList);
-        when(roleMapper.toRolesResponseDto(any(Roles.class)))
-                .thenReturn(responseDtos.get(0), responseDtos.get(1));
+        when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
+        when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
 
         CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoles();
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(2, ((List<RolesResponseDto>)result.getData()).size());
+        assertEquals(2, result.getDataList().size());
         verify(rolesRepository).findAll();
         verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
     }
