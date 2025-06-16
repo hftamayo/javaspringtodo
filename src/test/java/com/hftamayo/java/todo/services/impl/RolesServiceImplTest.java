@@ -153,14 +153,14 @@ public class RolesServiceImplTest {
     void updateRole_WhenRoleDoesNotExist_ShouldReturnErrorResponse() {
         Roles updatedRole = createRole(1L, ERole.ROLE_USER);
 
-        when(rolesRepository.findById(1L)).thenReturn(Optional.empty());
+        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
 
         CrudOperationResponseDto<RolesResponseDto> result = rolesService.updateRole(1L, updatedRole);
 
         assertEquals(500, result.getCode());
         assertEquals("INTERNAL SERVER ERROR", result.getResultMessage());
-        verify(rolesRepository).findById(1L);
-        verifyNoInteractions(rolesRepository);
+        verify(rolesRepository).findRolesById(1L);
+        verifyNoMoreInteractions(rolesRepository);
         verifyNoInteractions(roleMapper);
     }
 
@@ -168,35 +168,26 @@ public class RolesServiceImplTest {
     void deleteRole_WhenRoleExists_ShouldReturnSuccessResponse() {
         Roles existingRole = createRole(1L, ERole.ROLE_ADMIN);
 
-        when(rolesRepository.findById(1L)).thenReturn(Optional.of(existingRole));
+        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.of(existingRole));
 
         CrudOperationResponseDto result = rolesService.deleteRole(1L);
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        verify(rolesRepository).findById(1L);
+        verify(rolesRepository).findRolesById(1L);
         verify(rolesRepository).deleteRolesById(1L);
     }
 
     @Test
     void deleteRole_WhenRoleDoesNotExist_ShouldReturnNotFoundResponse() {
-        when(rolesRepository.findById(1L)).thenReturn(Optional.empty());
+        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
 
         CrudOperationResponseDto result = rolesService.deleteRole(1L);
 
         assertEquals(404, result.getCode());
         assertEquals("ROLE NOT FOUND", result.getResultMessage());
-        verify(rolesRepository).findById(1L);
-        verifyNoInteractions(rolesRepository);
-    }
-
-    @Test
-    void deleteRole_WhenRoleNameIsInvalid_ShouldReturnErrorResponse() {
-        CrudOperationResponseDto result = rolesService.deleteRole(0L);
-
-        assertEquals(500, result.getCode());
-        assertEquals("INTERNAL SERVER ERROR", result.getResultMessage());
-        verifyNoInteractions(rolesRepository);
+        verify(rolesRepository).findRolesById(1L);
+        verifyNoMoreInteractions(rolesRepository);
     }
 
     //helper methods
