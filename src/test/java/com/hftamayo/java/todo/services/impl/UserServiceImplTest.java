@@ -83,7 +83,7 @@ public class UserServiceImplTest {
         assertEquals(404, result.getCode());
         assertEquals("USER NOT FOUND", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
     }
 
     @Test
@@ -108,14 +108,14 @@ public class UserServiceImplTest {
     void saveUser_WhenUserAlreadyExists_ShouldReturnConflictResponse() {
         User existingUser = createUser(1L, "John Doe");
 
-        when(userRepository.findById(existingUser.getId())).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserById(existingUser.getId())).thenReturn(Optional.of(existingUser));
 
         CrudOperationResponseDto<UserResponseDto> result = userService.saveUser(existingUser);
 
         assertEquals(401, result.getCode());
         assertEquals("USER ALREADY EXISTS", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(existingUser.getId());
+        verify(userRepository).findUserById(existingUser.getId());
     }
 
     @Test
@@ -125,16 +125,16 @@ public class UserServiceImplTest {
         User updatedUser = createUser(userId, "John Smith");
         UserResponseDto responseDto = createUserDto(userId, "John Smith");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
         when(userMapper.toUserResponseDto(updatedUser)).thenReturn(responseDto);
 
         CrudOperationResponseDto<UserResponseDto> result = userService.updateUser(userId, updatedUser);
 
         assertEquals(200, result.getCode());
-        assertEquals("USER UPDATED SUCCESSFULLY", result.getResultMessage());
+        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         assertEquals(responseDto, result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
         verify(userRepository).save(updatedUser);
         verify(userMapper).toUserResponseDto(updatedUser);
     }
@@ -144,14 +144,14 @@ public class UserServiceImplTest {
         Long userId = 1L;
         User updatedUser = createUser(userId, "John Smith");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
         CrudOperationResponseDto<UserResponseDto> result = userService.updateUser(userId, updatedUser);
 
         assertEquals(404, result.getCode());
         assertEquals("USER NOT FOUND", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
     }
 
     @Test
@@ -159,13 +159,13 @@ public class UserServiceImplTest {
         Long userId = 1L;
         User existingUser = createUser(userId, "John Doe");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
         CrudOperationResponseDto result = userService.deleteUser(userId);
 
         assertEquals(200, result.getCode());
-        assertEquals("USER DELETED SUCCESSFULLY", result.getResultMessage());
-        verify(userRepository).findById(userId);
+        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
+        verify(userRepository).findUserById(userId);
         verify(userRepository).delete(existingUser);
     }
 
@@ -173,14 +173,14 @@ public class UserServiceImplTest {
     void deleteUser_WhenUserDoesNotExist_ShouldReturnNotFoundResponse() {
         Long userId = 1L;
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
         CrudOperationResponseDto result = userService.deleteUser(userId);
 
         assertEquals(404, result.getCode());
         assertEquals("USER NOT FOUND", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
     }
 
     @Test
@@ -189,28 +189,28 @@ public class UserServiceImplTest {
         User existingUser = createUser(userId, "John Doe");
         existingUser.setStatus(false);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
         CrudOperationResponseDto result = userService.deleteUser(userId);
 
         assertEquals(401, result.getCode());
         assertEquals("USER IS NOT ACTIVE", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
     }
 
     @Test
     void deleteUser_WhenUserIsNotFound_ShouldReturnNotFoundResponse() {
         Long userId = 1L;
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
         CrudOperationResponseDto result = userService.deleteUser(userId);
 
         assertEquals(404, result.getCode());
         assertEquals("USER NOT FOUND", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findUserById(userId);
     }
 
     private User createUser(Long id, String name) {
