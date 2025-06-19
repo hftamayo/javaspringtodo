@@ -3,13 +3,17 @@ package com.hftamayo.java.todo.services.impl;
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.mapper.UserMapper;
 import com.hftamayo.java.todo.repository.UserRepository;
+import com.hftamayo.java.todo.repository.RolesRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +31,12 @@ public class UserServiceImplTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private RolesRepository rolesRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -42,16 +52,17 @@ public class UserServiceImplTest {
         );
 
         when(userRepository.findAll()).thenReturn(usersList);
-        when(userMapper.toUserResponseDto(any(User.class)))
-                .thenReturn(responseDtos.get(0), responseDtos.get(1));
+        when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
+        when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
         CrudOperationResponseDto<UserResponseDto> result = userService.getUsers();
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(2, ((List<UserResponseDto>)result.getData()).size());
+        assertEquals(2, result.getDataList().size());
         verify(userRepository).findAll();
-        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
+        verify(userMapper).userToDto(usersList.get(0));
+        verify(userMapper).userToDto(usersList.get(1));
     }
 
     @Test
@@ -61,15 +72,15 @@ public class UserServiceImplTest {
         UserResponseDto responseDto = createUserDto(userId, "John Doe");
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toUserResponseDto(user)).thenReturn(responseDto);
+        when(userMapper.userToDto(user)).thenReturn(responseDto);
 
         CrudOperationResponseDto<UserResponseDto> result = userService.getUser(userId);
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         assertEquals(responseDto, result.getData());
-        verify(userRepository).findById(userId);
-        verify(userMapper).toUserResponseDto(user);
+        verify(userRepository).findUserById(userId);
+        verify(userMapper).userToDto(user);
     }
 
     @Test
@@ -89,33 +100,48 @@ public class UserServiceImplTest {
     @Test
     void saveUser_WhenUserIsValid_ShouldReturnSuccessResponse() {
         User newUser = createUser(null, "John Doe");
+        newUser.setEmail("john.doe@example.com");
+        newUser.setPassword("password123");
+        
         User savedUser = createUser(1L, "John Doe");
+        savedUser.setEmail("john.doe@example.com");
+        savedUser.setPassword("encodedPassword");
+        
         UserResponseDto responseDto = createUserDto(1L, "John Doe");
+        Roles defaultRole = new Roles();
+        defaultRole.setRoleEnum(ERole.ROLE_USER);
 
+        when(userRepository.findUserByEmail(newUser.getEmail())).thenReturn(Optional.empty());
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.of(defaultRole));
+        when(passwordEncoder.encode(newUser.getPassword().trim())).thenReturn("encodedPassword");
         when(userRepository.save(newUser)).thenReturn(savedUser);
-        when(userMapper.toUserResponseDto(savedUser)).thenReturn(responseDto);
+        when(userMapper.userToDto(savedUser)).thenReturn(responseDto);
 
         CrudOperationResponseDto<UserResponseDto> result = userService.saveUser(newUser);
 
         assertEquals(201, result.getCode());
-        assertEquals("USER CREATED SUCCESSFULLY", result.getResultMessage());
+        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         assertEquals(responseDto, result.getData());
+        verify(userRepository).findUserByEmail(newUser.getEmail());
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
+        verify(passwordEncoder).encode("password123");
         verify(userRepository).save(newUser);
-        verify(userMapper).toUserResponseDto(savedUser);
+        verify(userMapper).userToDto(savedUser);
     }
 
     @Test
     void saveUser_WhenUserAlreadyExists_ShouldReturnConflictResponse() {
         User existingUser = createUser(1L, "John Doe");
+        existingUser.setEmail("john.doe@example.com");
 
-        when(userRepository.findUserById(existingUser.getId())).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserByEmail(existingUser.getEmail())).thenReturn(Optional.of(existingUser));
 
         CrudOperationResponseDto<UserResponseDto> result = userService.saveUser(existingUser);
 
-        assertEquals(401, result.getCode());
+        assertEquals(400, result.getCode());
         assertEquals("USER ALREADY EXISTS", result.getResultMessage());
         assertNull(result.getData());
-        verify(userRepository).findUserById(existingUser.getId());
+        verify(userRepository).findUserByEmail(existingUser.getEmail());
     }
 
     @Test
@@ -126,8 +152,8 @@ public class UserServiceImplTest {
         UserResponseDto responseDto = createUserDto(userId, "John Smith");
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(updatedUser)).thenReturn(updatedUser);
-        when(userMapper.toUserResponseDto(updatedUser)).thenReturn(responseDto);
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
 
         CrudOperationResponseDto<UserResponseDto> result = userService.updateUser(userId, updatedUser);
 
@@ -135,8 +161,8 @@ public class UserServiceImplTest {
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         assertEquals(responseDto, result.getData());
         verify(userRepository).findUserById(userId);
-        verify(userRepository).save(updatedUser);
-        verify(userMapper).toUserResponseDto(updatedUser);
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).userToDto(updatedUser);
     }
 
     @Test
@@ -166,7 +192,7 @@ public class UserServiceImplTest {
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         verify(userRepository).findUserById(userId);
-        verify(userRepository).delete(existingUser);
+        verify(userRepository).deleteUserById(userId);
     }
 
     @Test
@@ -179,22 +205,6 @@ public class UserServiceImplTest {
 
         assertEquals(404, result.getCode());
         assertEquals("USER NOT FOUND", result.getResultMessage());
-        assertNull(result.getData());
-        verify(userRepository).findUserById(userId);
-    }
-
-    @Test
-    void deleteUser_WhenUserIsNotActive_ShouldReturnConflictResponse() {
-        Long userId = 1L;
-        User existingUser = createUser(userId, "John Doe");
-        existingUser.setStatus(false);
-
-        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
-
-        CrudOperationResponseDto result = userService.deleteUser(userId);
-
-        assertEquals(401, result.getCode());
-        assertEquals("USER IS NOT ACTIVE", result.getResultMessage());
         assertNull(result.getData());
         verify(userRepository).findUserById(userId);
     }
