@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
 
@@ -48,7 +49,7 @@ public class TaskServiceImplTest {
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(2, ((List<TaskResponseDto>)result.getData()).size());
+        assertEquals(2, ((List<TaskResponseDto>)result.getDataList()).size());
         verify(taskRepository).findAll();
         verify(taskMapper, times(2)).taskToDto(any(Task.class));
     }
@@ -102,15 +103,15 @@ public class TaskServiceImplTest {
         Task task = createTask(1L, "Task 1");
         TaskResponseDto responseDto = createTaskDto(1L, "Task 1");
 
-        when(taskRepository.findAll((Example<Task>) any())).thenReturn(List.of(task));
+        when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
         CrudOperationResponseDto<TaskResponseDto> result = taskService.getTaskByCriteria(criteria, value);
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(responseDto, result.getData());
-        verify(taskRepository).findAll((Example<Task>) any());
+        assertEquals(List.of(responseDto), result.getDataList());
+        verify(taskRepository).findAll((Specification<Task>) any());
         verify(taskMapper).taskToDto(task);
     }
 
@@ -119,13 +120,13 @@ public class TaskServiceImplTest {
         String criteria = "title";
         String value = "Task 1";
 
-        when(taskRepository.findAll((Example<Task>) any())).thenReturn(Collections.emptyList());
+        when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
         CrudOperationResponseDto<TaskResponseDto> result = taskService.getTaskByCriteria(criteria, value);
 
         assertEquals(404, result.getCode());
         assertEquals("NO TASKS FOUND", result.getResultMessage());
-        verify(taskRepository).findAll((Example<Task>) any());
+        verify(taskRepository).findAll((Specification<Task>) any());
     }
 
     @Test
@@ -137,15 +138,15 @@ public class TaskServiceImplTest {
         Task task = createTask(1L, "Task 1");
         TaskResponseDto responseDto = createTaskDto(1L, "Task 1");
 
-        when(taskRepository.findAll((Example<Task>) any())).thenReturn(List.of(task));
+        when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
         CrudOperationResponseDto<TaskResponseDto> result = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
 
         assertEquals(200, result.getCode());
         assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(responseDto, result.getData());
-        verify(taskRepository).findAll((Example<Task>) any());
+        assertEquals(List.of(responseDto), result.getDataList());
+        verify(taskRepository).findAll((Specification<Task>) any());
         verify(taskMapper).taskToDto(task);
     }
 
@@ -156,13 +157,13 @@ public class TaskServiceImplTest {
         String criteria2 = "status";
         String value2 = "completed";
 
-        when(taskRepository.findAll((Example<Task>) any())).thenReturn(Collections.emptyList());
+        when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
         CrudOperationResponseDto<TaskResponseDto> result = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
 
         assertEquals(404, result.getCode());
         assertEquals("NO TASKS FOUND", result.getResultMessage());
-        verify(taskRepository).findAll((Example<Task>) any());
+        verify(taskRepository).findAll((Specification<Task>) any());
     }
 
     @Test
@@ -186,13 +187,13 @@ public class TaskServiceImplTest {
     void saveTask_WhenTaskAlreadyExists_ShouldReturnConflictResponse() {
         Task existingTask = createTask(1L, "Task 1");
 
-        when(taskRepository.findTaskById(existingTask.getId())).thenReturn(Optional.of(existingTask));
+        when(taskRepository.findTaskByTitle(existingTask.getTitle())).thenReturn(Optional.of(existingTask));
 
         CrudOperationResponseDto<TaskResponseDto> result = taskService.saveTask(existingTask);
 
         assertEquals(400, result.getCode());
         assertEquals("TASK ALREADY EXISTS", result.getResultMessage());
-        verify(taskRepository).findTaskById(existingTask.getId());
+        verify(taskRepository).findTaskByTitle(existingTask.getTitle());
         verify(taskRepository, never()).save(any(Task.class));
         verify(taskMapper, never()).taskToDto(any(Task.class));
     }
