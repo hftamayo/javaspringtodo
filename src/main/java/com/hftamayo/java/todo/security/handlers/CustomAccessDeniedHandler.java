@@ -15,6 +15,11 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.getWriter().write("Access Denied: Please login first");
+        try {
+            response.getWriter().write("Access Denied: Please login first");
+        }
+        catch (IOException e) {
+            // Log the exception if necessary
+        }
     }
 }
