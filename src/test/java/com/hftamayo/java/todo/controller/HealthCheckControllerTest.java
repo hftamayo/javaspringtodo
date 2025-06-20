@@ -34,10 +34,8 @@ class HealthCheckControllerTest {
     private HealthCheckController healthCheckController;
 
     @BeforeEach
-    void setUp() throws SQLException {
-        when(jdbcTemplate.getDataSource()).thenReturn(dataSource);
-        when(dataSource.getConnection()).thenReturn(connection);
-        doNothing().when(connection).close();
+    void setUp() {
+        // No common setup needed - each test will set up its own mocks as needed
     }
 
     @Test
@@ -53,6 +51,10 @@ class HealthCheckControllerTest {
 
     @Test
     void checkDbHealth_WhenDatabaseIsConnected_ShouldReturnOkStatus() throws SQLException {
+        when(jdbcTemplate.getDataSource()).thenReturn(dataSource);
+        when(dataSource.getConnection()).thenReturn(connection);
+        doNothing().when(connection).close();
+
         ResponseEntity<String> response = healthCheckController.checkDbHealth();
 
         assertAll(
@@ -67,6 +69,7 @@ class HealthCheckControllerTest {
 
     @Test
     void checkDbHealth_WhenDatabaseIsNotConnected_ShouldReturnError() throws SQLException {
+        when(jdbcTemplate.getDataSource()).thenReturn(dataSource);
         String errorMessage = "Database connection error";
         when(dataSource.getConnection()).thenThrow(new SQLException(errorMessage));
 

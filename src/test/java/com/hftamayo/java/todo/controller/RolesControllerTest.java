@@ -29,7 +29,7 @@ class RolesControllerTest {
         CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData((RolesResponseDto) List.of(new RolesResponseDto()));
+        expectedResponse.setDataList(List.of(new RolesResponseDto()));
 
         when(rolesService.getRoles()).thenReturn(expectedResponse);
 
@@ -38,7 +38,7 @@ class RolesControllerTest {
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, ((List<?>) response.getData()).size()),
+                () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(rolesService).getRoles()
         );
     }

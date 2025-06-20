@@ -29,7 +29,7 @@ class UserControllerTest {
         CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData((UserResponseDto) List.of(new UserResponseDto()));
+        expectedResponse.setDataList(List.of(new UserResponseDto()));
 
         when(userService.getUsers()).thenReturn(expectedResponse);
 
@@ -38,7 +38,7 @@ class UserControllerTest {
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(userService).getUsers()
         );
     }
@@ -70,7 +70,7 @@ class UserControllerTest {
         CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
+        expectedResponse.setDataList(List.of(new UserResponseDto()));
 
         when(userService.getUserByCriteria(criteria, value)).thenReturn(expectedResponse);
 
@@ -79,7 +79,7 @@ class UserControllerTest {
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(userService).getUserByCriteria(criteria, value)
         );
     }
@@ -94,7 +94,7 @@ class UserControllerTest {
         CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
+        expectedResponse.setDataList(List.of(new UserResponseDto()));
 
         when(userService.getUserByCriterias(criteria, value, criteria2, value2)).thenReturn(expectedResponse);
 
@@ -103,7 +103,7 @@ class UserControllerTest {
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(userService).getUserByCriterias(criteria, value, criteria2, value2)
         );
     }

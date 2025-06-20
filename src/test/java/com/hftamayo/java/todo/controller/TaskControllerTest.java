@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
+import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class TaskControllerTest {
         CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData((TaskResponseDto) List.of(new TaskResponseDto()));
+        expectedResponse.setDataList(List.of(new TaskResponseDto()));
 
         when(taskService.getTasks()).thenReturn(expectedResponse);
 
@@ -41,7 +42,7 @@ class TaskControllerTest {
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(taskService).getTasks()
         );
     }
