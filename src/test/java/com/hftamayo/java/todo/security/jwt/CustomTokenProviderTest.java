@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CustomTokenProviderTest {
     private static final String TEST_JWT_SECRET =
-            "dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHkxMjM0NTY3ODkwMTIzNDU2Nzg5MA==";
+            "dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MA==";
     private static final int TEST_JWT_EXPIRATION = 3600000;
 
     @InjectMocks
@@ -80,9 +80,6 @@ class CustomTokenProviderTest {
         String email = "test@example.com";
         ReflectionTestUtils.setField(tokenProvider, "jwtExpirationDate", -3600000);
         String token = tokenProvider.getToken(email);
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn(email);
-        when(userInfoProviderManager.getUserDetails(email)).thenReturn(userDetails);
 
         // Act & Assert
         assertFalse(tokenProvider.isTokenValid(token, email));
