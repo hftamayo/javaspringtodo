@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.security.jwt;
 
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -75,12 +76,17 @@ public class CustomTokenProvider {
     }
 
     public boolean isTokenValid(String token, String email) {
-        final UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
-        final String tokenEmail = getEmailFromToken(token);
-        final String tokenSessionIdentifier = getClaim(token,
-                claims -> claims.get("sessionIdentifier", String.class));
-        return tokenEmail.equals(userDetails.getUsername()) && !isTokenExpired(token)
-                && sessionIdentifier.equals(tokenSessionIdentifier);
+        try {
+            final UserDetails userDetails = userInfoProviderManager.getUserDetails(email);
+            final String tokenEmail = getEmailFromToken(token);
+            final String tokenSessionIdentifier = getClaim(token,
+                    claims -> claims.get("sessionIdentifier", String.class));
+            return tokenEmail.equals(userDetails.getUsername()) && !isTokenExpired(token)
+                    && sessionIdentifier.equals(tokenSessionIdentifier);
+        } catch (ExpiredJwtException e) {
+            logger.debug("Token is expired: {}", e.getMessage());
+            return false;
+        }
     }
 
     private Claims getAllClaimsFromToken(String token) {
