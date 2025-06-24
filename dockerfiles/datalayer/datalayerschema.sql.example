@@ -1,0 +1,8 @@
+CREATE USER 'adminusr'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON * . * TO 'adminusr'@'localhost'; 
+CREATE USER 'appusr'@'localhost' IDENTIFIED BY 'password';
+CREATE DATABASE dbprod;
+GRANT ALL PRIVILEGES ON dbprod.* TO 'appusr'@'localhost';
+CREATE DATABASE dbdev;
+GRANT ALL PRIVILEGES ON dbdev.* TO 'appusr'@'localhost';
+FLUSH PRIVILEGES;
