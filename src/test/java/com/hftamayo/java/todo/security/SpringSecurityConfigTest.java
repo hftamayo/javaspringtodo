@@ -42,6 +42,11 @@ class SpringSecurityConfigTest {
         when(userInfoProviderManager.getUserDetails(testUsername)).thenReturn(mockUserDetails);
         when(mockUserDetails.getPassword()).thenReturn(testPassword);
         when(passwordEncoder.matches(testPassword, testPassword)).thenReturn(true);
+        when(mockUserDetails.isAccountNonLocked()).thenReturn(true);
+        when(mockUserDetails.isEnabled()).thenReturn(true);
+        when(mockUserDetails.isAccountNonExpired()).thenReturn(true);
+        when(mockUserDetails.isCredentialsNonExpired()).thenReturn(true);
+        when(mockUserDetails.getUsername()).thenReturn(testUsername);
 
         // Act
         AuthenticationProvider provider = springSecurityConfig.authenticationProvider();
