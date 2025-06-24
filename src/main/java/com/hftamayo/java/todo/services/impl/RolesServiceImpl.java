@@ -53,12 +53,12 @@ public class RolesServiceImpl implements RolesService {
             List<Roles> rolesList = rolesRepository.findAll();
             if (!rolesList.isEmpty()) {
                 List<RolesResponseDto> rolesResponseDtoList = rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
+                return new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
             } else {
-                return new CrudOperationResponseDto(404, "NO ROLES FOUND");
+                return new CrudOperationResponseDto<>(404, "NO ROLES FOUND");
             }
         } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+            return new CrudOperationResponseDto<>(500, "INTERNAL SERVER ERROR");
         }
     }
 

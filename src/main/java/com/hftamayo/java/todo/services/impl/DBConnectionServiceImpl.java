@@ -39,9 +39,7 @@ public class DBConnectionServiceImpl implements DBConnectionService, Application
                 .anyMatch(i -> checkDatabaseConnection());
 
         if (!isDatabaseOnline) {
-            // Notify user and stop application
-            System.out.println("Unable to establish database connection. Application will stop.");
-            System.exit(1);
+            handleDatabaseConnectionFailure();
         }
     }
 
@@ -64,5 +62,11 @@ public class DBConnectionServiceImpl implements DBConnectionService, Application
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    protected void handleDatabaseConnectionFailure() {
+        // Notify user and stop application
+        System.out.println("Unable to establish database connection. Application will stop.");
+        System.exit(1);
     }
 }
