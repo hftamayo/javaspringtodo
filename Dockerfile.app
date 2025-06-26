@@ -26,6 +26,12 @@ RUN java -Djarmode=layertools -jar app.jar extract
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# setup the timezone
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/America/Chicago /etc/localtime && \
+    echo "America/Chicago" > /etc/timezone && \
+    apk del tzdata
+
 # Add non-root user for security
 RUN addgroup --system --gid 1001 appgroup \
     && adduser --system --uid 1001 --ingroup appgroup appuser \
