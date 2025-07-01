@@ -60,7 +60,7 @@ USER appuser
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+OptimizeStringConcat -XX:+UseStringDeduplication"
 
 # Ejecutar la aplicación
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher --spring.config.location=file:/resources/application-docker.properties --spring.profiles.active=docker"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher --spring.config.location=file:/resources/application-docker.yml --spring.profiles.active=docker"]
 
 #how to run this file:
 #multiplatform image
