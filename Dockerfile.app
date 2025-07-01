@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM eclipse-temurin:17 as build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /workspace/app
 
 # Copy maven executable to the image
@@ -7,33 +7,60 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
-# Download dependencies separately (better layer caching)
-RUN ./mvnw dependency:go-offline
+# Download dependencies separately (mejor caché de capas)
+RUN ./mvnw dependency:go-offline -B
 
 # Copy the source code
 COPY src src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+# Build the application with production profile
+RUN ./mvnw clean package -DskipTests -Pprod
 
-# Stage 2: Run the application
-FROM eclipse-temurin:17
-VOLUME /tmp
+# Stage 2: Extract layered JAR for faster startup
+FROM eclipse-temurin:17-jdk-alpine AS extract
 WORKDIR /workspace/app
-ARG JAR_FILE=/workspace/app/target/*.jar
-COPY --from=build ${JAR_FILE} jsbtodo.jar
-#HEALTHCHECK --interval=5s \
-#            --timeout=3s \
-#            CMD curl -f http://localhost:8080/actuator/health || exit 1
+COPY --from=build /workspace/app/target/*.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+# Stage 3: Run the application
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# setup the timezone
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/America/Chicago /etc/localtime && \
+    echo "America/Chicago" > /etc/timezone && \
+    apk del tzdata
+
+# Add non-root user for security
+RUN addgroup --system --gid 1001 appgroup \
+    && adduser --system --uid 1001 --ingroup appgroup appuser \
+    && mkdir -p /logs /resources \
+    && chown -R appuser:appgroup /app /logs /resources
+
+# Copy layered application
+COPY --from=extract --chown=appuser:appgroup /workspace/app/dependencies/ ./
+COPY --from=extract --chown=appuser:appgroup /workspace/app/spring-boot-loader/ ./
+COPY --from=extract --chown=appuser:appgroup /workspace/app/snapshot-dependencies/ ./
+COPY --from=extract --chown=appuser:appgroup /workspace/app/application/ ./
+
+# Crear volúmenes para logs y configuración
+VOLUME ["/logs", "/resources"]
+
+# Habilitar health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD wget -q --spider http://localhost:8011/api/health/app || exit 1
 
 EXPOSE 8011
 
-CMD ["java", \
-     "-Dspring.config.location=/resources/application-docker.properties", \
-     "-Djava.security.egd=file:/dev/./urandom", \
-     "-Dspring.profiles.active=docker", \
-     "-jar", "jsbtodo.jar"]
-#ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/jsbtodo.jar"]
+# Cambiar al usuario no-root
+USER appuser
+
+# Configurar opciones JVM optimizadas para contenedores
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+OptimizeStringConcat -XX:+UseStringDeduplication"
+
+# Ejecutar la aplicación
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher --spring.config.location=file:/resources/application-docker.yml --spring.profiles.active=docker"]
 
 #how to run this file:
 #multiplatform image
@@ -43,4 +70,4 @@ CMD ["java", \
 #specific platform
 #docker buildx build --no-cache --platform linux/amd64 -t hftamayo/jsbtodo:0.1.3-experimental -f Dockerfile.app .
 
-#docker run -d --name jsbtodo --network mysqldev_network -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
+#docker run -d --name jsbtodo --network developer_network -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
