@@ -29,14 +29,8 @@ public class HealthCheckController {
 
     @GetMapping("/db")
     public ResponseEntity<String> checkDbHealth() {
-        try {
-            this.jdbcTemplate.getDataSource().getConnection().close();
-            return new ResponseEntity<>("HealthCheck: The connection to the data layer is up and running. " +
-                    "Timestamp: " + new Date().toString(), HttpStatus.OK);
-        } catch (SQLException ex) {
-            return new ResponseEntity<>("HealthCheck: The connection to the data layer is down. " +
-                    "Timestamp: " + new Date().toString() + ". Error: " +
-                    ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        this.jdbcTemplate.getDataSource().getConnection().close();
+        return new ResponseEntity<>("HealthCheck: The connection to the data layer is up and running. " +
+                "Timestamp: " + new Date().toString(), HttpStatus.OK);
     }
 }

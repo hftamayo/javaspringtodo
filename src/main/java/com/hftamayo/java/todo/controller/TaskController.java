@@ -3,18 +3,12 @@ package com.hftamayo.java.todo.controller;
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
-
-import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @RestController

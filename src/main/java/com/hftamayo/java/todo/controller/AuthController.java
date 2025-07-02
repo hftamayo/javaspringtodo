@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 
@@ -24,6 +25,12 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private AuthService authService;
     private UserService userService;
+    
+    @Value("${app.environment:production}")
+    private String environment;
+    
+    @Value("${app.debug.jwt:false}")
+    private boolean debugJwt;
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
@@ -34,9 +41,12 @@ public class AuthController {
             logger.info("Login successful, welcome: " + loginRequestDto.getEmail() +
                     "!, assigned roles: " + activeSessionResponseDto.getRoles());
 
-            logger.info("token: " + activeSessionResponseDto.getAccessToken() + " type: " +
-                    activeSessionResponseDto.getTokenType() + " expires in: " +
-                    activeSessionResponseDto.getExpiresIn() + " hours");
+            // Only log JWT details in development or when explicitly enabled
+            if ("development".equals(environment) || debugJwt) {
+                logger.info("token: " + activeSessionResponseDto.getAccessToken() + " type: " +
+                        activeSessionResponseDto.getTokenType() + " expires in: " +
+                        activeSessionResponseDto.getExpiresIn() + " hours");
+            }
 
             return ResponseEntity.ok("LOGIN_SUCCESSFUL " + loginRequestDto.getEmail() + "!" +
                     ", your role is: " + activeSessionResponseDto.getRoles());
