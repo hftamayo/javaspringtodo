@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,86 +51,64 @@ public class RolesServiceImpl implements RolesService {
 
     @Override
     public CrudOperationResponseDto<RolesResponseDto> getRoles() {
-        try {
-            List<Roles> rolesList = rolesRepository.findAll();
-            if (!rolesList.isEmpty()) {
-                List<RolesResponseDto> rolesResponseDtoList = rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
-                return new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
-            } else {
-                return new CrudOperationResponseDto<>(404, "NO ROLES FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto<>(500, "INTERNAL SERVER ERROR");
+        List<Roles> rolesList = rolesRepository.findAll();
+        if (!rolesList.isEmpty()) {
+            List<RolesResponseDto> rolesResponseDtoList = rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
+            return new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
+        } else {
+            throw new ResourceNotFoundException("Role", "all");
         }
     }
 
     @Override
     public CrudOperationResponseDto<RolesResponseDto> getRoleByName(String name) {
-        try {
-            ERole eRole = ERole.valueOf(name);
-            Optional<Roles> roleOptional = getRoleByEnum(eRole);
-            if (roleOptional.isPresent()) {
-                Roles role = roleOptional.get();
-                RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(role);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
-            } else {
-                return new CrudOperationResponseDto(404, "ROLE NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        ERole eRole = ERole.valueOf(name);
+        Optional<Roles> roleOptional = getRoleByEnum(eRole);
+        if (roleOptional.isPresent()) {
+            Roles role = roleOptional.get();
+            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(role);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+        } else {
+            throw new ResourceNotFoundException("Role", name);
         }
-
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto<RolesResponseDto> saveRole(Roles newRole) {
-        try {
-            Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum());
-            if (!requestedRole.isPresent()) {
-                Roles savedRole = rolesRepository.save(newRole);
-                RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", roleToDto);
-            } else {
-                return new CrudOperationResponseDto(400, "ROLE ALREADY EXISTS");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum());
+        if (!requestedRole.isPresent()) {
+            Roles savedRole = rolesRepository.save(newRole);
+            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
+            return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", roleToDto);
+        } else {
+            throw DuplicateResourceException.withIdentifier("Role", newRole.getRoleEnum().name());
         }
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole) {
-        try {
-            Optional<Roles> requestedRoleOptional = getRoleById(roleId);
-            if (requestedRoleOptional.isPresent()) {
-                Roles existingRole = getExistingRole(updatedRole, requestedRoleOptional);
-
-                Roles savedRole = rolesRepository.save(existingRole);
-                RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
-            } else {
-                throw new EntityNotFoundException("Role not found");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<Roles> requestedRoleOptional = getRoleById(roleId);
+        if (requestedRoleOptional.isPresent()) {
+            Roles existingRole = getExistingRole(updatedRole, requestedRoleOptional);
+            Roles savedRole = rolesRepository.save(existingRole);
+            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+        } else {
+            throw new ResourceNotFoundException("Role", roleId);
         }
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto deleteRole(long roleId) {
-        try {
-            Optional<Roles> requestedRoleOptional = getRoleById(roleId);
-            if (requestedRoleOptional.isPresent()) {
-                rolesRepository.deleteRolesById(requestedRoleOptional.get().getId());
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
-            } else {
-                return new CrudOperationResponseDto(404, "ROLE NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<Roles> requestedRoleOptional = getRoleById(roleId);
+        if (requestedRoleOptional.isPresent()) {
+            rolesRepository.deleteRolesById(requestedRoleOptional.get().getId());
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
+        } else {
+            throw new ResourceNotFoundException("Role", roleId);
         }
     }
 }
