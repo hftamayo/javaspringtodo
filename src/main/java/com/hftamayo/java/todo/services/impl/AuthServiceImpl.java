@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
-import com.hftamayo.java.todo.exceptions.UnauthorizedException;
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
@@ -38,10 +38,10 @@ public class AuthServiceImpl implements AuthService {
                 logger.info("User authenticated: {}", loginRequest.getEmail());
                 return generateActiveSessionResponse(user);
             } else {
-                throw new UnauthorizedException("Invalid Credentials: Error 002");
+                throw new AuthenticationException("Invalid username or password");
             }
         } else {
-            throw new UnauthorizedException("Invalid Credentials: Error 001");
+            throw new AuthenticationException("Invalid email or password");
         }
     }
 
@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         String email = customTokenProvider.getEmailFromToken(token);
 
         if (!customTokenProvider.isTokenValid(token, email)) {
-            throw new UnauthorizedException("Invalid token: the session is not valid");
+            throw  new AuthenticationException("Invalid token");
         }
         customTokenProvider.invalidateToken();
     }
