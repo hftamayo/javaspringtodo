@@ -5,7 +5,7 @@ import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.entity.Roles;
-import com.hftamayo.java.todo.exceptions.UnauthorizedException;
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.jwt.CustomTokenProvider;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,9 +72,9 @@ class AuthServiceImplTest {
         when(userService.loginRequest("test@example.com")).thenReturn(Optional.of(inactiveUser));
 
         // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
                 () -> authService.login(loginRequest));
-        assertEquals("Invalid Credentials: Error 001", exception.getMessage());
+        assertEquals("Invalid email or password", exception.getMessage());
     }
 
     @Test
@@ -89,9 +89,9 @@ class AuthServiceImplTest {
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 
         // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
                 () -> authService.login(loginRequest));
-        assertEquals("Invalid Credentials: Error 002", exception.getMessage());
+        assertEquals("Invalid email or password", exception.getMessage());
     }
 
     @Test
@@ -118,7 +118,7 @@ class AuthServiceImplTest {
         when(customTokenProvider.isTokenValid("invalidToken", "test@example.com")).thenReturn(false);
 
         // Act & Assert
-        assertThrows(UnauthorizedException.class, () -> authService.logout(request));
+        assertThrows(AuthenticationException.class, () -> authService.logout(request));
     }
 
     private User createUser() {
