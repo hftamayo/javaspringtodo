@@ -6,13 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -94,7 +91,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Should handle DuplicateResourceException")
     void shouldHandleDuplicateResourceException() {
         // Arrange
-        DuplicateResourceException exception = new DuplicateResourceException("User", "test@example.com");
+        DuplicateResourceException exception = DuplicateResourceException.withFieldValue("User", "test@example.com");
         
         // Act
         ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleDuplicateResourceException(exception, webRequest);
