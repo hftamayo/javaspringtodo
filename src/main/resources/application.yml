@@ -30,3 +30,8 @@ test:
   user:
     email: test@example.com
     password: password123 
+
+app:
+  environment: production
+  debug:
+    jwt: false     
