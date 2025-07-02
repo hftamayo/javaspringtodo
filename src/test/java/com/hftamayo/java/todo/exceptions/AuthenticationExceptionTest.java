@@ -2,7 +2,6 @@ package com.hftamayo.java.todo.exceptions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.springframework.security.core.AuthenticationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,5 +48,20 @@ class AuthenticationExceptionTest {
         // Assert
         assertNotNull(exception);
         assertNull(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should create AuthenticationException with message using anonymous subclass")
+    void shouldCreateAuthenticationExceptionWithMessageUsingAnonymousSubclass() {
+        // Arrange
+        String errorMessage = "Invalid credentials";
+        
+        // Act
+        AuthenticationException ex = new AuthenticationException(errorMessage) {};
+        
+        // Assert
+        assertNotNull(ex);
+        assertEquals(errorMessage, ex.getMessage());
+        assertTrue(ex instanceof RuntimeException);
     }
 } 
