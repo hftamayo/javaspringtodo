@@ -15,7 +15,7 @@ class DuplicateResourceExceptionTest {
         String identifier = "test@example.com";
         
         // Act
-        DuplicateResourceException exception = new DuplicateResourceException(resourceType, identifier);
+        DuplicateResourceException exception = DuplicateResourceException.withIdentifier(resourceType, identifier);
         
         // Assert
         assertNotNull(exception);
@@ -65,7 +65,7 @@ class DuplicateResourceExceptionTest {
         String value = "admin@company.com";
         
         // Act
-        DuplicateResourceException exception = new DuplicateResourceException(field, value);
+        DuplicateResourceException exception = DuplicateResourceException.withFieldValue(field, value);
         
         // Assert
         assertNotNull(exception);
@@ -82,7 +82,7 @@ class DuplicateResourceExceptionTest {
         String identifier = "test@example.com";
         
         // Act
-        DuplicateResourceException exception = new DuplicateResourceException(resourceType, identifier);
+        DuplicateResourceException exception = DuplicateResourceException.withIdentifier(resourceType, identifier);
         
         // Assert
         assertNotNull(exception);
