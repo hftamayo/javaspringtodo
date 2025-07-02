@@ -53,7 +53,7 @@ public class UserMapper {
 
     private Roles getRoleByName(String role) {
         return rolesRepository.findByRoleEnum(ERole.valueOf(role))
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Role", role));
     }
 
     public UserResponseDto userToDto(User user) {
