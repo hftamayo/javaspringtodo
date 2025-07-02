@@ -2,6 +2,8 @@ package com.hftamayo.java.todo.exceptions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.springframework.security.core.AuthenticationException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Authentication Exception Tests")
