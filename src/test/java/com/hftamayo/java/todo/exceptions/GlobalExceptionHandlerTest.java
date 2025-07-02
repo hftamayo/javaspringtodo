@@ -91,7 +91,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Should handle DuplicateResourceException")
     void shouldHandleDuplicateResourceException() {
         // Arrange
-        DuplicateResourceException exception = DuplicateResourceException.withFieldValue("User", "test@example.com");
+        DuplicateResourceException exception = DuplicateResourceException.withIdentifier("User", "test@example.com");
         
         // Act
         ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleDuplicateResourceException(exception, webRequest);
