@@ -1,9 +1,9 @@
 # Docker profile configuration
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/todo_prod?allowPublicKeyRetrieval=true&useSSL=false
-    username: ${DB_USERNAME:todo_user}
-    password: ${DB_PASSWORD:todo_password}
+    url: jdbc:mysql://mysql:3306/{DB_NAME_PRODUCTION:jsbtododev}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -22,13 +22,17 @@ spring:
 
 # Docker-specific JWT configuration
 jwt:
-  secret: ${JWT_SECRET:dockerSecretKeyForProductionOnly123456789}
-  expiration-milliseconds: ${JWT_EXPIRATION:28800000} # 8 hours
+  secret: ${JWT_SECRET}
+  expirationMs: ${JWT_EXPIRATION_MS} # 8 hours
+  refresh: ${JWT_REFRESH}
 
 # Docker seeding (disabled for production)
 seed:
-  development: false
-  production: false
+  development: ${SEED_DEVELOPMENT:false}
+  production: ${SEED_PRODUCTION:false}
+
+server:
+  port: ${DOCKER_INTERNAL_PORT:8080}
 
 # Docker logging
 logging:
