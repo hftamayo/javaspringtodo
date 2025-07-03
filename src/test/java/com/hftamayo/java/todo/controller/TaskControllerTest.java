@@ -4,6 +4,8 @@ import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.Task;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.ValidationException;
 import com.hftamayo.java.todo.services.TaskService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,6 +73,20 @@ class TaskControllerTest {
     }
 
     @Test
+    void getTask_WhenTaskNotFound_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        long taskId = 999L;
+        when(taskService.getTask(taskId)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> taskController.getTask(taskId));
+        
+        assertEquals("Task not found with id: 999", exception.getMessage());
+        verify(taskService).getTask(taskId);
+    }
+
+    @Test
     void getTaskByCriteria_WhenTaskExists_ShouldReturnSuccessResponse() {
         // Arrange
         String criteria = "status";
@@ -92,6 +108,21 @@ class TaskControllerTest {
                 () -> assertNotNull(response.getData()),
                 () -> verify(taskService).getTaskByCriteria(criteria, value)
         );
+    }
+
+    @Test
+    void getTaskByCriteria_WhenInvalidCriteria_ShouldThrowValidationException() {
+        // Arrange
+        String criteria = "invalid";
+        String value = "pending";
+        when(taskService.getTaskByCriteria(criteria, value)).thenThrow(new ValidationException("Invalid criteria: " + criteria));
+
+        // Act & Assert
+        ValidationException exception = assertThrows(ValidationException.class, 
+            () -> taskController.getTaskByCriteria(criteria, value));
+        
+        assertEquals("Invalid criteria: invalid", exception.getMessage());
+        verify(taskService).getTaskByCriteria(criteria, value);
     }
 
     @Test
@@ -144,6 +175,20 @@ class TaskControllerTest {
     }
 
     @Test
+    void saveTask_WhenInvalidTask_ShouldThrowValidationException() {
+        // Arrange
+        Task task = new Task();
+        when(taskService.saveTask(task)).thenThrow(new ValidationException("Task title is required"));
+
+        // Act & Assert
+        ValidationException exception = assertThrows(ValidationException.class, 
+            () -> taskController.saveTask(task));
+        
+        assertEquals("Task title is required", exception.getMessage());
+        verify(taskService).saveTask(task);
+    }
+
+    @Test
     void updateTask_WhenTaskExists_ShouldReturnSuccessResponse() {
         // Arrange
         long taskId = 1L;
@@ -168,6 +213,21 @@ class TaskControllerTest {
     }
 
     @Test
+    void updateTask_WhenTaskNotFound_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        long taskId = 999L;
+        Task task = new Task();
+        when(taskService.updateTask(taskId, task)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> taskController.updateTask(taskId, task));
+        
+        assertEquals("Task not found with id: 999", exception.getMessage());
+        verify(taskService).updateTask(taskId, task);
+    }
+
+    @Test
     void deleteTask_WhenTaskExists_ShouldReturnSuccessResponse() {
         // Arrange
         long taskId = 1L;
@@ -186,5 +246,19 @@ class TaskControllerTest {
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
                 () -> verify(taskService).deleteTask(taskId)
         );
+    }
+
+    @Test
+    void deleteTask_WhenTaskNotFound_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        long taskId = 999L;
+        when(taskService.deleteTask(taskId)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> taskController.deleteTask(taskId));
+        
+        assertEquals("Task not found with id: 999", exception.getMessage());
+        verify(taskService).deleteTask(taskId);
     }
 }

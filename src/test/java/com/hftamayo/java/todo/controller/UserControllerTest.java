@@ -3,6 +3,9 @@ package com.hftamayo.java.todo.controller;
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.ValidationException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,6 +67,18 @@ class UserControllerTest {
     }
 
     @Test
+    void getUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
+        long userId = 999L;
+        when(userService.getUser(userId)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> userController.getUser(userId));
+        
+        assertEquals("User not found with id: 999", exception.getMessage());
+        verify(userService).getUser(userId);
+    }
+
+    @Test
     void getUserByCriteria_WhenUserExists_ShouldReturnSuccessResponse() {
         String criteria = "email";
         String value = "test@example.com";
@@ -82,6 +97,19 @@ class UserControllerTest {
                 () -> assertEquals(1, response.getDataList().size()),
                 () -> verify(userService).getUserByCriteria(criteria, value)
         );
+    }
+
+    @Test
+    void getUserByCriteria_WhenInvalidCriteria_ShouldThrowValidationException() {
+        String criteria = "invalid";
+        String value = "test@example.com";
+        when(userService.getUserByCriteria(criteria, value)).thenThrow(new ValidationException("Invalid criteria: " + criteria));
+
+        ValidationException exception = assertThrows(ValidationException.class, 
+            () -> userController.getUserByCriteria(criteria, value));
+        
+        assertEquals("Invalid criteria: invalid", exception.getMessage());
+        verify(userService).getUserByCriteria(criteria, value);
     }
 
     @Test
@@ -129,6 +157,31 @@ class UserControllerTest {
     }
 
     @Test
+    void saveUser_WhenInvalidUser_ShouldThrowValidationException() {
+        User user = new User();
+        when(userService.saveUser(user)).thenThrow(new ValidationException("User email is required"));
+
+        ValidationException exception = assertThrows(ValidationException.class, 
+            () -> userController.saveUser(user));
+        
+        assertEquals("User email is required", exception.getMessage());
+        verify(userService).saveUser(user);
+    }
+
+    @Test
+    void saveUser_WhenDuplicateEmail_ShouldThrowDuplicateResourceException() {
+        User user = new User();
+        user.setEmail("existing@example.com");
+        when(userService.saveUser(user)).thenThrow(new DuplicateResourceException("User with email already exists"));
+
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, 
+            () -> userController.saveUser(user));
+        
+        assertEquals("User with email already exists", exception.getMessage());
+        verify(userService).saveUser(user);
+    }
+
+    @Test
     void updateUser_WhenUserExists_ShouldReturnSuccessResponse() {
         long userId = 1L;
         User user = new User();
@@ -147,6 +200,19 @@ class UserControllerTest {
                 () -> assertNotNull(response.getData()),
                 () -> verify(userService).updateUser(userId, user)
         );
+    }
+
+    @Test
+    void updateUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
+        long userId = 999L;
+        User user = new User();
+        when(userService.updateUser(userId, user)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> userController.updateUser(userId, user));
+        
+        assertEquals("User not found with id: 999", exception.getMessage());
+        verify(userService).updateUser(userId, user);
     }
 
     @Test
@@ -169,6 +235,19 @@ class UserControllerTest {
                 () -> assertNotNull(response.getData()),
                 () -> verify(userService).updateUserStatus(userId, true)
         );
+    }
+
+    @Test
+    void updateUserStatus_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
+        long userId = 999L;
+        Map<String, Object> updates = Map.of("status", true);
+        when(userService.updateUserStatus(userId, true)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> userController.updateUserStatus(userId, updates));
+        
+        assertEquals("User not found with id: 999", exception.getMessage());
+        verify(userService).updateUserStatus(userId, true);
     }
 
     @Test
@@ -196,20 +275,48 @@ class UserControllerTest {
     }
 
     @Test
+    void updateUserStatusAndRole_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
+        long userId = 999L;
+        Map<String, Object> updates = Map.of(
+                "status", true,
+                "role", "ROLE_ADMIN"
+        );
+        when(userService.updateUserStatusAndRole(userId, true, "ROLE_ADMIN")).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> userController.updateUserStatusAndRole(userId, updates));
+        
+        assertEquals("User not found with id: 999", exception.getMessage());
+        verify(userService).updateUserStatusAndRole(userId, true, "ROLE_ADMIN");
+    }
+
+    @Test
     void deleteUser_WhenUserExists_ShouldReturnSuccessResponse() {
         long userId = 1L;
-        CrudOperationResponseDto expectedResponse = new CrudOperationResponseDto<>();
+        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
         expectedResponse.setCode(200);
         expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
 
         when(userService.deleteUser(userId)).thenReturn(expectedResponse);
 
-        CrudOperationResponseDto response = userController.deleteUser(userId);
+        CrudOperationResponseDto<UserResponseDto> response = userController.deleteUser(userId);
 
         assertAll(
                 () -> assertEquals(200, response.getCode()),
                 () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
                 () -> verify(userService).deleteUser(userId)
         );
+    }
+
+    @Test
+    void deleteUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
+        long userId = 999L;
+        when(userService.deleteUser(userId)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
+            () -> userController.deleteUser(userId));
+        
+        assertEquals("User not found with id: 999", exception.getMessage());
+        verify(userService).deleteUser(userId);
     }
 }

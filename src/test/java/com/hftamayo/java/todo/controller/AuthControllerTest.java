@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,20 +60,18 @@ class AuthControllerTest {
     }
 
     @Test
-    void authenticate_WhenInvalidCredentials_ShouldReturnUnauthorized() {
+    void authenticate_WhenInvalidCredentials_ShouldThrowAuthenticationException() {
         LoginRequestDto loginRequest = new LoginRequestDto();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("wrong");
 
-        when(authService.login(loginRequest)).thenThrow(new RuntimeException("Invalid credentials"));
+        when(authService.login(loginRequest)).thenThrow(new AuthenticationException("Invalid credentials"));
 
-        ResponseEntity<String> response = authController.authenticate(loginRequest);
-
-        assertAll(
-                () -> assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()),
-                () -> assertEquals("LOGIN_INVALID_CREDENTIALS", response.getBody()),
-                () -> verify(authService).login(loginRequest)
-        );
+        AuthenticationException exception = assertThrows(AuthenticationException.class, 
+            () -> authController.authenticate(loginRequest));
+        
+        assertEquals("Invalid credentials", exception.getMessage());
+        verify(authService).login(loginRequest);
     }
 
     @Test
