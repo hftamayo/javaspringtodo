@@ -1,13 +1,14 @@
 # Base application configuration
 spring:
   profiles:
-    active: development
+    active: ${EXECUTION_MODE:development}
   application:
     name: todo-app
 
 # Common server configuration
 server:
-  port: 8011
+  external-port: ${DOCKER_INTERNAL_PORT:8011}
+  internal-port: ${DOCKER_INTERNAL_PORT:8080}
 
 # Common logging configuration
 logging:
@@ -17,13 +18,14 @@ logging:
 
 # Common JWT configuration (will be overridden by profiles)
 jwt:
-  secret: ${JWT_SECRET:defaultSecretKeyForDevelopmentOnly}
-  expiration-milliseconds: ${JWT_EXPIRATION:28800000} # 8 hours default
+  secret: ${JWT_SECRET}
+  expirationMs: ${JWT_EXPIRATION_MS} # 8 hours
+  refresh: ${JWT_REFRESH}
 
 # Common seeding configuration
 seed:
-  development: false
-  production: false
+  development: ${SEED_DEVELOPMENT:false}
+  production: ${SEED_PRODUCTION:false}
 
 # Common test user configuration
 test:
@@ -32,6 +34,4 @@ test:
     password: password123 
 
 app:
-  environment: production
-  debug:
-    jwt: false     
+  environment: ${EXECUTION_MODE:development}
