@@ -71,3 +71,4 @@ ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLaun
 #docker buildx build --no-cache --platform linux/amd64 -t hftamayo/jsbtodo:0.1.3-experimental -f Dockerfile.app .
 
 #docker run -d --name jsbtodo --network developer_network -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
+#docker run -d --name jsbtodo --network developer_network -p 8011:8080 --env-file .env hftamayo/jsbtodo:0.1.3-experimental
