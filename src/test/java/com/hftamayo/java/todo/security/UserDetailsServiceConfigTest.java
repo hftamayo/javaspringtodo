@@ -42,15 +42,17 @@ public class UserDetailsServiceConfigTest {
     }
 
     @Test
-    void userDetailsService_WhenUserNotFound_ShouldThrowException() {
+    void userDetailsService_WhenUserNotFound_ShouldThrowUsernameNotFoundException() {
         // Arrange
         String email = "nonexistent@example.com";
         when(userInfoProviderManager.getUserDetails(email))
-                .thenThrow(new UsernameNotFoundException("User not found"));
+                .thenThrow(new UsernameNotFoundException("Invalid Credentials: Email or Password not found"));
 
         // Act & Assert
         UserDetailsService userDetailsService = userDetailsServiceConfig.userDetailsService();
-        assertThrows(UsernameNotFoundException.class,
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername(email));
+        
+        assertEquals("Invalid Credentials: Email or Password not found", exception.getMessage());
     }
 }

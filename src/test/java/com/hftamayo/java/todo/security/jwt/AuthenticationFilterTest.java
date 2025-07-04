@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,9 +44,15 @@ class AuthenticationFilterTest {
     @InjectMocks
     private AuthenticationFilter authenticationFilter;
 
+    private StringWriter stringWriter;
+    private PrintWriter writer;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         SecurityContextHolder.clearContext();
+        stringWriter = new StringWriter();
+        writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
     }
 
     @Test
@@ -100,20 +107,36 @@ class AuthenticationFilterTest {
     void doFilterInternal_InvalidToken_ShouldReturnUnauthorized() throws ServletException, IOException {
         // Arrange
         String token = "invalid.jwt.token";
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(stringWriter);
 
         when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(customTokenProvider.getEmailFromToken(token)).thenThrow(new RuntimeException("Invalid token"));
-        when(response.getWriter()).thenReturn(writer);
+        when(customTokenProvider.getEmailFromToken(token)).thenThrow(new AuthenticationException("Invalid token format"));
 
         // Act
         authenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        assertTrue(stringWriter.toString().contains("A problem occurred during the authentication process"));
+        assertTrue(stringWriter.toString().contains("Authentication failed: Invalid token format"));
+    }
+
+    @Test
+    void doFilterInternal_ExpiredToken_ShouldReturnUnauthorized() throws ServletException, IOException {
+        // Arrange
+        String token = "expired.jwt.token";
+        String email = "test@example.com";
+
+        when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(customTokenProvider.getEmailFromToken(token)).thenReturn(email);
+        when(customTokenProvider.isTokenValid(token, email)).thenReturn(false);
+
+        // Act
+        authenticationFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        assertTrue(stringWriter.toString().contains("Authentication failed: Invalid or expired token"));
     }
 
     @Test
@@ -128,5 +151,22 @@ class AuthenticationFilterTest {
         // Assert
         verify(filterChain).doFilter(request, response);
         verifyNoInteractions(customTokenProvider);
+    }
+
+    @Test
+    void doFilterInternal_UnexpectedError_ShouldReturnInternalServerError() throws ServletException, IOException {
+        // Arrange
+        String token = "valid.jwt.token";
+
+        when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(customTokenProvider.getEmailFromToken(token)).thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        authenticationFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        assertTrue(stringWriter.toString().contains("A problem occurred during the authentication process"));
     }
 }

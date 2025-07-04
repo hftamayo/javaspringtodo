@@ -78,10 +78,11 @@ class UserInfoProviderManagerTest {
         when(userService.loginRequest(TEST_EMAIL)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UsernameNotFoundException.class, () -> 
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> 
             userInfoProviderManager.getUserDetails(TEST_EMAIL)
         );
         
+        assertEquals("Invalid Credentials: Email or Password not found", exception.getMessage());
         verify(userService).loginRequest(TEST_EMAIL);
     }
 

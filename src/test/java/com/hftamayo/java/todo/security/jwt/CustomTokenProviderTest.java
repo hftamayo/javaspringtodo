@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,12 +143,35 @@ class CustomTokenProviderTest {
     }
 
     @Test
-    void getToken_WithInvalidToken_ShouldThrowException() {
+    void getEmailFromToken_WithInvalidToken_ShouldThrowAuthenticationException() {
         // Arrange
         String invalidToken = "invalid.token.string";
 
         // Act & Assert
-        assertThrows(Exception.class,
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
                 () -> tokenProvider.getEmailFromToken(invalidToken));
+        assertEquals("Invalid token format", exception.getMessage());
+    }
+
+    @Test
+    void getClaim_WithInvalidToken_ShouldThrowAuthenticationException() {
+        // Arrange
+        String invalidToken = "invalid.token.string";
+
+        // Act & Assert
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
+                () -> tokenProvider.getClaim(invalidToken, Claims::getSubject));
+        assertEquals("Failed to extract claim from token", exception.getMessage());
+    }
+
+    @Test
+    void getRemainingExpirationTime_WithInvalidToken_ShouldThrowAuthenticationException() {
+        // Arrange
+        String invalidToken = "invalid.token.string";
+
+        // Act & Assert
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
+                () -> tokenProvider.getRemainingExpirationTime(invalidToken));
+        assertEquals("Failed to calculate token expiration time", exception.getMessage());
     }
 }
