@@ -18,7 +18,7 @@ logging:
 # Common JWT configuration (will be overridden by profiles)
 jwt:
   secret: ${JWT_SECRET}
-  expirationMs: ${JWT_EXPIRATION_MS} # 8 hours
+  expiration-milliseconds: ${JWT_EXPIRATION_MS} # 8 hours
   refresh: ${JWT_REFRESH}
 
 # Common seeding configuration
