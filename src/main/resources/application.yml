@@ -25,6 +25,14 @@ jwt:
 seed:
   development: ${SEED_DEVELOPMENT:false}
   production: ${SEED_PRODUCTION:false}
+  admin:
+    password: ${ADMIN_PASSWORD}
+  supervisor:
+    password: ${SUPERVISOR_PASSWORD}
+  user1:
+    password: ${USER1_PASSWORD}
+  user2:
+    password: ${USER2_PASSWORD}
 
 # Common test user configuration
 test:
