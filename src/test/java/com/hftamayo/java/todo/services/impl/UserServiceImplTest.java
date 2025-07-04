@@ -1,10 +1,11 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.mapper.UserMapper;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.repository.RolesRepository;
@@ -55,18 +56,17 @@ public class UserServiceImplTest {
         when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
         when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.getUsers();
+        List<UserResponseDto> result = userService.getUsers();
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(2, result.getDataList().size());
+        assertEquals(2, result.size());
+        assertEquals(responseDtos, result);
         verify(userRepository).findAll();
         verify(userMapper).userToDto(usersList.get(0));
         verify(userMapper).userToDto(usersList.get(1));
     }
 
     @Test
-    void getUserById_WhenUserExists_ShouldReturnSuccessResponse() {
+    void getUserById_WhenUserExists_ShouldReturnUser() {
         Long userId = 1L;
         User user = createUser(userId, "John Doe");
         UserResponseDto responseDto = createUserDto(userId, "John Doe");
@@ -74,31 +74,28 @@ public class UserServiceImplTest {
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
         when(userMapper.userToDto(user)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.getUser(userId);
+        UserResponseDto result = userService.getUser(userId);
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(responseDto, result.getData());
+        assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
         verify(userMapper).userToDto(user);
     }
 
     @Test
-    void getUserById_WhenUserDoesNotExist_ShouldReturnNotFoundResponse() {
+    void getUserById_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
         Long userId = 1L;
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.getUser(userId);
-
-        assertEquals(404, result.getCode());
-        assertEquals("USER NOT FOUND", result.getResultMessage());
-        assertNull(result.getData());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.getUser(userId));
+        
+        assertEquals("User not found with id: " + userId, exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 
     @Test
-    void saveUser_WhenUserIsValid_ShouldReturnSuccessResponse() {
+    void saveUser_WhenUserIsValid_ShouldReturnSavedUser() {
         User newUser = createUser(null, "John Doe");
         newUser.setEmail("john.doe@example.com");
         newUser.setPassword("password123");
@@ -117,11 +114,9 @@ public class UserServiceImplTest {
         when(userRepository.save(newUser)).thenReturn(savedUser);
         when(userMapper.userToDto(savedUser)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.saveUser(newUser);
+        UserResponseDto result = userService.saveUser(newUser);
 
-        assertEquals(201, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(responseDto, result.getData());
+        assertEquals(responseDto, result);
         verify(userRepository).findUserByEmail(newUser.getEmail());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
         verify(passwordEncoder).encode("password123");
@@ -130,22 +125,21 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void saveUser_WhenUserAlreadyExists_ShouldReturnConflictResponse() {
+    void saveUser_WhenUserAlreadyExists_ShouldThrowResourceAlreadyExistsException() {
         User existingUser = createUser(1L, "John Doe");
         existingUser.setEmail("john.doe@example.com");
 
         when(userRepository.findUserByEmail(existingUser.getEmail())).thenReturn(Optional.of(existingUser));
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.saveUser(existingUser);
-
-        assertEquals(400, result.getCode());
-        assertEquals("USER ALREADY EXISTS", result.getResultMessage());
-        assertNull(result.getData());
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
+                () -> userService.saveUser(existingUser));
+        
+        assertEquals("User already exists with email: " + existingUser.getEmail(), exception.getMessage());
         verify(userRepository).findUserByEmail(existingUser.getEmail());
     }
 
     @Test
-    void updateUser_WhenUserExists_ShouldReturnSuccessResponse() {
+    void updateUser_WhenUserExists_ShouldReturnUpdatedUser() {
         Long userId = 1L;
         User existingUser = createUser(userId, "John Doe");
         User updatedUser = createUser(userId, "John Smith");
@@ -155,71 +149,51 @@ public class UserServiceImplTest {
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
         when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.updateUser(userId, updatedUser);
+        UserResponseDto result = userService.updateUser(userId, updatedUser);
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(responseDto, result.getData());
+        assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
         verify(userRepository).save(any(User.class));
         verify(userMapper).userToDto(updatedUser);
     }
 
     @Test
-    void updateUser_WhenUserDoesNotExist_ShouldReturnNotFoundResponse() {
+    void updateUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
         Long userId = 1L;
         User updatedUser = createUser(userId, "John Smith");
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto<UserResponseDto> result = userService.updateUser(userId, updatedUser);
-
-        assertEquals(404, result.getCode());
-        assertEquals("USER NOT FOUND", result.getResultMessage());
-        assertNull(result.getData());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUser(userId, updatedUser));
+        
+        assertEquals("User not found with id: " + userId, exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 
     @Test
-    void deleteUser_WhenUserExists_ShouldReturnSuccessResponse() {
+    void deleteUser_WhenUserExists_ShouldDeleteUser() {
         Long userId = 1L;
         User existingUser = createUser(userId, "John Doe");
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
-        CrudOperationResponseDto result = userService.deleteUser(userId);
+        userService.deleteUser(userId);
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         verify(userRepository).findUserById(userId);
         verify(userRepository).deleteUserById(userId);
     }
 
     @Test
-    void deleteUser_WhenUserDoesNotExist_ShouldReturnNotFoundResponse() {
+    void deleteUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
         Long userId = 1L;
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto result = userService.deleteUser(userId);
-
-        assertEquals(404, result.getCode());
-        assertEquals("USER NOT FOUND", result.getResultMessage());
-        assertNull(result.getData());
-        verify(userRepository).findUserById(userId);
-    }
-
-    @Test
-    void deleteUser_WhenUserIsNotFound_ShouldReturnNotFoundResponse() {
-        Long userId = 1L;
-
-        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
-
-        CrudOperationResponseDto result = userService.deleteUser(userId);
-
-        assertEquals(404, result.getCode());
-        assertEquals("USER NOT FOUND", result.getResultMessage());
-        assertNull(result.getData());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.deleteUser(userId));
+        
+        assertEquals("User not found with id: " + userId, exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 
@@ -238,7 +212,4 @@ public class UserServiceImplTest {
         dto.setStatus(true);
         return dto;
     }
-
-
-
 }

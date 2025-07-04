@@ -1,11 +1,13 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.ResourceAlreadyExistsException;
+import com.hftamayo.java.todo.exceptions.InvalidRequestException;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,7 @@ public class RolesServiceImplTest {
     private RolesServiceImpl rolesService;
 
     @Test
-    void getRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+    void getRoles_WhenRolesExist_ShouldReturnListOfRoles() {
         List<Roles> rolesList = List.of(
                 createRole(1L, ERole.ROLE_ADMIN),
                 createRole(2L, ERole.ROLE_USER)
@@ -47,56 +49,53 @@ public class RolesServiceImplTest {
         when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
         when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoles();
+        List<RolesResponseDto> result = rolesService.getRoles();
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals(2, result.getDataList().size());
+        assertEquals(2, result.size());
+        assertEquals(responseDtos, result);
         verify(rolesRepository).findAll();
         verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
     }
 
     @Test
-    void getRoleByName_WhenRoleExists_ShouldReturnSuccessResponse() {
+    void getRoleByName_WhenRoleExists_ShouldReturnRole() {
         Roles role = createRole(1L, ERole.ROLE_ADMIN);
         RolesResponseDto responseDto = createRoleDto(1L, "ADMIN");
 
         when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(role));
         when(roleMapper.toRolesResponseDto(role)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoleByName("ROLE_ADMIN");
+        RolesResponseDto result = rolesService.getRoleByName("ROLE_ADMIN");
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals("ADMIN", ((RolesResponseDto)result.getData()).getRoleName());
+        assertEquals("ADMIN", result.getRoleName());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
         verify(roleMapper).toRolesResponseDto(role);
     }
 
     @Test
-    void getRoleByName_WhenRoleDoesNotExist_ShouldReturnNotFoundResponse() {
+    void getRoleByName_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
         when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoleByName("ROLE_ADMIN");
-
-        assertEquals(404, result.getCode());
-        assertEquals("ROLE NOT FOUND", result.getResultMessage());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> rolesService.getRoleByName("ROLE_ADMIN"));
+        
+        assertEquals("Role not found with name: ROLE_ADMIN", exception.getMessage());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
         verifyNoInteractions(roleMapper);
     }
 
     @Test
-    void getRoleByName_WhenRoleNameIsInvalid_ShouldReturnErrorResponse() {
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.getRoleByName("INVALID_ROLE");
-
-        assertEquals(500, result.getCode());
-        assertEquals("INTERNAL SERVER ERROR", result.getResultMessage());
+    void getRoleByName_WhenRoleNameIsInvalid_ShouldThrowInvalidRequestException() {
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class,
+                () -> rolesService.getRoleByName("INVALID_ROLE"));
+        
+        assertEquals("Invalid role name: INVALID_ROLE", exception.getMessage());
         verifyNoInteractions(rolesRepository);
         verifyNoInteractions(roleMapper);
     }
 
     @Test
-    void saveRole_WhenRoleDoesNotExist_ShouldReturnSuccessResponse() {
+    void saveRole_WhenRoleDoesNotExist_ShouldReturnSavedRole() {
         Roles newRole = createRole(1L, ERole.ROLE_ADMIN);
         RolesResponseDto responseDto = createRoleDto(1L, "ADMIN");
 
@@ -104,33 +103,31 @@ public class RolesServiceImplTest {
         when(rolesRepository.save(newRole)).thenReturn(newRole);
         when(roleMapper.toRolesResponseDto(newRole)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.saveRole(newRole);
+        RolesResponseDto result = rolesService.saveRole(newRole);
 
-        assertEquals(201, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals("ADMIN", ((RolesResponseDto)result.getData()).getRoleName());
+        assertEquals("ADMIN", result.getRoleName());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
         verify(rolesRepository).save(newRole);
         verify(roleMapper).toRolesResponseDto(newRole);
     }
 
     @Test
-    void saveRole_WhenRoleExists_ShouldReturnErrorResponse() {
+    void saveRole_WhenRoleExists_ShouldThrowResourceAlreadyExistsException() {
         Roles newRole = createRole(1L, ERole.ROLE_ADMIN);
 
         when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(newRole));
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.saveRole(newRole);
-
-        assertEquals(400, result.getCode());
-        assertEquals("ROLE ALREADY EXISTS", result.getResultMessage());
+        ResourceAlreadyExistsException exception = assertThrows(ResourceAlreadyExistsException.class,
+                () -> rolesService.saveRole(newRole));
+        
+        assertEquals("Role already exists with name: ROLE_ADMIN", exception.getMessage());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
         verifyNoMoreInteractions(rolesRepository);
         verifyNoInteractions(roleMapper);
     }
 
     @Test
-    void updateRole_WhenRoleExists_ShouldReturnSuccessResponse() {
+    void updateRole_WhenRoleExists_ShouldReturnUpdatedRole() {
         Roles existingRole = createRole(1L, ERole.ROLE_ADMIN);
         Roles updatedRole = createRole(1L, ERole.ROLE_USER);
         RolesResponseDto responseDto = createRoleDto(1L, "USER");
@@ -139,53 +136,49 @@ public class RolesServiceImplTest {
         when(rolesRepository.save(any(Roles.class))).thenReturn(existingRole);
         when(roleMapper.toRolesResponseDto(existingRole)).thenReturn(responseDto);
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.updateRole(1L, updatedRole);
+        RolesResponseDto result = rolesService.updateRole(1L, updatedRole);
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
-        assertEquals("USER", ((RolesResponseDto)result.getData()).getRoleName());
+        assertEquals("USER", result.getRoleName());
         verify(rolesRepository).findRolesById(1L);
         verify(rolesRepository).save(any(Roles.class));
         verify(roleMapper).toRolesResponseDto(existingRole);
     }
 
     @Test
-    void updateRole_WhenRoleDoesNotExist_ShouldReturnErrorResponse() {
+    void updateRole_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
         Roles updatedRole = createRole(1L, ERole.ROLE_USER);
 
         when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto<RolesResponseDto> result = rolesService.updateRole(1L, updatedRole);
-
-        assertEquals(500, result.getCode());
-        assertEquals("INTERNAL SERVER ERROR", result.getResultMessage());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> rolesService.updateRole(1L, updatedRole));
+        
+        assertEquals("Role not found with id: 1", exception.getMessage());
         verify(rolesRepository).findRolesById(1L);
         verifyNoMoreInteractions(rolesRepository);
         verifyNoInteractions(roleMapper);
     }
 
     @Test
-    void deleteRole_WhenRoleExists_ShouldReturnSuccessResponse() {
+    void deleteRole_WhenRoleExists_ShouldDeleteRole() {
         Roles existingRole = createRole(1L, ERole.ROLE_ADMIN);
 
         when(rolesRepository.findRolesById(1L)).thenReturn(Optional.of(existingRole));
 
-        CrudOperationResponseDto result = rolesService.deleteRole(1L);
+        rolesService.deleteRole(1L);
 
-        assertEquals(200, result.getCode());
-        assertEquals("OPERATION SUCCESSFUL", result.getResultMessage());
         verify(rolesRepository).findRolesById(1L);
         verify(rolesRepository).deleteRolesById(1L);
     }
 
     @Test
-    void deleteRole_WhenRoleDoesNotExist_ShouldReturnNotFoundResponse() {
+    void deleteRole_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
         when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
 
-        CrudOperationResponseDto result = rolesService.deleteRole(1L);
-
-        assertEquals(404, result.getCode());
-        assertEquals("ROLE NOT FOUND", result.getResultMessage());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> rolesService.deleteRole(1L));
+        
+        assertEquals("Role not found with id: 1", exception.getMessage());
         verify(rolesRepository).findRolesById(1L);
         verifyNoMoreInteractions(rolesRepository);
     }
