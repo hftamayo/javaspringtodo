@@ -5,7 +5,7 @@ import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.repository.UserRepository;
 import org.springframework.stereotype.Component;
-import com.hftamayo.java.todo.exception.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
