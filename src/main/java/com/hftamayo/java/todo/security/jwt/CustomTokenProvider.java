@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -72,7 +73,11 @@ public class CustomTokenProvider {
     }
 
     public String getEmailFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
+        try {
+            return getClaim(token, Claims::getSubject);
+        } catch (Exception e) {
+            throw new AuthenticationException("Invalid token format", e);
+        }
     }
 
     public boolean isTokenValid(String token, String email) {
@@ -86,21 +91,32 @@ public class CustomTokenProvider {
         } catch (ExpiredJwtException e) {
             logger.debug("Token is expired: {}", e.getMessage());
             return false;
+        } catch (AuthenticationException e) {
+            logger.debug("Token validation failed: {}", e.getMessage());
+            return false;
         }
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            throw new AuthenticationException("Failed to parse token claims", e);
+        }
     }
 
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
+        try {
+            final Claims claims = getAllClaimsFromToken(token);
+            return claimsResolver.apply(claims);
+        } catch (Exception e) {
+            throw new AuthenticationException("Failed to extract claim from token", e);
+        }
     }
 
     private Date getExpirationDateFromToken(String token) {
@@ -108,9 +124,13 @@ public class CustomTokenProvider {
     }
 
     public long getRemainingExpirationTime(String token) {
-        Date expirationDate = getExpirationDateFromToken(token);
-        long diffInMillies = Math.abs(expirationDate.getTime() - new Date().getTime());
-        return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        try {
+            Date expirationDate = getExpirationDateFromToken(token);
+            long diffInMillies = Math.abs(expirationDate.getTime() - new Date().getTime());
+            return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            throw new AuthenticationException("Failed to calculate token expiration time", e);
+        }
     }
 
     private boolean isTokenExpired(String token) {
