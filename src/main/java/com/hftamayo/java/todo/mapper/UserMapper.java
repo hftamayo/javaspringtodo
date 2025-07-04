@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import org.springframework.stereotype.Component;
 
