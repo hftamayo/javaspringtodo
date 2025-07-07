@@ -21,6 +21,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -74,123 +77,91 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CrudOperationResponseDto<UserResponseDto> getUsers() {
-        try {
-            List<User> usersList = userRepository.findAll();
-            if (!usersList.isEmpty()) {
-                List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
-            } else {
-                return new CrudOperationResponseDto(404, "NO USERS FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        List<User> usersList = userRepository.findAll();
+        if (!usersList.isEmpty()) {
+            List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+        } else {
+            throw new ResourceNotFoundException("User", "all");
         }
     }
 
     @Override
     public CrudOperationResponseDto<UserResponseDto> getUser(long userId) {
-        try {
-            Optional<User> userOptional = getUserById(userId);
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                UserResponseDto userToDto = userMapper.userToDto(user);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
-            } else {
-                return new CrudOperationResponseDto(404, "USER NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<User> userOptional = getUserById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDto userToDto = userMapper.userToDto(user);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+        } else {
+            throw new ResourceNotFoundException("User", userId);
         }
     }
 
     @Override
     public CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value) {
-        try {
-            Specification<User> specification = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get(criteria), value);
-
-            return searchUserByCriteria(specification);
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
-        }
+        Specification<User> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get(criteria), value);
+        return searchUserByCriteria(specification);
     }
 
     @Override
     public CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
                                                                         String criteria2, String value2) {
-        try {
-            Specification<User> specification = (root, query, criteriaBuilder)
-                    -> criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get(criteria), value),
-                    criteriaBuilder.equal(root.get(criteria2), value2)
-            );
-
-            return searchUserByCriteria(specification);
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
-        }
+        Specification<User> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get(criteria), value),
+                criteriaBuilder.equal(root.get(criteria2), value2)
+        );
+        return searchUserByCriteria(specification);
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto<UserResponseDto> saveUser(User newUser) {
-        try {
-            Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
-            if (!requestedUser.isPresent()) {
-                if (newUser.getRole() == null) {
-                    Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
-                            .orElseThrow(() -> new EntityNotFoundException("Role not found"));
-                    newUser.setRole(defaultRole);
-                }
-                String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
-                newUser.setPassword(encodedPassword);
-                User savedUser = userRepository.save(newUser);
-                UserResponseDto userToDto = userMapper.userToDto(savedUser);
-                return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", userToDto);
-            } else {
-                return new CrudOperationResponseDto(400, "USER ALREADY EXISTS");
+        Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
+        if (!requestedUser.isPresent()) {
+            if (newUser.getRole() == null) {
+                Roles defaultRole = rolesRepository.findByRoleEnum(ERole.ROLE_USER)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role", ERole.ROLE_USER.name()));
+                newUser.setRole(defaultRole);
             }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+            String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
+            newUser.setPassword(encodedPassword);
+            User savedUser = userRepository.save(newUser);
+            UserResponseDto userToDto = userMapper.userToDto(savedUser);
+            return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", userToDto);
+        } else {
+            throw DuplicateResourceException.withFieldValue("email", newUser.getEmail());
         }
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser) {
-        try {
-            Optional<User> requestedUserOptional = getUserById(userId);
-            if (requestedUserOptional.isPresent()) {
-                User existingUser = getExistingUser(updatedUser, requestedUserOptional);
-
-                User savedUser = userRepository.save(existingUser);
-                UserResponseDto userToDto = userMapper.userToDto(savedUser);
-
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
-            } else {
-                return new CrudOperationResponseDto(404, "USER NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            User existingUser = getExistingUser(updatedUser, requestedUserOptional);
+            User savedUser = userRepository.save(existingUser);
+            UserResponseDto userToDto = userMapper.userToDto(savedUser);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+        } else {
+            throw new ResourceNotFoundException("User", userId);
         }
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status) {
-        try {
-            Optional<User> requestedUserOptional = getUserById(userId);
-            if (requestedUserOptional.isPresent()) {
-                User existingUser = requestedUserOptional.get();
-                existingUser.setStatus(status);
-                User savedUser = userRepository.save(existingUser);
-                UserResponseDto userToDto = userMapper.userToDto(savedUser);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
-            } else {
-                return new CrudOperationResponseDto(404, "USER NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            User existingUser = requestedUserOptional.get();
+            existingUser.setStatus(status);
+            User savedUser = userRepository.save(existingUser);
+            UserResponseDto userToDto = userMapper.userToDto(savedUser);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+        } else {
+            throw new ResourceNotFoundException("User", userId);
         }
     }
 
@@ -198,42 +169,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public CrudOperationResponseDto<UserResponseDto>
     updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
-        try {
-            Optional<User> requestedUserOptional = getUserById(userId);
-            if (requestedUserOptional.isPresent()) {
-                User existingUser = requestedUserOptional.get();
-                existingUser.setStatus(status);
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            User existingUser = requestedUserOptional.get();
+            existingUser.setStatus(status);
 
-                Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
-                if (!roleOptional.isPresent()) {
-                    return new CrudOperationResponseDto(401, "ROLE NOT FOUND");
-                }
-                existingUser.setRole(roleOptional.get());
-                User savedUser = userRepository.save(existingUser);
-                UserResponseDto userToDto = userMapper.userToDto(savedUser);
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
-            } else {
-                return new CrudOperationResponseDto(404, "USER NOT FOUND");
+            Optional<Roles> roleOptional = rolesRepository.findByRoleEnum(ERole.valueOf(roleEnum));
+            if (!roleOptional.isPresent()) {
+                throw new ResourceNotFoundException("Role", roleEnum);
             }
-
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+            existingUser.setRole(roleOptional.get());
+            User savedUser = userRepository.save(existingUser);
+            UserResponseDto userToDto = userMapper.userToDto(savedUser);
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+        } else {
+            throw new ResourceNotFoundException("User", userId);
         }
     }
 
     @Transactional
     @Override
     public CrudOperationResponseDto deleteUser(long userId) {
-        try {
-            Optional<User> requestedUserOptional = getUserById(userId);
-            if (requestedUserOptional.isPresent()) {
-                userRepository.deleteUserById(requestedUserOptional.get().getId());
-                return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
-            } else {
-                return new CrudOperationResponseDto(404, "USER NOT FOUND");
-            }
-        } catch (Exception e) {
-            return new CrudOperationResponseDto(500, "INTERNAL SERVER ERROR");
+        Optional<User> requestedUserOptional = getUserById(userId);
+        if (requestedUserOptional.isPresent()) {
+            userRepository.deleteUserById(requestedUserOptional.get().getId());
+            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
+        } else {
+            throw new ResourceNotFoundException("User", userId);
         }
     }
 
