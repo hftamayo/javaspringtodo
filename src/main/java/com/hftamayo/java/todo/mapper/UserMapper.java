@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +54,7 @@ public class UserMapper {
 
     private Roles getRoleByName(String role) {
         return rolesRepository.findByRoleEnum(ERole.valueOf(role))
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Role", role));
     }
 
     public UserResponseDto userToDto(User user) {

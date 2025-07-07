@@ -4,14 +4,12 @@ import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;

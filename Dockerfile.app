@@ -49,9 +49,9 @@ VOLUME ["/logs", "/resources"]
 
 # Habilitar health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD wget -q --spider http://localhost:8011/api/health/app || exit 1
+  CMD wget -q --spider http://localhost:8080/api/health/app || exit 1
 
-EXPOSE 8011
+EXPOSE 8080
 
 # Cambiar al usuario no-root
 USER appuser
@@ -60,7 +60,7 @@ USER appuser
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+OptimizeStringConcat -XX:+UseStringDeduplication"
 
 # Ejecutar la aplicación
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher --spring.config.location=file:/resources/application-docker.yml --spring.profiles.active=docker"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher"]
 
 #how to run this file:
 #multiplatform image
@@ -71,3 +71,4 @@ ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLaun
 #docker buildx build --no-cache --platform linux/amd64 -t hftamayo/jsbtodo:0.1.3-experimental -f Dockerfile.app .
 
 #docker run -d --name jsbtodo --network developer_network -p 8011:8011 -v $(pwd)/src/main/resources:/resources hftamayo/jsbtodo:0.1.3-experimental
+#docker run -d --name jsbtodo --network developer_network -p 8011:8080 --env-file .env hftamayo/jsbtodo:0.1.3-experimental
