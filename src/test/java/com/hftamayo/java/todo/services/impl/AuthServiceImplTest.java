@@ -91,7 +91,7 @@ class AuthServiceImplTest {
         // Act & Assert
         AuthenticationException exception = assertThrows(AuthenticationException.class,
                 () -> authService.login(loginRequest));
-        assertEquals("Invalid email or password", exception.getMessage());
+        assertEquals("Invalid username or password", exception.getMessage());
     }
 
     @Test

@@ -90,7 +90,7 @@ public class UserServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> userService.getUser(userId));
         
-        assertEquals("User not found with id: " + userId, exception.getMessage());
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 
@@ -134,7 +134,7 @@ public class UserServiceImplTest {
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> userService.saveUser(existingUser));
         
-        assertEquals("User already exists with email: " + existingUser.getEmail(), exception.getMessage());
+        assertEquals("Resource with email '" + existingUser.getEmail() + "' already exists", exception.getMessage());
         verify(userRepository).findUserByEmail(existingUser.getEmail());
     }
 
@@ -167,7 +167,7 @@ public class UserServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> userService.updateUser(userId, updatedUser));
         
-        assertEquals("User not found with id: " + userId, exception.getMessage());
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 
@@ -193,7 +193,7 @@ public class UserServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> userService.deleteUser(userId));
         
-        assertEquals("User not found with id: " + userId, exception.getMessage());
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
     }
 

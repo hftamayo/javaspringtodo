@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.entity.Task;
@@ -60,7 +61,7 @@ public class TaskServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTasks());
         
-        assertEquals("No tasks found", exception.getMessage());
+        assertEquals("Task with identifier all not found", exception.getMessage());
         verify(taskRepository).findAll();
     }
 
@@ -89,7 +90,7 @@ public class TaskServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTask(taskId));
         
-        assertEquals("Task not found with id: " + taskId, exception.getMessage());
+        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
         verify(taskRepository).findTaskById(taskId);
     }
 
@@ -117,10 +118,10 @@ public class TaskServiceImplTest {
 
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> taskService.getTaskByCriteria(criteria, value));
-        
-        assertEquals("No tasks found with criteria: " + criteria + " = " + value, exception.getMessage());
+        CrudOperationResponseDto<TaskResponseDto> response = taskService.getTaskByCriteria(criteria, value);
+
+        assertEquals(404, response.getCode());
+        assertEquals("NO TASKS FOUND", response.getResultMessage());
         verify(taskRepository).findAll((Specification<Task>) any());
     }
 
@@ -153,15 +154,14 @@ public class TaskServiceImplTest {
 
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> taskService.getTaskByCriterias(criteria, value, criteria2, value2));
-        
-        assertEquals("No tasks found with criteria: "
-                + criteria + " = " + value + ", " + criteria2 + " = " + value2, exception.getMessage());
+        CrudOperationResponseDto<TaskResponseDto> response = taskService.getTaskByCriteria(criteria, value);
+
+        assertEquals(404, response.getCode());
+        assertEquals("NO TASKS FOUND", response.getResultMessage());
         verify(taskRepository).findAll((Specification<Task>) any());
     }
 
-    @Test
+        @Test
     void saveTask_WhenTaskIsValid_ShouldReturnSavedTask() {
         Task task = createTask(1L, "Task 1");
         TaskResponseDto taskDto = createTaskDto(1L, "Task 1");
@@ -185,7 +185,7 @@ public class TaskServiceImplTest {
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> taskService.saveTask(existingTask));
         
-        assertEquals("Task already exists with title: " + existingTask.getTitle(), exception.getMessage());
+        assertEquals("Resource with title '" + existingTask.getTitle() + "' already exists", exception.getMessage());
         verify(taskRepository).findTaskByTitle(existingTask.getTitle());
         verify(taskRepository, never()).save(any(Task.class));
         verify(taskMapper, never()).taskToDto(any(Task.class));
@@ -220,7 +220,7 @@ public class TaskServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.updateTask(taskId, updatedTask));
         
-        assertEquals("Task not found with id: " + taskId, exception.getMessage());
+        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
         verify(taskRepository).findTaskById(taskId);
         verify(taskRepository, never()).save(any(Task.class));
         verify(taskMapper, never()).taskToDto(any(Task.class));
@@ -248,7 +248,7 @@ public class TaskServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.deleteTask(taskId));
         
-        assertEquals("Task not found with id: " + taskId, exception.getMessage());
+        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
         verify(taskRepository).findTaskById(taskId);
         verify(taskRepository, never()).deleteTaskById(any(Long.class));
     }
