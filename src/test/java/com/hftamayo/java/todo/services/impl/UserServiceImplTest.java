@@ -56,7 +56,7 @@ public class UserServiceImplTest {
         when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
         when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
-        List<UserResponseDto> result = userService.getUsers();
+        List<UserResponseDto> result = userService.getUsers().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
@@ -74,7 +74,7 @@ public class UserServiceImplTest {
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
         when(userMapper.userToDto(user)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.getUser(userId);
+        UserResponseDto result = userService.getUser(userId).getData();
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
@@ -114,7 +114,7 @@ public class UserServiceImplTest {
         when(userRepository.save(newUser)).thenReturn(savedUser);
         when(userMapper.userToDto(savedUser)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.saveUser(newUser);
+        UserResponseDto result = userService.saveUser(newUser).getData();
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserByEmail(newUser.getEmail());
@@ -149,7 +149,7 @@ public class UserServiceImplTest {
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
         when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.updateUser(userId, updatedUser);
+        UserResponseDto result = userService.updateUser(userId, updatedUser).getData();
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);

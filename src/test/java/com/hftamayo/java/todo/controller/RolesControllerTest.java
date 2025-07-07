@@ -2,6 +2,7 @@ package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
+import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.ValidationException;
@@ -113,7 +114,8 @@ class RolesControllerTest {
     @Test
     void saveRole_WhenDuplicateRole_ShouldThrowDuplicateResourceException() {
         Roles role = new Roles();
-        role.setName("ROLE_ADMIN");
+        role.setRoleEnum(ERole.valueOf("ROLE_ADMIN"));
+        when(rolesService.getRoleByName(String.valueOf(role.getRoleEnum()))).thenReturn(new CrudOperationResponseDto<>());
         when(rolesService.saveRole(role)).thenThrow(new DuplicateResourceException("Role already exists"));
 
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, 

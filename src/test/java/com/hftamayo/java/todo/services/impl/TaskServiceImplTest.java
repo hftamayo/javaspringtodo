@@ -5,13 +5,12 @@ import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
-import com.hftamayo.java.todo.exceptions.ResourceAlreadyExistsException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
@@ -46,7 +45,7 @@ public class TaskServiceImplTest {
         when(taskMapper.taskToDto(any(Task.class)))
                 .thenReturn(responseDtos.get(0), responseDtos.get(1));
 
-        List<TaskResponseDto> result = taskService.getTasks();
+        List<TaskResponseDto> result = taskService.getTasks().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
@@ -74,7 +73,7 @@ public class TaskServiceImplTest {
         when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        TaskResponseDto result = taskService.getTask(taskId);
+        TaskResponseDto result = taskService.getTask(taskId).getData();
 
         assertEquals(responseDto, result);
         verify(taskRepository).findTaskById(taskId);
@@ -104,7 +103,7 @@ public class TaskServiceImplTest {
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        List<TaskResponseDto> result = taskService.getTaskByCriteria(criteria, value);
+        List<TaskResponseDto> result = taskService.getTaskByCriteria(criteria, value).getDataList();
 
         assertEquals(List.of(responseDto), result);
         verify(taskRepository).findAll((Specification<Task>) any());
@@ -137,7 +136,8 @@ public class TaskServiceImplTest {
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        List<TaskResponseDto> result = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
+        List<TaskResponseDto> result = taskService
+                .getTaskByCriterias(criteria, value, criteria2, value2).getDataList();
 
         assertEquals(List.of(responseDto), result);
         verify(taskRepository).findAll((Specification<Task>) any());
@@ -156,7 +156,8 @@ public class TaskServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTaskByCriterias(criteria, value, criteria2, value2));
         
-        assertEquals("No tasks found with criteria: " + criteria + " = " + value + ", " + criteria2 + " = " + value2, exception.getMessage());
+        assertEquals("No tasks found with criteria: "
+                + criteria + " = " + value + ", " + criteria2 + " = " + value2, exception.getMessage());
         verify(taskRepository).findAll((Specification<Task>) any());
     }
 
@@ -168,7 +169,7 @@ public class TaskServiceImplTest {
         when(taskRepository.save(task)).thenReturn(task);
         when(taskMapper.taskToDto(task)).thenReturn(taskDto);
 
-        TaskResponseDto result = taskService.saveTask(task);
+        TaskResponseDto result = taskService.saveTask(task).getData();
 
         assertEquals(taskDto, result);
         verify(taskRepository).save(task);
@@ -181,7 +182,7 @@ public class TaskServiceImplTest {
 
         when(taskRepository.findTaskByTitle(existingTask.getTitle())).thenReturn(Optional.of(existingTask));
 
-        ResourceAlreadyExistsException exception = assertThrows(ResourceAlreadyExistsException.class,
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> taskService.saveTask(existingTask));
         
         assertEquals("Task already exists with title: " + existingTask.getTitle(), exception.getMessage());
@@ -201,7 +202,7 @@ public class TaskServiceImplTest {
         when(taskRepository.save(updatedTask)).thenReturn(updatedTask);
         when(taskMapper.taskToDto(updatedTask)).thenReturn(taskDto);
 
-        TaskResponseDto result = taskService.updateTask(taskId, updatedTask);
+        TaskResponseDto result = taskService.updateTask(taskId, updatedTask).getData();
 
         assertEquals(taskDto, result);
         verify(taskRepository).findTaskById(taskId);

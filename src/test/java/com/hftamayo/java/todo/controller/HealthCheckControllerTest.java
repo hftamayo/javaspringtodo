@@ -1,13 +1,10 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.health.AppHealthDto;
-import com.hftamayo.java.todo.dto.health.DatabaseHealthDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,15 +39,12 @@ class HealthCheckControllerTest {
 
     @Test
     void checkAppHealth_WhenApplicationIsRunning_ShouldReturnOkStatus() {
-        ResponseEntity<AppHealthDto> response = healthCheckController.checkAppHealth();
+        ResponseEntity<String> response = healthCheckController.checkAppHealth();
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
-                () -> assertNotNull(response.getBody()),
-                () -> assertNotNull(response.getBody().getTimestamp()),
-                () -> assertTrue(response.getBody().getUptime() > 0),
-                () -> assertNotNull(response.getBody().getMemoryUsage()),
-                () -> assertTrue(response.getBody().getStartTime() > 0)
+                () -> assertTrue(response.getBody().contains("HealthCheck: Application is up and running")),
+                () -> assertTrue(response.getBody().contains("Timestamp:"))
         );
     }
 
@@ -60,15 +54,13 @@ class HealthCheckControllerTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.isValid(5)).thenReturn(true);
 
-        ResponseEntity<DatabaseHealthDto> response = healthCheckController.checkDbHealth();
+        ResponseEntity<String> response = healthCheckController.checkDbHealth();
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
-                () -> assertNotNull(response.getBody()),
-                () -> assertNotNull(response.getBody().getTimestamp()),
-                () -> assertTrue(response.getBody().getConnectionTime() >= 0),
-                () -> assertEquals("healthy", response.getBody().getDatabaseStatus()),
-                () -> verify(connection).isValid(5),
+                () -> assertTrue(response.getBody().contains("HealthCheck: The connection to the data layer is up and running")),
+                () -> assertTrue(response.getBody().contains("Timestamp:")),
+                () -> verify(connection).close(),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
         );
@@ -80,14 +72,13 @@ class HealthCheckControllerTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.isValid(5)).thenReturn(false);
 
-        ResponseEntity<DatabaseHealthDto> response = healthCheckController.checkDbHealth();
+        ResponseEntity<String> response = healthCheckController.checkDbHealth();
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
                 () -> assertNotNull(response.getBody()),
-                () -> assertNotNull(response.getBody().getTimestamp()),
-                () -> assertTrue(response.getBody().getConnectionTime() >= 0),
-                () -> assertEquals("unhealthy", response.getBody().getDatabaseStatus()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("unhealthy", response.getBody()),
                 () -> verify(connection).isValid(5),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
@@ -99,14 +90,15 @@ class HealthCheckControllerTest {
         when(jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(dataSource.getConnection()).thenThrow(new SQLException("Database connection error"));
 
-        ResponseEntity<DatabaseHealthDto> response = healthCheckController.checkDbHealth();
+        ResponseEntity<String> response = healthCheckController.checkDbHealth();
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
                 () -> assertNotNull(response.getBody()),
-                () -> assertNotNull(response.getBody().getTimestamp()),
-                () -> assertTrue(response.getBody().getConnectionTime() >= 0),
-                () -> assertEquals("unhealthy", response.getBody().getDatabaseStatus()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertTrue(response.getBody()
+                        .contains("HealthCheck: The connection to the data layer is unhealthy")),
+                () -> assertEquals("unhealthy", response.getBody()),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
         );

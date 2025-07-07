@@ -6,8 +6,8 @@ import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
-import com.hftamayo.java.todo.exceptions.ResourceAlreadyExistsException;
-import com.hftamayo.java.todo.exceptions.InvalidRequestException;
+import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
+import com.hftamayo.java.todo.exceptions.ValidationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class RolesServiceImplTest {
         when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
         when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
 
-        List<RolesResponseDto> result = rolesService.getRoles();
+        List<RolesResponseDto> result = rolesService.getRoles().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
@@ -65,7 +65,7 @@ public class RolesServiceImplTest {
         when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(role));
         when(roleMapper.toRolesResponseDto(role)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.getRoleByName("ROLE_ADMIN");
+        RolesResponseDto result = rolesService.getRoleByName("ROLE_ADMIN").getData();
 
         assertEquals("ADMIN", result.getRoleName());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
@@ -86,7 +86,7 @@ public class RolesServiceImplTest {
 
     @Test
     void getRoleByName_WhenRoleNameIsInvalid_ShouldThrowInvalidRequestException() {
-        InvalidRequestException exception = assertThrows(InvalidRequestException.class,
+        ValidationException exception = assertThrows(ValidationException.class,
                 () -> rolesService.getRoleByName("INVALID_ROLE"));
         
         assertEquals("Invalid role name: INVALID_ROLE", exception.getMessage());
@@ -103,7 +103,7 @@ public class RolesServiceImplTest {
         when(rolesRepository.save(newRole)).thenReturn(newRole);
         when(roleMapper.toRolesResponseDto(newRole)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.saveRole(newRole);
+        RolesResponseDto result = rolesService.saveRole(newRole).getData();
 
         assertEquals("ADMIN", result.getRoleName());
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
@@ -117,7 +117,7 @@ public class RolesServiceImplTest {
 
         when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(newRole));
 
-        ResourceAlreadyExistsException exception = assertThrows(ResourceAlreadyExistsException.class,
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> rolesService.saveRole(newRole));
         
         assertEquals("Role already exists with name: ROLE_ADMIN", exception.getMessage());
@@ -136,7 +136,7 @@ public class RolesServiceImplTest {
         when(rolesRepository.save(any(Roles.class))).thenReturn(existingRole);
         when(roleMapper.toRolesResponseDto(existingRole)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.updateRole(1L, updatedRole);
+        RolesResponseDto result = rolesService.updateRole(1L, updatedRole).getData();
 
         assertEquals("USER", result.getRoleName());
         verify(rolesRepository).findRolesById(1L);
