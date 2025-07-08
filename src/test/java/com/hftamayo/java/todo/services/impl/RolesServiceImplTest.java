@@ -8,6 +8,11 @@ import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.exceptions.ValidationException;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -181,6 +186,56 @@ public class RolesServiceImplTest {
         assertEquals("Role with id 1 not found", exception.getMessage());
         verify(rolesRepository).findRolesById(1L);
         verifyNoMoreInteractions(rolesRepository);
+    }
+
+    @Test
+    void getPaginatedRoles_WhenRolesExist_ShouldReturnPaginatedRoles() {
+        List<Roles> rolesList = List.of(
+            createRole(1L, ERole.ROLE_ADMIN),
+            createRole(2L, ERole.ROLE_USER)
+        );
+        List<RolesResponseDto> responseDtos = List.of(
+            createRoleDto(1L, "ADMIN"),
+            createRoleDto(2L, "USER")
+        );
+        Page<Roles> rolesPage = new PageImpl<>(rolesList, PageRequest.of(0, 2), 2);
+
+        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
+        when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
+        when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals(0, result.getPage());
+        assertEquals(2, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isLast());
+        assertEquals(responseDtos, result.getContent());
+        verify(rolesRepository).findAll(any(PageRequest.class));
+        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
+    }
+
+    @Test
+    void getPaginatedRoles_WhenNoRolesExist_ShouldReturnEmptyPage() {
+        List<Roles> rolesList = List.of();
+        Page<Roles> rolesPage = new PageImpl<>(rolesList, PageRequest.of(0, 2), 0);
+
+        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+
+        assertEquals(0, result.getContent().size());
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getTotalPages());
+        assertTrue(result.isLast());
+        verify(rolesRepository).findAll(any(PageRequest.class));
+        verifyNoInteractions(roleMapper);
     }
 
     //helper methods

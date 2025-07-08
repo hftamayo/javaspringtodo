@@ -18,6 +18,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
 
 @ExtendWith(MockitoExtension.class)
 class RolesControllerTest {
@@ -186,5 +188,55 @@ class RolesControllerTest {
         
         assertEquals("Role not found with id: 999", exception.getMessage());
         verify(rolesService).deleteRole(roleId);
+    }
+
+    @Test
+    void getPaginatedRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of(new RolesResponseDto()));
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(1);
+        expectedResponse.setTotalPages(1);
+        expectedResponse.setLast(true);
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        when(rolesService.getPaginatedRoles(pageRequestDto)).thenReturn(expectedResponse);
+
+        PageResponseDto<RolesResponseDto> response = rolesController.getPaginatedRoles(pageRequestDto);
+
+        assertAll(
+                () -> assertEquals(1, response.getContent().size()),
+                () -> assertEquals(0, response.getPage()),
+                () -> assertEquals(2, response.getSize()),
+                () -> assertEquals(1, response.getTotalElements()),
+                () -> assertEquals(1, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> verify(rolesService).getPaginatedRoles(pageRequestDto)
+        );
+    }
+
+    @Test
+    void getPaginatedRoles_WhenNoRolesExist_ShouldReturnEmptyPage() {
+        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of());
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(0);
+        expectedResponse.setTotalPages(0);
+        expectedResponse.setLast(true);
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        when(rolesService.getPaginatedRoles(pageRequestDto)).thenReturn(expectedResponse);
+
+        PageResponseDto<RolesResponseDto> response = rolesController.getPaginatedRoles(pageRequestDto);
+
+        assertAll(
+                () -> assertEquals(0, response.getContent().size()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> verify(rolesService).getPaginatedRoles(pageRequestDto)
+        );
     }
 }
