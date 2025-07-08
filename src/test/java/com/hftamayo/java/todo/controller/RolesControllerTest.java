@@ -115,7 +115,6 @@ class RolesControllerTest {
     void saveRole_WhenDuplicateRole_ShouldThrowDuplicateResourceException() {
         Roles role = new Roles();
         role.setRoleEnum(ERole.valueOf("ROLE_ADMIN"));
-        when(rolesService.getRoleByName(String.valueOf(role.getRoleEnum()))).thenReturn(new CrudOperationResponseDto<>());
         when(rolesService.saveRole(role)).thenThrow(new DuplicateResourceException("Role already exists"));
 
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, 

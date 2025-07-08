@@ -67,11 +67,13 @@ class AuthControllerTest {
 
         when(authService.login(loginRequest)).thenThrow(new AuthenticationException("Invalid credentials"));
 
-        AuthenticationException exception = assertThrows(AuthenticationException.class, 
-            () -> authController.authenticate(loginRequest));
-        
-        assertEquals("Invalid credentials", exception.getMessage());
-        verify(authService).login(loginRequest);
+        ResponseEntity<String> response = authController.authenticate(loginRequest);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode()),
+                () -> assertEquals("LOGIN_INVALID_CREDENTIALS", response.getBody()),
+                () -> verify(authService).login(loginRequest)
+        );
     }
 
     @Test
