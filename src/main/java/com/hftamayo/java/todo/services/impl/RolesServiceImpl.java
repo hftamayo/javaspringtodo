@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +76,26 @@ public class RolesServiceImpl implements RolesService {
         } else {
             throw new ResourceNotFoundException("Role", name);
         }
+    }
+
+    @Override
+    public PageResponseDto<RolesResponseDto> getPaginatedRoles(PageRequestDto pageRequestDto) {
+        Pageable pageable = PageRequest.of(
+            pageRequestDto.getPage(),
+            pageRequestDto.getSize()
+        );
+        Page<Roles> rolesPage = rolesRepository.findAll(pageable);
+        List<RolesResponseDto> content = rolesPage.getContent().stream()
+            .map(roleMapper::toRolesResponseDto)
+            .toList();
+        return new PageResponseDto<>(
+            content,
+            rolesPage.getNumber(),
+            rolesPage.getSize(),
+            rolesPage.getTotalElements(),
+            rolesPage.getTotalPages(),
+            rolesPage.isLast()
+        );
     }
 
     @Transactional
