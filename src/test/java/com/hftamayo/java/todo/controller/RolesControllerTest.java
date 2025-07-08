@@ -31,25 +31,6 @@ class RolesControllerTest {
     private RolesController rolesController;
 
     @Test
-    void getRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
-        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setDataList(List.of(new RolesResponseDto()));
-
-        when(rolesService.getRoles()).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<RolesResponseDto> response = rolesController.getRoles();
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, response.getDataList().size()),
-                () -> verify(rolesService).getRoles()
-        );
-    }
-
-    @Test
     void getRoleByName_WhenRoleExists_ShouldReturnSuccessResponse() {
         String roleName = "ROLE_ADMIN";
         CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
@@ -191,7 +172,7 @@ class RolesControllerTest {
     }
 
     @Test
-    void getPaginatedRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+    void getRoles_WhenRolesExist_ShouldReturnPaginatedResponse() {
         PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
         expectedResponse.setContent(List.of(new RolesResponseDto()));
         expectedResponse.setPage(0);
@@ -200,10 +181,12 @@ class RolesControllerTest {
         expectedResponse.setTotalPages(1);
         expectedResponse.setLast(true);
 
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-        when(rolesService.getPaginatedRoles(pageRequestDto)).thenReturn(expectedResponse);
+        int page = 0;
+        int size = 2;
+        String sort = null;
+        when(rolesService.getPaginatedRoles(new PageRequestDto(page, size, sort))).thenReturn(expectedResponse);
 
-        PageResponseDto<RolesResponseDto> response = rolesController.getPaginatedRoles(pageRequestDto);
+        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
 
         assertAll(
                 () -> assertEquals(1, response.getContent().size()),
@@ -212,12 +195,12 @@ class RolesControllerTest {
                 () -> assertEquals(1, response.getTotalElements()),
                 () -> assertEquals(1, response.getTotalPages()),
                 () -> assertTrue(response.isLast()),
-                () -> verify(rolesService).getPaginatedRoles(pageRequestDto)
+                () -> verify(rolesService).getPaginatedRoles(new PageRequestDto(page, size, sort))
         );
     }
 
     @Test
-    void getPaginatedRoles_WhenNoRolesExist_ShouldReturnEmptyPage() {
+    void getRoles_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
         PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
         expectedResponse.setContent(List.of());
         expectedResponse.setPage(0);
@@ -226,17 +209,19 @@ class RolesControllerTest {
         expectedResponse.setTotalPages(0);
         expectedResponse.setLast(true);
 
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-        when(rolesService.getPaginatedRoles(pageRequestDto)).thenReturn(expectedResponse);
+        int page = 0;
+        int size = 2;
+        String sort = null;
+        when(rolesService.getPaginatedRoles(new PageRequestDto(page, size, sort))).thenReturn(expectedResponse);
 
-        PageResponseDto<RolesResponseDto> response = rolesController.getPaginatedRoles(pageRequestDto);
+        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
 
         assertAll(
                 () -> assertEquals(0, response.getContent().size()),
                 () -> assertEquals(0, response.getTotalElements()),
                 () -> assertEquals(0, response.getTotalPages()),
                 () -> assertTrue(response.isLast()),
-                () -> verify(rolesService).getPaginatedRoles(pageRequestDto)
+                () -> verify(rolesService).getPaginatedRoles(new PageRequestDto(page, size, sort))
         );
     }
 }
