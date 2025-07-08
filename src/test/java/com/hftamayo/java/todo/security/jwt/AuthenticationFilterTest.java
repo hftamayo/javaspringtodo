@@ -52,7 +52,7 @@ class AuthenticationFilterTest {
         SecurityContextHolder.clearContext();
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
-        when(response.getWriter()).thenReturn(writer);
+        lenient().when(response.getWriter()).thenReturn(writer);
     }
 
     @Test
