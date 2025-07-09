@@ -8,12 +8,8 @@ import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.services.RolesService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -25,7 +21,7 @@ public class RolesController {
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<RolesResponseDto> getRoles(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
             @RequestParam(required = false) String sort) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
         return rolesService.getPaginatedRoles(pageRequestDto);
