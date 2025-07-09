@@ -213,10 +213,82 @@ public class RolesServiceImplTest {
         assertEquals(2, result.getSize());
         assertEquals(2, result.getTotalElements());
         assertEquals(1, result.getTotalPages());
-        assertFalse(result.isLast());
+        assertTrue(result.isLast());
         assertEquals(responseDtos, result.getContent());
         verify(rolesRepository).findAll(any(PageRequest.class));
         verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
+    }
+
+    @Test
+    void getPaginatedRoles_WhenMultiplePages_ShouldReturnFirstPageWithCorrectMetadata() {
+        // Arrange
+        List<Roles> firstPageRoles = List.of(
+                createRole(1L, ERole.ROLE_ADMIN),
+                createRole(2L, ERole.ROLE_USER)
+        );
+        List<RolesResponseDto> firstPageDtos = List.of(
+                createRoleDto(1L, "ADMIN"),
+                createRoleDto(2L, "USER")
+        );
+
+        // Creamos una página con 2 elementos, pero indicamos que hay 5 elementos en total
+        // Esto significa que habrá 3 páginas en total (5 elementos / 2 por página = 3 páginas)
+        Page<Roles> rolesPage = new PageImpl<>(firstPageRoles, PageRequest.of(0, 2), 5);
+
+        // Configuramos los mocks
+        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
+        when(roleMapper.toRolesResponseDto(firstPageRoles.get(0))).thenReturn(firstPageDtos.get(0));
+        when(roleMapper.toRolesResponseDto(firstPageRoles.get(1))).thenReturn(firstPageDtos.get(1));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        // Act
+        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+        assertEquals(0, result.getPage()); // Primera página (índice 0)
+        assertEquals(2, result.getSize()); // 2 elementos por página
+        assertEquals(5, result.getTotalElements()); // 5 elementos en total
+        assertEquals(3, result.getTotalPages()); // 3 páginas en total
+        assertFalse(result.isLast()); // No es la última página
+        assertEquals(firstPageDtos, result.getContent());
+
+        verify(rolesRepository).findAll(any(PageRequest.class));
+        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
+    }
+
+    @Test
+    void getPaginatedRoles_WhenOnLastPage_ShouldIndicateIsLastPage() {
+        // Arrange
+        List<Roles> lastPageRoles = List.of(
+                createRole(5L, ERole.ROLE_ADMIN)
+        );
+        List<RolesResponseDto> lastPageDtos = List.of(
+                createRoleDto(5L, "ADMIN")
+        );
+
+        // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
+        Page<Roles> rolesPage = new PageImpl<>(lastPageRoles, PageRequest.of(2, 2), 5);
+
+        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
+        when(roleMapper.toRolesResponseDto(lastPageRoles.get(0))).thenReturn(lastPageDtos.get(0));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
+
+        // Act
+        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+
+        // Assert
+        assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
+        assertEquals(2, result.getPage()); // Tercera página (índice 2)
+        assertEquals(2, result.getSize());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(3, result.getTotalPages());
+        assertTrue(result.isLast()); // Es la última página
+
+        verify(rolesRepository).findAll(any(PageRequest.class));
+        verify(roleMapper).toRolesResponseDto(any(Roles.class));
     }
 
     @Test
