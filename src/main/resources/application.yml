@@ -35,7 +35,7 @@ seed:
     password: ${USER2_PASSWORD}
 
 pagination:
-  default-page-size: 10
+  default-page-size: 5
   max-page-size: 100
 
 # Common test user configuration
