@@ -11,10 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import com.hftamayo.java.todo.utilities.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -78,7 +81,7 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public PageResponseDto<RolesResponseDto> getPaginatedRoles(PageRequestDto pageRequestDto) {
+    public PaginatedDataDto<RolesResponseDto> getPaginatedRoles(PageRequestDto pageRequestDto) {
         Pageable pageable = PageRequest.of(
             pageRequestDto.getPage(),
             pageRequestDto.getSize()
@@ -87,14 +90,10 @@ public class RolesServiceImpl implements RolesService {
         List<RolesResponseDto> content = rolesPage.getContent().stream()
             .map(roleMapper::toRolesResponseDto)
             .toList();
-        return new PageResponseDto<>(
-            content,
-            rolesPage.getNumber(),
-            rolesPage.getSize(),
-            rolesPage.getTotalElements(),
-            rolesPage.getTotalPages(),
-            rolesPage.isLast()
-        );
+        
+        CursorPaginationDto pagination = PaginationUtils.toCursorPagination(rolesPage, pageRequestDto.getSort());
+        
+        return new PaginatedDataDto<>(content, pagination);
     }
 
     @Transactional
