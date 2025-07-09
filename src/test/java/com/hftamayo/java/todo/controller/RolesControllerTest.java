@@ -22,8 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
-import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
 
 @ExtendWith(MockitoExtension.class)
 class RolesControllerTest {
@@ -177,24 +176,20 @@ class RolesControllerTest {
 
     @Test
     void getRoles_WhenRolesExist_ShouldReturnPaginatedResponse() {
-        PaginatedDataDto<RolesResponseDto> expectedResponse = new PaginatedDataDto<>();
+        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
         expectedResponse.setContent(List.of(new RolesResponseDto()));
-        
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setLimit(2);
-        pagination.setTotalCount(1);
-        pagination.setCurrentPage(1);
-        pagination.setTotalPages(1);
-        pagination.setLastPage(true);
-        pagination.setHasMore(false);
-        expectedResponse.setPagination(pagination);
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(1);
+        expectedResponse.setTotalPages(1);
+        expectedResponse.setLast(true);
 
         int page = 0;
         int size = 2;
         String sort = null;
         when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(expectedResponse);
 
-        PaginatedDataDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
+        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
 
         ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
 
@@ -204,11 +199,11 @@ class RolesControllerTest {
 
         assertAll(
                 () -> assertEquals(1, response.getContent().size()),
-                () -> assertEquals(1, response.getPagination().getCurrentPage()),
-                () -> assertEquals(2, response.getPagination().getLimit()),
-                () -> assertEquals(1, response.getPagination().getTotalCount()),
-                () -> assertEquals(1, response.getPagination().getTotalPages()),
-                () -> assertTrue(response.getPagination().isLastPage()),
+                () -> assertEquals(0, response.getPage()),
+                () -> assertEquals(2, response.getSize()),
+                () -> assertEquals(1, response.getTotalElements()),
+                () -> assertEquals(1, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
                 () -> assertEquals(page, capturedRequest.getPage()),
                 () -> assertEquals(size, capturedRequest.getSize()),
                 () -> assertEquals(sort, capturedRequest.getSort())
@@ -217,17 +212,13 @@ class RolesControllerTest {
 
     @Test
     void getRoles_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
-        PaginatedDataDto<RolesResponseDto> expectedResponse = new PaginatedDataDto<>();
+        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
         expectedResponse.setContent(List.of());
-        
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setLimit(2);
-        pagination.setTotalCount(0);
-        pagination.setCurrentPage(1);
-        pagination.setTotalPages(0);
-        pagination.setLastPage(true);
-        pagination.setHasMore(false);
-        expectedResponse.setPagination(pagination);
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(0);
+        expectedResponse.setTotalPages(0);
+        expectedResponse.setLast(true);
 
         int page = 0;
         int size = 2;
@@ -235,7 +226,7 @@ class RolesControllerTest {
 
         when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(expectedResponse);
 
-        PaginatedDataDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
+        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
 
         ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
 
@@ -245,9 +236,9 @@ class RolesControllerTest {
 
         assertAll(
                 () -> assertEquals(0, response.getContent().size()),
-                () -> assertEquals(0, response.getPagination().getTotalCount()),
-                () -> assertEquals(0, response.getPagination().getTotalPages()),
-                () -> assertTrue(response.getPagination().isLastPage()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
                 () -> assertEquals(page, capturedRequest.getPage()),
                 () -> assertEquals(size, capturedRequest.getSize()),
                 () -> assertEquals(sort, capturedRequest.getSort())
