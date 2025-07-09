@@ -1,6 +1,8 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.services.RolesService;
@@ -21,8 +23,12 @@ public class RolesController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<RolesResponseDto> getRoles() {
-        return rolesService.getRoles();
+    public PageResponseDto<RolesResponseDto> getRoles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort) {
+        PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
+        return rolesService.getPaginatedRoles(pageRequestDto);
     }
 
     @GetMapping(value = "/rolebn/{roleName}")
