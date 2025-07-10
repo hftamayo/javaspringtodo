@@ -20,7 +20,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
 

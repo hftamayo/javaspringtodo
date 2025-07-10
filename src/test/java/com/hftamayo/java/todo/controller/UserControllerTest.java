@@ -1,6 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
@@ -9,6 +12,7 @@ import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -318,5 +322,76 @@ class UserControllerTest {
         
         assertEquals("User not found with id: 999", exception.getMessage());
         verify(userService).deleteUser(userId);
+    }
+
+    @Test
+    void getUsers_WhenUsersExist_ShouldReturnPaginatedResponse() {
+        PageResponseDto<UserResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of(new UserResponseDto()));
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(1);
+        expectedResponse.setTotalPages(1);
+        expectedResponse.setLast(true);
+
+        int page = 0;
+        int size = 2;
+        String sort = null;
+        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(expectedResponse);
+
+        PageResponseDto<UserResponseDto> response = userController.getUsers(page, size, sort);
+
+        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+
+        verify(userService).getPaginatedUsers(pageRequestCaptor.capture());
+
+        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(1, response.getContent().size()),
+                () -> assertEquals(0, response.getPage()),
+                () -> assertEquals(2, response.getSize()),
+                () -> assertEquals(1, response.getTotalElements()),
+                () -> assertEquals(1, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> assertEquals(page, capturedRequest.getPage()),
+                () -> assertEquals(size, capturedRequest.getSize()),
+                () -> assertEquals(sort, capturedRequest.getSort())
+        );
+    }
+
+    @Test
+    void getUsers_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
+        PageResponseDto<UserResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of());
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(0);
+        expectedResponse.setTotalPages(0);
+        expectedResponse.setLast(true);
+
+        int page = 0;
+        int size = 2;
+        String sort = null;
+
+        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(expectedResponse);
+
+        PageResponseDto<RolesResponseDto> response = userController.getUsers(page, size, sort);
+
+        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+
+        verify(userService).getPaginatedUsers(pageRequestCaptor.capture());
+
+        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(0, response.getContent().size()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> assertEquals(page, capturedRequest.getPage()),
+                () -> assertEquals(size, capturedRequest.getSize()),
+                () -> assertEquals(sort, capturedRequest.getSort())
+        );
     }
 }

@@ -1,6 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.Task;
@@ -9,6 +12,7 @@ import com.hftamayo.java.todo.exceptions.ValidationException;
 import com.hftamayo.java.todo.services.TaskService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -79,9 +83,9 @@ class TaskControllerTest {
         when(taskService.getTask(taskId)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> taskController.getTask(taskId));
-        
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskController.getTask(taskId));
+
         assertEquals("Task not found with id: 999", exception.getMessage());
         verify(taskService).getTask(taskId);
     }
@@ -118,9 +122,9 @@ class TaskControllerTest {
         when(taskService.getTaskByCriteria(criteria, value)).thenThrow(new ValidationException("Invalid criteria: " + criteria));
 
         // Act & Assert
-        ValidationException exception = assertThrows(ValidationException.class, 
-            () -> taskController.getTaskByCriteria(criteria, value));
-        
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> taskController.getTaskByCriteria(criteria, value));
+
         assertEquals("Invalid criteria: invalid", exception.getMessage());
         verify(taskService).getTaskByCriteria(criteria, value);
     }
@@ -181,9 +185,9 @@ class TaskControllerTest {
         when(taskService.saveTask(task)).thenThrow(new ValidationException("Task title is required"));
 
         // Act & Assert
-        ValidationException exception = assertThrows(ValidationException.class, 
-            () -> taskController.saveTask(task));
-        
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> taskController.saveTask(task));
+
         assertEquals("Task title is required", exception.getMessage());
         verify(taskService).saveTask(task);
     }
@@ -220,9 +224,9 @@ class TaskControllerTest {
         when(taskService.updateTask(taskId, task)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> taskController.updateTask(taskId, task));
-        
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskController.updateTask(taskId, task));
+
         assertEquals("Task not found with id: 999", exception.getMessage());
         verify(taskService).updateTask(taskId, task);
     }
@@ -255,10 +259,81 @@ class TaskControllerTest {
         when(taskService.deleteTask(taskId)).thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> taskController.deleteTask(taskId));
-        
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskController.deleteTask(taskId));
+
         assertEquals("Task not found with id: 999", exception.getMessage());
         verify(taskService).deleteTask(taskId);
+    }
+
+    @Test
+    void getTasks_WhenTasksExist_ShouldReturnPaginatedResponse() {
+        PageResponseDto<TaskResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of(new TaskResponseDto()));
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(1);
+        expectedResponse.setTotalPages(1);
+        expectedResponse.setLast(true);
+
+        int page = 0;
+        int size = 2;
+        String sort = null;
+        when(taskService.getPaginatedTasks(any(PageRequestDto.class))).thenReturn(expectedResponse);
+
+        PageResponseDto<TaskResponseDto> response = taskController.getTasks(page, size, sort);
+
+        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+
+        verify(taskService).getPaginatedTasks(pageRequestCaptor.capture());
+
+        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(1, response.getContent().size()),
+                () -> assertEquals(0, response.getPage()),
+                () -> assertEquals(2, response.getSize()),
+                () -> assertEquals(1, response.getTotalElements()),
+                () -> assertEquals(1, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> assertEquals(page, capturedRequest.getPage()),
+                () -> assertEquals(size, capturedRequest.getSize()),
+                () -> assertEquals(sort, capturedRequest.getSort())
+        );
+    }
+
+    @Test
+    void getTasks_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
+        PageResponseDto<TaskResponseDto> expectedResponse = new PageResponseDto<>();
+        expectedResponse.setContent(List.of());
+        expectedResponse.setPage(0);
+        expectedResponse.setSize(2);
+        expectedResponse.setTotalElements(0);
+        expectedResponse.setTotalPages(0);
+        expectedResponse.setLast(true);
+
+        int page = 0;
+        int size = 2;
+        String sort = null;
+
+        when(taskService.getPaginatedTasks(any(PageRequestDto.class))).thenReturn(expectedResponse);
+
+        PageResponseDto<TaskResponseDto> response = taskController.getTasks(page, size, sort);
+
+        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+
+        verify(taskService).getPaginatedTasks(pageRequestCaptor.capture());
+
+        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(0, response.getContent().size()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages()),
+                () -> assertTrue(response.isLast()),
+                () -> assertEquals(page, capturedRequest.getPage()),
+                () -> assertEquals(size, capturedRequest.getSize()),
+                () -> assertEquals(sort, capturedRequest.getSort())
+        );
     }
 }
