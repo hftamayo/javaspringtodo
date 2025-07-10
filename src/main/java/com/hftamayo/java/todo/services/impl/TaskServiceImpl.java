@@ -1,12 +1,21 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
+import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
+import com.hftamayo.java.todo.utilities.PaginationUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +108,22 @@ public class TaskServiceImpl implements TaskService {
                 criteriaBuilder.equal(root.get(criteria2), value2)
         );
         return searchTaskByCriteria(specification);
+    }
+
+    @Override
+    public PaginatedDataDto<TaskResponseDto> getPaginatedTasks(PageRequestDto pageRequestDto) {
+        Pageable pageable = PageRequest.of(
+                pageRequestDto.getPage(),
+                pageRequestDto.getSize()
+        );
+        Page<Task> taskPage = taskRepository.findAll(pageable);
+        List<TaskResponseDto> content = taskPage.getContent().stream()
+                .map(taskMapper::toTaskResponseDto)
+                .toList();
+
+        CursorPaginationDto pagination = PaginationUtils.toCursorPagination(taskPage, pageRequestDto.getSort());
+
+        return new PaginatedDataDto<>(content, pagination);
     }
 
     @Transactional

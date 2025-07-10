@@ -1,6 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
 import lombok.AllArgsConstructor;
@@ -19,8 +22,13 @@ public class TaskController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<TaskResponseDto> getTasks() {
-        return taskService.getTasks();
+    public CrudOperationResponseDto<PaginatedDataDto<TaskResponseDto>> getTasks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
+            @RequestParam(required = false) String sort) {
+        PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
+        PaginatedDataDto<TaskResponseDto> paginatedData = taskService.getPaginatedTasks(pageRequestDto);
+        return new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
     }
 
     @GetMapping(value = "/task/{taskId}")
