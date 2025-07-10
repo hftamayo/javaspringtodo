@@ -1,5 +1,8 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.entity.Roles;
@@ -14,6 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -53,16 +59,15 @@ public class UserServiceImplTest {
         );
 
         when(userRepository.findAll()).thenReturn(usersList);
-        when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
-        when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
+        when(userMapper.toUserResponseDto(usersList.get(0))).thenReturn(responseDtos.get(0));
+        when(userMapper.toUserResponseDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
         List<UserResponseDto> result = userService.getUsers().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(userRepository).findAll();
-        verify(userMapper).userToDto(usersList.get(0));
-        verify(userMapper).userToDto(usersList.get(1));
+        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
     }
 
     @Test
@@ -78,7 +83,7 @@ public class UserServiceImplTest {
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
-        verify(userMapper).userToDto(user);
+        verify(userMapper).toUserResponseDto(user);
     }
 
     @Test
@@ -92,10 +97,11 @@ public class UserServiceImplTest {
         
         assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
+        verifyNoInteractions(userMapper);
     }
 
     @Test
-    void saveUser_WhenUserIsValid_ShouldReturnSavedUser() {
+    void saveUser_WhenUserDoesNotExist_ShouldReturnSavedUser() {
         User newUser = createUser(null, "John Doe");
         newUser.setEmail("john.doe@example.com");
         newUser.setPassword("password123");
@@ -121,7 +127,7 @@ public class UserServiceImplTest {
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
         verify(passwordEncoder).encode("password123");
         verify(userRepository).save(newUser);
-        verify(userMapper).userToDto(savedUser);
+        verify(userMapper).toUserResponseDto(savedUser);
     }
 
     @Test
@@ -136,6 +142,8 @@ public class UserServiceImplTest {
         
         assertEquals("Resource with email '" + existingUser.getEmail() + "' already exists", exception.getMessage());
         verify(userRepository).findUserByEmail(existingUser.getEmail());
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(rolesRepository, passwordEncoder, userMapper);
     }
 
     @Test
@@ -147,14 +155,14 @@ public class UserServiceImplTest {
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
-        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
+        when(userMapper.toUserResponseDto(updatedUser)).thenReturn(responseDto);
 
         UserResponseDto result = userService.updateUser(userId, updatedUser).getData();
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
         verify(userRepository).save(any(User.class));
-        verify(userMapper).userToDto(updatedUser);
+        verify(userMapper).toUserResponseDto(updatedUser);
     }
 
     @Test
@@ -169,6 +177,8 @@ public class UserServiceImplTest {
         
         assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userMapper);
     }
 
     @Test
@@ -195,8 +205,132 @@ public class UserServiceImplTest {
         
         assertEquals("User with id " + userId + " not found", exception.getMessage());
         verify(userRepository).findUserById(userId);
+        verifyNoMoreInteractions(userRepository);
     }
 
+    @Test
+    void getPaginatedUsers_WhenUsersExist_ShouldReturnPaginatedUsers() {
+        List<User> usersList = List.of(
+                createUser(1L, "John Doe"),
+                createUser(2L, "Jane Doe")
+        );
+        List<UserResponseDto> responseDtos = List.of(
+                createUserDto(1L, "John Doe"),
+                createUserDto(2L, "Jane Doe")
+        );
+        Page<User> usersPage = new PageImpl<>(usersList, PageRequest.of(0, 2), 2);
+
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(usersPage);
+        when(userMapper.toUserResponseDto(usersList.get(0))).thenReturn(responseDtos.get(0));
+        when(userMapper.toUserResponseDto(usersList.get(1))).thenReturn(responseDtos.get(1));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        PageResponseDto<UserResponseDto> result = userService.getPaginatedUsers(pageRequestDto);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals(responseDtos, result.getContent());
+        assertEquals(0, result.getPage());
+        assertEquals(2, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertTrue(result.isLast());
+        verify(userRepository).findAll(any(PageRequest.class));
+        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
+    }
+
+    @Test
+    void getPaginatedUsers_WhenMultiplePages_ShouldReturnFirstPageWithCorrectMetadata() {
+        // Arrange
+        List<User> firstPageUsers = List.of(
+                createUser(1L, "John Doe"),
+                createUser(2L, "Jane Doe")
+        );
+        List<UserResponseDto> firstPageDtos = List.of(
+                createUserDto(1L, "John Doe"),
+                createUserDto(2L, "Jane Doe")
+        );
+
+        // Creamos una página con 2 elementos, pero indicamos que hay 5 elementos en total
+        // Esto significa que habrá 3 páginas en total (5 elementos / 2 por página = 3 páginas)
+        Page<User> userPage = new PageImpl<>(firstPageUsers, PageRequest.of(0, 2), 5);
+
+        // Configuramos los mocks
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(userPage);
+        when(userMapper.toUserResponseDto(firstPageUsers.get(0))).thenReturn(firstPageDtos.get(0));
+        when(userMapper.toUserResponseDto(firstPageUsers.get(1))).thenReturn(firstPageDtos.get(1));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        // Act
+        PageResponseDto<UserResponseDto> result = userService.getPaginatedUsers(pageRequestDto);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+        assertEquals(0, result.getPage()); // Primera página (índice 0)
+        assertEquals(2, result.getSize()); // 2 elementos por página
+        assertEquals(5, result.getTotalElements()); // 5 elementos en total
+        assertEquals(3, result.getTotalPages()); // 3 páginas en total
+        assertFalse(result.isLast()); // No es la última página
+        assertEquals(firstPageDtos, result.getContent());
+
+        verify(userRepository).findAll(any(PageRequest.class));
+        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
+    }
+
+    @Test
+    void getPaginatedUsers_WhenOnLastPage_ShouldIndicateIsLastPage() {
+        // Arrange
+        List<User> lastPageUsers = List.of(
+                createUser(1L, "John Doe"),
+        );
+        List<UserResponseDto> lastPageDtos = List.of(
+                createUserDto(1L, "John Doe")
+        );
+
+        // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
+        Page<User> usersPage = new PageImpl<>(lastPageUsers, PageRequest.of(2, 2), 5);
+
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(usersPage);
+        when(userMapper.toUserResponseDto(lastPageUsers.get(0))).thenReturn(lastPageDtos.get(0));
+
+        PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
+
+        // Act
+        PageResponseDto<UserResponseDto> result = userService.getPaginatedUsers(pageRequestDto);
+
+        // Assert
+        assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
+        assertEquals(2, result.getPage()); // Tercera página (índice 2)
+        assertEquals(2, result.getSize());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(3, result.getTotalPages());
+        assertTrue(result.isLast()); // Es la última página
+
+        verify(userRepository).findAll(any(PageRequest.class));
+        verify(userMapper).toUserResponseDto(any(User.class));
+    }
+
+    @Test
+    void getPaginatedUser_WhenNoUsersExist_ShouldReturnEmptyPage() {
+        List<User> usersList = List.of();
+        Page<User> userPage = new PageImpl<>(usersList, PageRequest.of(0, 2), 0);
+
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(userPage);
+
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+
+        PageResponseDto<RolesResponseDto> result = userService.getPaginatedUsers(pageRequestDto);
+
+        assertEquals(0, result.getContent().size());
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getTotalPages());
+        assertTrue(result.isLast());
+        verify(userRepository).findAll(any(PageRequest.class));
+        verifyNoInteractions(userMapper);
+    }
+
+    //helper methods
     private User createUser(Long id, String name) {
         User user = new User();
         user.setId(id);
