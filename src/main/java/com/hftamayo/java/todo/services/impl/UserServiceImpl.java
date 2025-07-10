@@ -1,6 +1,10 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
@@ -9,8 +13,12 @@ import com.hftamayo.java.todo.mapper.UserMapper;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.services.UserService;
+import com.hftamayo.java.todo.utilities.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -114,6 +122,22 @@ public class UserServiceImpl implements UserService {
                 criteriaBuilder.equal(root.get(criteria2), value2)
         );
         return searchUserByCriteria(specification);
+    }
+
+    @Override
+    public PaginatedDataDto<UserResponseDto> getPaginatedUsers(PageRequestDto pageRequestDto) {
+        Pageable pageable = PageRequest.of(
+                pageRequestDto.getPage(),
+                pageRequestDto.getSize()
+        );
+        Page<User> userPage = userRepository.findAll(pageable);
+        List<UserResponseDto> content = userPage.getContent().stream()
+                .map(userMapper::toUserResponseDto)
+                .toList();
+
+        CursorPaginationDto pagination = PaginationUtils.toCursorPagination(userPage, pageRequestDto.getSort());
+
+        return new PaginatedDataDto<>(content, pagination);
     }
 
     @Transactional

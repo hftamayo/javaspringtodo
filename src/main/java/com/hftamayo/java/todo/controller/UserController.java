@@ -1,6 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.UserService;
@@ -24,8 +27,13 @@ public class UserController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto> getUsers() {
-        return userService.getUsers();
+    public CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
+            @RequestParam(required = false) String sort) {
+        PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
+        PaginatedDataDto<UserResponseDto> paginatedData = userService.getPaginatedUsers(pageRequestDto);
+        return new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
     }
 
     @GetMapping(value = "/user/{userId}")
