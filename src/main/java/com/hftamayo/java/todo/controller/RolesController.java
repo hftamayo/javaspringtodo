@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 
 @AllArgsConstructor
 @RestController
@@ -19,12 +20,13 @@ public class RolesController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<RolesResponseDto> getRoles(
+    public CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> getRoles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
             @RequestParam(required = false) String sort) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
-        return rolesService.getPaginatedRoles(pageRequestDto);
+        PaginatedDataDto<RolesResponseDto> paginatedData = rolesService.getPaginatedRoles(pageRequestDto);
+        return new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
     }
 
     @GetMapping(value = "/rolebn/{roleName}")
