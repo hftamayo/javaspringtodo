@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
+import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.repository.TaskRepository;
@@ -285,15 +286,15 @@ public class TaskServiceImplTest {
 
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
-        PageResponseDto<RolesResponseDto> result = taskService.getPaginatedTasks(pageRequestDto);
+        var result = taskService.getPaginatedTasks(pageRequestDto);
 
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
-        assertEquals(0, result.getPage());
-        assertEquals(2, result.getSize());
-        assertEquals(2, result.getTotalElements());
-        assertEquals(1, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(2, result.getPagination().getLimit());
+        assertEquals(2, result.getPagination().getTotalCount());
+        assertEquals(1, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage());
         verify(taskRepository).findAll(any(PageRequest.class));
         verify(taskMapper, times(2)).toTaskResponseDto(any(Task.class));
     }
@@ -322,15 +323,15 @@ public class TaskServiceImplTest {
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
         // Act
-        PageResponseDto<RolesResponseDto> result = taskService.getPaginatedTasks(pageRequestDto);
+        var result = taskService.getPaginatedTasks(pageRequestDto);
 
         // Assert
         assertEquals(2, result.getContent().size());
-        assertEquals(0, result.getPage()); // Primera página (índice 0)
-        assertEquals(2, result.getSize()); // 2 elementos por página
-        assertEquals(5, result.getTotalElements()); // 5 elementos en total
-        assertEquals(3, result.getTotalPages()); // 3 páginas en total
-        assertFalse(result.isLast()); // No es la última página
+        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(2, result.getPagination().getLimit());
+        assertEquals(5, result.getPagination().getTotalCount());
+        assertEquals(3, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage());
         assertEquals(firstPageDtos, result.getContent());
 
         verify(taskRepository).findAll(any(PageRequest.class));
@@ -341,10 +342,10 @@ public class TaskServiceImplTest {
     void getPaginatedTask_WhenOnLastPage_ShouldIndicateIsLastPage() {
         // Arrange
         List<Task> lastPageTask = List.of(
-                createTask(1L, "Task 1"),
+                createTask(1L, "Task 1")
         );
         List<TaskResponseDto> lastPageDtos = List.of(
-                createTaskDto(1L, "Task 1"),
+                createTaskDto(1L, "Task 1")
         );
 
         // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
@@ -356,15 +357,15 @@ public class TaskServiceImplTest {
         PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
 
         // Act
-        PageResponseDto<TaskResponseDto> result = taskService.getPaginatedTasks(pageRequestDto);
+        var result = taskService.getPaginatedTasks(pageRequestDto);
 
         // Assert
         assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(2, result.getPage()); // Tercera página (índice 2)
-        assertEquals(2, result.getSize());
-        assertEquals(5, result.getTotalElements());
-        assertEquals(3, result.getTotalPages());
-        assertTrue(result.isLast()); // Es la última página
+        assertEquals(2, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
+        assertEquals(2, result.getPagination().getLimit());
+        assertEquals(5, result.getPagination().getTotalCount());
+        assertEquals(3, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage()); // Es la última página
 
         verify(taskRepository).findAll(any(PageRequest.class));
         verify(taskMapper).toTaskResponseDto(any(Task.class));
@@ -379,12 +380,12 @@ public class TaskServiceImplTest {
 
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
-        PageResponseDto<TaskResponseDto> result = taskService.getPaginatedTasks(pageRequestDto);
+        var result = taskService.getPaginatedTasks(pageRequestDto);
 
         assertEquals(0, result.getContent().size());
-        assertEquals(0, result.getTotalElements());
-        assertEquals(0, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(0, result.getPagination().getTotalCount());
+        assertEquals(0, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage());
         verify(taskRepository).findAll(any(PageRequest.class));
         verifyNoInteractions(taskMapper);
     }

@@ -206,15 +206,16 @@ public class RolesServiceImplTest {
 
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
-        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+        var result = rolesService.getPaginatedRoles(pageRequestDto);
 
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
-        assertEquals(0, result.getPage());
-        assertEquals(2, result.getSize());
-        assertEquals(2, result.getTotalElements());
-        assertEquals(1, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertNotNull(result.getPagination());
+        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(2, result.getPagination().getLimit());
+        assertEquals(2, result.getPagination().getTotalCount());
+        assertEquals(1, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage());
         verify(rolesRepository).findAll(any(PageRequest.class));
         verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
     }
@@ -243,15 +244,15 @@ public class RolesServiceImplTest {
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
         // Act
-        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+        var result = rolesService.getPaginatedRoles(pageRequestDto);
 
         // Assert
         assertEquals(2, result.getContent().size());
-        assertEquals(0, result.getPage()); // Primera página (índice 0)
-        assertEquals(2, result.getSize()); // 2 elementos por página
-        assertEquals(5, result.getTotalElements()); // 5 elementos en total
-        assertEquals(3, result.getTotalPages()); // 3 páginas en total
-        assertFalse(result.isLast()); // No es la última página
+        assertEquals(0, result.getPagination().getCurrentPage()); // Primera página (índice 0)
+        assertEquals(2, result.getPagination().getLimit()); // 2 elementos por página
+        assertEquals(5, result.getPagination().getTotalCount()); // 5 elementos en total
+        assertEquals(3, result.getPagination().getTotalPages()); // 3 páginas en total
+        assertFalse(result.getPagination().isLastPage()); // No es la última página
         assertEquals(firstPageDtos, result.getContent());
 
         verify(rolesRepository).findAll(any(PageRequest.class));
@@ -277,15 +278,15 @@ public class RolesServiceImplTest {
         PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
 
         // Act
-        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+        var result = rolesService.getPaginatedRoles(pageRequestDto);
 
         // Assert
         assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(2, result.getPage()); // Tercera página (índice 2)
-        assertEquals(2, result.getSize());
-        assertEquals(5, result.getTotalElements());
-        assertEquals(3, result.getTotalPages());
-        assertTrue(result.isLast()); // Es la última página
+        assertEquals(2, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
+        assertEquals(2, result.getPagination().getLimit());
+        assertEquals(5, result.getPagination().getTotalCount());
+        assertEquals(3, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage()); // Es la última página
 
         verify(rolesRepository).findAll(any(PageRequest.class));
         verify(roleMapper).toRolesResponseDto(any(Roles.class));
@@ -300,12 +301,12 @@ public class RolesServiceImplTest {
 
         PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
 
-        PageResponseDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+        var result = rolesService.getPaginatedRoles(pageRequestDto);
 
         assertEquals(0, result.getContent().size());
-        assertEquals(0, result.getTotalElements());
-        assertEquals(0, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(0, result.getPagination().getTotalCount());
+        assertEquals(0, result.getPagination().getTotalPages());
+        assertTrue(result.getPagination().isLastPage());
         verify(rolesRepository).findAll(any(PageRequest.class));
         verifyNoInteractions(roleMapper);
     }
