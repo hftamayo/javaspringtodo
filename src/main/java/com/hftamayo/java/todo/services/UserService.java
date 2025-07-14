@@ -1,6 +1,8 @@
 package com.hftamayo.java.todo.services;
 
 import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 
@@ -18,6 +20,8 @@ public interface UserService {
 
     CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
                                                                  String criteria2, String value2);
+
+    PaginatedDataDto<UserResponseDto> getPaginatedUsers(PageRequestDto pageRequestDto);
 
     CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
 
