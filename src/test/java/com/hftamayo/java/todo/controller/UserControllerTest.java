@@ -38,20 +38,18 @@ class UserControllerTest {
         int size = 2;
         String sort = null;
 
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setDataList(List.of(new UserResponseDto()));
+        PaginatedDataDto<UserResponseDto> paginatedData = getUsersResponseDtoPaginatedDataDto();
 
-        when(userService.getUsers()).thenReturn(expectedResponse);
+        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(paginatedData);
 
         CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> response = userController.getUsers(page, size, sort);
 
         assertAll(
                 () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, response.getDataList().size()),
-                () -> verify(userService).getUsers()
+                () -> assertEquals("OPERATION_SUCCESS", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getData().getContent().size()),
+                () -> verify(userService).getPaginatedUsers(any(PageRequestDto.class))
         );
     }
 

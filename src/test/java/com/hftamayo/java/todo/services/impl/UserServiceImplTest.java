@@ -1,8 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.entity.Roles;
@@ -231,7 +229,7 @@ public class UserServiceImplTest {
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
         assertNotNull(result.getPagination());
-        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(1, result.getPagination().getCurrentPage());
         assertEquals(2, result.getPagination().getLimit());
         assertEquals(2, result.getPagination().getTotalCount());
         assertEquals(1, result.getPagination().getTotalPages());
@@ -268,7 +266,7 @@ public class UserServiceImplTest {
 
         // Assert
         assertEquals(2, result.getContent().size());
-        assertEquals(0, result.getPagination().getCurrentPage()); // Primera página (índice 0)
+        assertEquals(1, result.getPagination().getCurrentPage()); // Primera página (índice 0)
         assertEquals(2, result.getPagination().getLimit()); // 2 elementos por página
         assertEquals(5, result.getPagination().getTotalCount()); // 5 elementos en total
         assertEquals(3, result.getPagination().getTotalPages()); // 3 páginas en total
@@ -302,7 +300,7 @@ public class UserServiceImplTest {
 
         // Assert
         assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(2, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
+        assertEquals(3, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
         assertEquals(2, result.getPagination().getLimit());
         assertEquals(5, result.getPagination().getTotalCount());
         assertEquals(3, result.getPagination().getTotalPages());

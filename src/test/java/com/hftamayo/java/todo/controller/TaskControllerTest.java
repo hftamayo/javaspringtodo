@@ -41,22 +41,18 @@ class TaskControllerTest {
         int size = 2;
         String sort = null;
 
-        CrudOperationResponseDto<TaskResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setDataList(List.of(new TaskResponseDto()));
+        PaginatedDataDto<TaskResponseDto> paginatedData = getTasksResponseDtoPaginatedDataDto();
 
-        when(taskService.getTasks()).thenReturn(expectedResponse);
+        when(taskService.getPaginatedTasks(any(PageRequestDto.class))).thenReturn(paginatedData);
 
-        // Act
         CrudOperationResponseDto<PaginatedDataDto<TaskResponseDto>> response = taskController.getTasks(page, size, sort);
 
-        // Assert
         assertAll(
                 () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, response.getDataList().size()),
-                () -> verify(taskService).getTasks()
+                () -> assertEquals("OPERATION_SUCCESS", response.getResultMessage()),
+                () -> assertNotNull(response.getData()),
+                () -> assertEquals(1, response.getData().getContent().size()),
+                () -> verify(taskService).getPaginatedTasks(any(PageRequestDto.class))
         );
     }
 
