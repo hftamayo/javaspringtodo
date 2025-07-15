@@ -8,6 +8,7 @@ import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.ValidationException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.services.RolesService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 
 @ExtendWith(MockitoExtension.class)
 class RolesControllerTest {
@@ -176,34 +178,29 @@ class RolesControllerTest {
 
     @Test
     void getRoles_WhenRolesExist_ShouldReturnPaginatedResponse() {
-        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
-        expectedResponse.setContent(List.of(new RolesResponseDto()));
-        expectedResponse.setPage(0);
-        expectedResponse.setSize(2);
-        expectedResponse.setTotalElements(1);
-        expectedResponse.setTotalPages(1);
-        expectedResponse.setLast(true);
+        PaginatedDataDto<RolesResponseDto> paginatedData = getRolesResponseDtoPaginatedDataDto();
 
         int page = 0;
         int size = 2;
         String sort = null;
-        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(expectedResponse);
+        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(paginatedData);
 
-        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
+        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> response = rolesController.getRoles(page, size, sort);
 
         ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
 
         verify(rolesService).getPaginatedRoles(pageRequestCaptor.capture());
 
         PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+        PaginatedDataDto<RolesResponseDto> responseData = response.getData();
 
         assertAll(
-                () -> assertEquals(1, response.getContent().size()),
-                () -> assertEquals(0, response.getPage()),
-                () -> assertEquals(2, response.getSize()),
-                () -> assertEquals(1, response.getTotalElements()),
-                () -> assertEquals(1, response.getTotalPages()),
-                () -> assertTrue(response.isLast()),
+                () -> assertEquals(1, responseData.getContent().size()),
+                () -> assertEquals(0, responseData.getPagination().getCurrentPage()),
+                () -> assertEquals(2, responseData.getPagination().getLimit()),
+                () -> assertEquals(1, responseData.getPagination().getTotalCount()),
+                () -> assertEquals(1, responseData.getPagination().getTotalPages()),
+                () -> assertTrue(responseData.getPagination().isLastPage()),
                 () -> assertEquals(page, capturedRequest.getPage()),
                 () -> assertEquals(size, capturedRequest.getSize()),
                 () -> assertEquals(sort, capturedRequest.getSort())
@@ -212,36 +209,57 @@ class RolesControllerTest {
 
     @Test
     void getRoles_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
-        PageResponseDto<RolesResponseDto> expectedResponse = new PageResponseDto<>();
-        expectedResponse.setContent(List.of());
-        expectedResponse.setPage(0);
-        expectedResponse.setSize(2);
-        expectedResponse.setTotalElements(0);
-        expectedResponse.setTotalPages(0);
-        expectedResponse.setLast(true);
+        PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
+        paginatedData.setContent(List.of());
+        
+        CursorPaginationDto pagination = new CursorPaginationDto();
+        pagination.setCurrentPage(0);
+        pagination.setLimit(2);
+        pagination.setTotalCount(0);
+        pagination.setTotalPages(0);
+        pagination.setLastPage(true);
+        paginatedData.setPagination(pagination);
 
         int page = 0;
         int size = 2;
         String sort = null;
 
-        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(expectedResponse);
+        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(paginatedData);
 
-        PageResponseDto<RolesResponseDto> response = rolesController.getRoles(page, size, sort);
+        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> response = rolesController.getRoles(page, size, sort);
 
         ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
 
         verify(rolesService).getPaginatedRoles(pageRequestCaptor.capture());
 
         PageRequestDto capturedRequest = pageRequestCaptor.getValue();
+        PaginatedDataDto<RolesResponseDto> responseData = response.getData();
 
         assertAll(
-                () -> assertEquals(0, response.getContent().size()),
-                () -> assertEquals(0, response.getTotalElements()),
-                () -> assertEquals(0, response.getTotalPages()),
-                () -> assertTrue(response.isLast()),
+                () -> assertEquals(0, responseData.getContent().size()),
+                () -> assertEquals(0, responseData.getPagination().getTotalCount()),
+                () -> assertEquals(0, responseData.getPagination().getTotalPages()),
+                () -> assertTrue(responseData.getPagination().isLastPage()),
                 () -> assertEquals(page, capturedRequest.getPage()),
                 () -> assertEquals(size, capturedRequest.getSize()),
                 () -> assertEquals(sort, capturedRequest.getSort())
         );
+    }
+
+    private static @NotNull PaginatedDataDto<RolesResponseDto> getRolesResponseDtoPaginatedDataDto() {
+        PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
+        paginatedData.setContent(List.of(new RolesResponseDto()));
+
+        CursorPaginationDto pagination = new CursorPaginationDto();
+        pagination.setCurrentPage(0);
+        pagination.setLimit(2);
+        pagination.setTotalCount(1);
+        pagination.setTotalPages(1);
+        pagination.setLastPage(true);
+        paginatedData.setPagination(pagination);
+
+        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> expectedResponse =
+                new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
+        return paginatedData;
     }
 }
