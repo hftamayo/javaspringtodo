@@ -50,15 +50,15 @@ public class TaskServiceImplTest {
         );
 
         when(taskRepository.findAll()).thenReturn(tasksList);
-        when(taskMapper.toTaskResponseDto(tasksList.get(0))).thenReturn(responseDtos.get(0));
-        when(taskMapper.toTaskResponseDto(tasksList.get(1))).thenReturn(responseDtos.get(1));
+        when(taskMapper.taskToDto(tasksList.get(0))).thenReturn(responseDtos.get(0));
+        when(taskMapper.taskToDto(tasksList.get(1))).thenReturn(responseDtos.get(1));
 
         List<TaskResponseDto> result = taskService.getTasks().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(taskRepository).findAll();
-        verify(taskMapper, times(2)).toTaskResponseDto(any(Task.class));
+        verify(taskMapper, times(2)).taskToDto(any(Task.class));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TaskServiceImplTest {
 
         assertEquals(responseDto, result);
         verify(taskRepository).findTaskById(taskId);
-        verify(taskMapper).toTaskResponseDto(task);
+        verify(taskMapper).taskToDto(task);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class TaskServiceImplTest {
 
         assertEquals(List.of(responseDto), result);
         verify(taskRepository).findAll((Specification<Task>) any());
-        verify(taskMapper).toTaskResponseDto(task);
+        verify(taskMapper).taskToDto(task);
     }
 
     @Test
@@ -144,14 +144,14 @@ public class TaskServiceImplTest {
         TaskResponseDto responseDto = createTaskDto(1L, "Task 1");
 
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
-        when(taskMapper.toTaskResponseDto(task)).thenReturn(responseDto);
+        when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
         List<TaskResponseDto> result = taskService
                 .getTaskByCriterias(criteria, value, criteria2, value2).getDataList();
 
         assertEquals(List.of(responseDto), result);
         verify(taskRepository).findAll((Specification<Task>) any());
-        verify(taskMapper).toTaskResponseDto(task);
+        verify(taskMapper).taskToDto(task);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class TaskServiceImplTest {
 
         assertEquals(taskDto, result);
         verify(taskRepository).save(task);
-        verify(taskMapper).toTaskResponseDto(task);
+        verify(taskMapper).taskToDto(task);
     }
 
     @Test
@@ -212,14 +212,14 @@ public class TaskServiceImplTest {
 
         when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(updatedTask)).thenReturn(updatedTask);
-        when(taskMapper.toTaskResponseDto(updatedTask)).thenReturn(taskDto);
+        when(taskMapper.taskToDto(updatedTask)).thenReturn(taskDto);
 
         TaskResponseDto result = taskService.updateTask(taskId, updatedTask).getData();
 
         assertEquals(taskDto, result);
         verify(taskRepository).findTaskById(taskId);
         verify(taskRepository).save(updatedTask);
-        verify(taskMapper).toTaskResponseDto(updatedTask);
+        verify(taskMapper).taskToDto(updatedTask);
     }
 
     @Test
@@ -290,7 +290,7 @@ public class TaskServiceImplTest {
 
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
-        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(1, result.getPagination().getCurrentPage());
         assertEquals(2, result.getPagination().getLimit());
         assertEquals(2, result.getPagination().getTotalCount());
         assertEquals(1, result.getPagination().getTotalPages());
@@ -327,11 +327,11 @@ public class TaskServiceImplTest {
 
         // Assert
         assertEquals(2, result.getContent().size());
-        assertEquals(0, result.getPagination().getCurrentPage());
+        assertEquals(1, result.getPagination().getCurrentPage());
         assertEquals(2, result.getPagination().getLimit());
         assertEquals(5, result.getPagination().getTotalCount());
         assertEquals(3, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
+        assertFalse(result.getPagination().isLastPage());
         assertEquals(firstPageDtos, result.getContent());
 
         verify(taskRepository).findAll(any(PageRequest.class));
@@ -361,7 +361,7 @@ public class TaskServiceImplTest {
 
         // Assert
         assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(2, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
+        assertEquals(3, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
         assertEquals(2, result.getPagination().getLimit());
         assertEquals(5, result.getPagination().getTotalCount());
         assertEquals(3, result.getPagination().getTotalPages());

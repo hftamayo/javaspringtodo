@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
@@ -57,15 +58,15 @@ public class UserServiceImplTest {
         );
 
         when(userRepository.findAll()).thenReturn(usersList);
-        when(userMapper.toUserResponseDto(usersList.get(0))).thenReturn(responseDtos.get(0));
-        when(userMapper.toUserResponseDto(usersList.get(1))).thenReturn(responseDtos.get(1));
+        when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
+        when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
         List<UserResponseDto> result = userService.getUsers().getDataList();
 
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(userRepository).findAll();
-        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
+        verify(userMapper, times(2)).userToDto(any(User.class));
     }
 
     @Test
@@ -81,7 +82,7 @@ public class UserServiceImplTest {
 
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
-        verify(userMapper).toUserResponseDto(user);
+        verify(userMapper).userToDto(user);
     }
 
     @Test
@@ -125,7 +126,7 @@ public class UserServiceImplTest {
         verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
         verify(passwordEncoder).encode("password123");
         verify(userRepository).save(newUser);
-        verify(userMapper).toUserResponseDto(savedUser);
+        verify(userMapper).userToDto(savedUser);
     }
 
     @Test
@@ -153,14 +154,16 @@ public class UserServiceImplTest {
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
-        when(userMapper.toUserResponseDto(updatedUser)).thenReturn(responseDto);
+        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.updateUser(userId, updatedUser).getData();
+        CrudOperationResponseDto<UserResponseDto> response = userService.updateUser(userId, updatedUser);
+        UserResponseDto result = response.getData();
 
+        assertNotNull(result);
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
         verify(userRepository).save(any(User.class));
-        verify(userMapper).toUserResponseDto(updatedUser);
+        verify(userMapper).userToDto(updatedUser);
     }
 
     @Test
