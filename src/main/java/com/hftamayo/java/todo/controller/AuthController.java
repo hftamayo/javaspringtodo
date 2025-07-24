@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.auth.LoginRequestDto;
 import com.hftamayo.java.todo.dto.auth.ActiveSessionResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
@@ -56,7 +56,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public CrudOperationResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
+    public EndpointResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
