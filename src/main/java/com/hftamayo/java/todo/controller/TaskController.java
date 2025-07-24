@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
@@ -22,48 +22,48 @@ public class TaskController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<PaginatedDataDto<TaskResponseDto>> getTasks(
+    public EndpointResponseDto<PaginatedDataDto<TaskResponseDto>> getTasks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
             @RequestParam(required = false) String sort) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
         PaginatedDataDto<TaskResponseDto> paginatedData = taskService.getPaginatedTasks(pageRequestDto);
-        return new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
+        return new EndpointResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
     }
 
     @GetMapping(value = "/task/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<TaskResponseDto> getTask(@PathVariable long taskId) {
+    public EndpointResponseDto<TaskResponseDto> getTask(@PathVariable long taskId) {
         return taskService.getTask(taskId);
     }
 
     @GetMapping(value = "/taskbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
+    public EndpointResponseDto<TaskResponseDto> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return taskService.getTaskByCriteria(criteria, value);
     }
 
     @GetMapping(value = "/taskbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
+    public EndpointResponseDto<TaskResponseDto> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         return taskService.getTaskByCriterias(criteria, value, criteria2, value2);
     }
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public CrudOperationResponseDto<TaskResponseDto> saveTask(@RequestBody Task task) {
+    public EndpointResponseDto<TaskResponseDto> saveTask(@RequestBody Task task) {
         return taskService.saveTask(task);
     }
 
     @PatchMapping(value = "/update/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<TaskResponseDto> updateTask(@PathVariable long taskId, @RequestBody Task task) {
+    public EndpointResponseDto<TaskResponseDto> updateTask(@PathVariable long taskId, @RequestBody Task task) {
         return taskService.updateTask(taskId, task);
     }
 
     @DeleteMapping(value = "/delete/{taskId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto deleteTask(@PathVariable long taskId) {
+    public EndpointResponseDto deleteTask(@PathVariable long taskId) {
         return taskService.deleteTask(taskId);
     }
 }
