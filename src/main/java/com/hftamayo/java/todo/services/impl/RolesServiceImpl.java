@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
@@ -57,24 +57,24 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public CrudOperationResponseDto<RolesResponseDto> getRoles() {
+    public EndpointResponseDto<RolesResponseDto> getRoles() {
         List<Roles> rolesList = rolesRepository.findAll();
         if (!rolesList.isEmpty()) {
             List<RolesResponseDto> rolesResponseDtoList = rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
-            return new CrudOperationResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
+            return new EndpointResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
         } else {
             throw new ResourceNotFoundException("Role", "all");
         }
     }
 
     @Override
-    public CrudOperationResponseDto<RolesResponseDto> getRoleByName(String name) {
+    public EndpointResponseDto<RolesResponseDto> getRoleByName(String name) {
         ERole eRole = ERole.valueOf(name);
         Optional<Roles> roleOptional = getRoleByEnum(eRole);
         if (roleOptional.isPresent()) {
             Roles role = roleOptional.get();
             RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(role);
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
         } else {
             throw new ResourceNotFoundException("Role", name);
         }
@@ -98,12 +98,12 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto<RolesResponseDto> saveRole(Roles newRole) {
+    public EndpointResponseDto<RolesResponseDto> saveRole(Roles newRole) {
         Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum());
         if (!requestedRole.isPresent()) {
             Roles savedRole = rolesRepository.save(newRole);
             RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-            return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", roleToDto);
+            return new EndpointResponseDto(201, "OPERATION SUCCESSFUL", roleToDto);
         } else {
             throw DuplicateResourceException.withIdentifier("Role", newRole.getRoleEnum().name());
         }
@@ -111,13 +111,13 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole) {
+    public EndpointResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             Roles existingRole = getExistingRole(updatedRole, requestedRoleOptional);
             Roles savedRole = rolesRepository.save(existingRole);
             RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
         } else {
             throw new ResourceNotFoundException("Role", roleId);
         }
@@ -125,11 +125,11 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto deleteRole(long roleId) {
+    public EndpointResponseDto deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             rolesRepository.deleteRolesById(requestedRoleOptional.get().getId());
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
+            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
             throw new ResourceNotFoundException("Role", roleId);
         }
