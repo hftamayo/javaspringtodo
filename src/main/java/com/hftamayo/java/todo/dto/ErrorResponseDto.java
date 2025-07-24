@@ -9,7 +9,6 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 
 public class ErrorResponseDto {
@@ -19,4 +18,18 @@ public class ErrorResponseDto {
     private String message;
     private List<String> errors;
 
+    public ErrorResponseDto(LocalDateTime timestamp, HttpStatus status, String message, List<String> errors) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.message = message;
+        this.errors = errors;
+    }
+
+    // Constructor adicional para un solo mensaje de error
+    public ErrorResponseDto(LocalDateTime timestamp, HttpStatus status, String message, String error) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.message = message;
+        this.errors = List.of(error);
+    }
 } 
