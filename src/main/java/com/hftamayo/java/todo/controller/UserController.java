@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
@@ -27,31 +27,31 @@ public class UserController {
 
     @GetMapping(value = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> getUsers(
+    public EndpointResponseDto<PaginatedDataDto<UserResponseDto>> getUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "#{${pagination.default-page-size:10}}") int size,
             @RequestParam(required = false) String sort) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
         PaginatedDataDto<UserResponseDto> paginatedData = userService.getPaginatedUsers(pageRequestDto);
-        return new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
+        return new EndpointResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
     }
 
     @GetMapping(value = "/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto> getUser(@PathVariable long userId) {
+    public EndpointResponseDto<UserResponseDto> getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
     @GetMapping(value = "/userbc/{criteria}/{value}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto>
+    public EndpointResponseDto<UserResponseDto>
     getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         return userService.getUserByCriteria(criteria, value);
     }
 
     @GetMapping(value = "/userbcs/{criteria}/{value}/{criteria2}/{value2}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto>
+    public EndpointResponseDto<UserResponseDto>
     getUserByCriterias(@PathVariable String criteria, @PathVariable String value,
                        @PathVariable String criteria2, @PathVariable String value2) {
         return userService.getUserByCriterias(criteria, value, criteria2, value2);
@@ -59,19 +59,19 @@ public class UserController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public CrudOperationResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
+    public EndpointResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
     @PatchMapping(value = "/update/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
+    public EndpointResponseDto<UserResponseDto> updateUser(@PathVariable long userId, @RequestBody User user) {
         return userService.updateUser(userId, user);
     }
 
     @PutMapping(value = "/status/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto>
+    public EndpointResponseDto<UserResponseDto>
     updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
         return userService.updateUserStatus(userId, status);
@@ -79,7 +79,7 @@ public class UserController {
 
     @PutMapping(value = "/activate/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto<UserResponseDto>
+    public EndpointResponseDto<UserResponseDto>
     updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         boolean status = (boolean) updates.get("status");
         String roleEnum = (String) updates.get("role");
@@ -89,7 +89,7 @@ public class UserController {
     @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    public CrudOperationResponseDto deleteUser(@PathVariable long userId) {
+    public EndpointResponseDto deleteUser(@PathVariable long userId) {
         return userService.deleteUser(userId);
     }
 }

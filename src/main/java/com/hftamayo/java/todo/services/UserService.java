@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.services;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
@@ -12,25 +12,25 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> loginRequest(String email);
 
-    CrudOperationResponseDto<UserResponseDto> getUsers();
+    EndpointResponseDto<UserResponseDto> getUsers();
 
-    CrudOperationResponseDto<UserResponseDto> getUser(long userId);
+    EndpointResponseDto<UserResponseDto> getUser(long userId);
 
-    CrudOperationResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
+    EndpointResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value);
 
-    CrudOperationResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
+    EndpointResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
                                                                  String criteria2, String value2);
 
     PaginatedDataDto<UserResponseDto> getPaginatedUsers(PageRequestDto pageRequestDto);
 
-    CrudOperationResponseDto<UserResponseDto> saveUser(User newUser);
+    EndpointResponseDto<UserResponseDto> saveUser(User newUser);
 
-    CrudOperationResponseDto<UserResponseDto> updateUser(long userId, User updatedUser);
+    EndpointResponseDto<UserResponseDto> updateUser(long userId, User updatedUser);
 
-    CrudOperationResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status);
+    EndpointResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status);
 
-    CrudOperationResponseDto<UserResponseDto> updateUserStatusAndRole(long userId, boolean status, String roleEnum);
+    EndpointResponseDto<UserResponseDto> updateUserStatusAndRole(long userId, boolean status, String roleEnum);
 
-    CrudOperationResponseDto deleteUser(long userId);
+    EndpointResponseDto deleteUser(long userId);
 
 }
