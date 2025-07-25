@@ -25,5 +25,33 @@ public class ResponseUtil {
         return new EndpointResponseDto<>(status.value(), message, error);
     }
 
-    // Future: Add methods for success, paginated, or custom responses here
+    /**
+     * Formats a success response with default message and status 200.
+     */
+    public static <T> EndpointResponseDto<T> successResponse(T data) {
+        return new EndpointResponseDto<>(200, "SUCCESS", data);
+    }
+
+    /**
+     * Formats a success response with a custom message and status 200.
+     */
+    public static <T> EndpointResponseDto<T> successResponse(T data, String message) {
+        return new EndpointResponseDto<>(200, message, data);
+    }
+
+    /**
+     * Formats a success response with a custom status and message.
+     */
+    public static <T> EndpointResponseDto<T> successResponse(T data, int code, String message) {
+        return new EndpointResponseDto<>(code, message, data);
+    }
+
+    /**
+     * Formats a created (201) response with a custom message.
+     */
+    public static <T> EndpointResponseDto<T> createdResponse(T data, String message) {
+        return new EndpointResponseDto<>(201, message, data);
+    }
+
+    // Future: Add methods for paginated or list responses here
 } 
