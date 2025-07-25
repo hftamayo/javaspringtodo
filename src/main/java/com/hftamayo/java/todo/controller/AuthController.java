@@ -8,7 +8,6 @@ import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
-
-import java.util.Collections;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -49,11 +44,8 @@ public class AuthController {
                         activeSessionResponseDto.getExpiresIn());
             }
 
-            EndpointResponseDto<ActiveSessionResponseDto> response = new EndpointResponseDto<>(
-                200,
-                "LOGIN_SUCCESSFUL",
-                activeSessionResponseDto
-            );
+            EndpointResponseDto<ActiveSessionResponseDto> response = ResponseUtil
+                    .successResponse(activeSessionResponseDto, "LOGIN_SUCCESSFUL");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("LOGIN_INVALID_ATTEMPT " + e.getMessage());
@@ -65,7 +57,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
         try {
-            EndpointResponseDto<UserResponseDto> response = userService.saveUser(user);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil
+                    .createdResponse(userService.saveUser(user).getData(), "USER_REGISTERED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -79,15 +72,14 @@ public class AuthController {
     public ResponseEntity<EndpointResponseDto<?>> logout(HttpServletRequest request) {
         try {
             authService.logout(request);
-            EndpointResponseDto<String> response = new EndpointResponseDto<>(
-                200,
-                "Logout successful",
-                "Session destroyed as expected, logout successful, have a nice day"
-            );
+            EndpointResponseDto<String> response = ResponseUtil
+                    .successResponse("Session destroyed as expected, logout successful, have a nice day",
+                            "Logout successful");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(
-                ResponseUtil.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during logout", e),
+                ResponseUtil.errorResponse(HttpStatus.
+                        INTERNAL_SERVER_ERROR, "An error occurred during logout", e),
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -96,15 +88,13 @@ public class AuthController {
     @GetMapping("/logged-out")
     public ResponseEntity<EndpointResponseDto<?>> loggedOut() {
         try {
-            EndpointResponseDto<String> response = new EndpointResponseDto<>(
-                200,
-                "LOGGED_OUT",
-                "You have been logged out"
-            );
+            EndpointResponseDto<String> response = ResponseUtil
+                    .successResponse("You have been logged out", "LOGGED_OUT");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
-                ResponseUtil.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while processing logged-out endpoint", e),
+                ResponseUtil.errorResponse(HttpStatus
+                        .INTERNAL_SERVER_ERROR, "An error occurred while processing logged-out endpoint", e),
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }

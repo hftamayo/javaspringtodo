@@ -4,6 +4,7 @@ import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.health.AppHealthCheckDto;
 import com.hftamayo.java.todo.dto.health.DbHealthCheckDto;
 import com.hftamayo.java.todo.dto.health.MemoryUsageDto;
+import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,8 @@ public class HealthCheckController {
             MemoryUsageDto memoryUsage = new MemoryUsageDto(totalMemory, freeMemory);
 
             AppHealthCheckDto dto = new AppHealthCheckDto(timestamp, uptime, memoryUsage, startTime);
-            EndpointResponseDto<AppHealthCheckDto> response = new EndpointResponseDto<>(200, "OPERATION_SUCCESS", dto);
+            EndpointResponseDto<AppHealthCheckDto> response = ResponseUtil
+                    .successResponse(dto, "OPERATION_SUCCESS");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
@@ -66,7 +68,8 @@ public class HealthCheckController {
             connectionTime = (System.nanoTime() - start) / 1_000_000_000.0;
             databaseStatus = "healthy";
             DbHealthCheckDto dto = new DbHealthCheckDto(timestamp, connectionTime, databaseStatus);
-            EndpointResponseDto<DbHealthCheckDto> response = new EndpointResponseDto<>(200, "OPERATION_SUCCESS", dto);
+            EndpointResponseDto<DbHealthCheckDto> response = ResponseUtil
+                    .successResponse(dto, "OPERATION_SUCCESS");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (SQLException e) {
             connectionTime = (System.nanoTime() - start) / 1_000_000_000.0;
