@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
+import com.hftamayo.java.todo.dto.ErrorResponseDto;
+import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,12 +57,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("LOGIN_INVALID_ATTEMPT " + e.getMessage());
-            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
-                401,
-                "LOGIN_INVALID_CREDENTIALS",
-                List.of(e.getMessage())
-            );
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResponseUtil.errorResponse(HttpStatus.UNAUTHORIZED, "LOGIN_INVALID_CREDENTIALS", e));
         }
     }
 
@@ -70,12 +68,10 @@ public class AuthController {
             EndpointResponseDto<UserResponseDto> response = userService.saveUser(user);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
-                400,
-                "User registration failed",
-                List.of(e.getMessage())
+            return new ResponseEntity<>(
+                ResponseUtil.errorResponse(HttpStatus.BAD_REQUEST, "User registration failed", e),
+                HttpStatus.BAD_REQUEST
             );
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -90,22 +86,27 @@ public class AuthController {
             );
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
-                500,
-                "An error occurred during logout",
-                List.of(e.getMessage())
+            return new ResponseEntity<>(
+                ResponseUtil.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during logout", e),
+                HttpStatus.INTERNAL_SERVER_ERROR
             );
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/logged-out")
-    public ResponseEntity<EndpointResponseDto<String>> loggedOut() {
-        EndpointResponseDto<String> response = new EndpointResponseDto<>(
-            200,
-            "LOGGED_OUT",
-            "You have been logged out"
-        );
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EndpointResponseDto<?>> loggedOut() {
+        try {
+            EndpointResponseDto<String> response = new EndpointResponseDto<>(
+                200,
+                "LOGGED_OUT",
+                "You have been logged out"
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                ResponseUtil.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while processing logged-out endpoint", e),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
