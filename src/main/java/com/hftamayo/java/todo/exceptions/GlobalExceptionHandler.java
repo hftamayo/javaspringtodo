@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.hftamayo.java.todo.utilities.endpoints.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 
 /**
  * Global exception handler for centralized error handling across the application.
