@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,26 +56,47 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public EndpointResponseDto<UserResponseDto> saveUser(@RequestBody User user) {
-        return userService.saveUser(user);
+    public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
+        try {
+            EndpointResponseDto<UserResponseDto> response = userService.saveUser(user);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
+                400,
+                "User registration failed",
+                List.of(e.getMessage())
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<EndpointResponseDto<?>> logout(HttpServletRequest request) {
         try {
             authService.logout(request);
-            logger.info("Session destroyed, logout successful");
-            return ResponseEntity.ok(Collections
-                    .singletonMap("message", "Session destroyed as expected, logout successful, have a nice day"));
+            EndpointResponseDto<String> response = new EndpointResponseDto<>(
+                200,
+                "Logout successful",
+                "Session destroyed as expected, logout successful, have a nice day"
+            );
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during logout: " + e.getMessage());
+            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
+                500,
+                "An error occurred during logout",
+                List.of(e.getMessage())
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/logged-out")
-    public ResponseEntity<String> loggedOut() {
-        return ResponseEntity.ok("You have been logged out");
+    public ResponseEntity<EndpointResponseDto<String>> loggedOut() {
+        EndpointResponseDto<String> response = new EndpointResponseDto<>(
+            200,
+            "LOGGED_OUT",
+            "You have been logged out"
+        );
+        return ResponseEntity.ok(response);
     }
 }
