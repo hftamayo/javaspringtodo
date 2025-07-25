@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
-import java.util.List;
 
 @AllArgsConstructor
 @RestController

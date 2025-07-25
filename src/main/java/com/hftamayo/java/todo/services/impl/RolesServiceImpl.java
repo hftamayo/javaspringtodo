@@ -1,6 +1,5 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
@@ -11,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
