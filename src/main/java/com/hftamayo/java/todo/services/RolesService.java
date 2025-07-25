@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RolesService {
-    EndpointResponseDto<RolesResponseDto> getRoles();
-    EndpointResponseDto<RolesResponseDto> getRoleByName(String name);
+    List<RolesResponseDto> getRoles();
+    RolesResponseDto getRoleByName(String name);
     PaginatedDataDto<RolesResponseDto> getPaginatedRoles(PageRequestDto pageRequestDto);
 
-    EndpointResponseDto<RolesResponseDto> saveRole(Roles newRole);
-    EndpointResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole);
-    EndpointResponseDto deleteRole(long roleId);
+    RolesResponseDto saveRole(Roles newRole);
+    RolesResponseDto updateRole(long roleId, Roles updatedRole);
+    void deleteRole(long roleId);
 }

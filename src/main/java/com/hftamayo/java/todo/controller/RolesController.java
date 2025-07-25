@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -27,13 +28,11 @@ public class RolesController {
         try {
             PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
             PaginatedDataDto<RolesResponseDto> paginatedData = rolesService.getPaginatedRoles(pageRequestDto);
-            EndpointResponseDto<PaginatedDataDto<RolesResponseDto>> response =
-                    ResponseUtil.successResponse(paginatedData, "OPERATION_SUCCESS");
+            EndpointResponseDto<PaginatedDataDto<RolesResponseDto>> response = ResponseUtil.successResponse(paginatedData, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
-                ResponseUtil.errorResponse
-                        (HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch roles list", e),
+                ResponseUtil.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch roles list", e),
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -42,7 +41,8 @@ public class RolesController {
     @GetMapping(value = "/rolebn/{roleName}")
     public ResponseEntity<EndpointResponseDto<?>> getRoleByName(@PathVariable String name) {
         try {
-            EndpointResponseDto<RolesResponseDto> response = rolesService.getRoleByName(name);
+            RolesResponseDto role = rolesService.getRoleByName(name);
+            EndpointResponseDto<RolesResponseDto> response = ResponseUtil.successResponse(role, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -55,8 +55,8 @@ public class RolesController {
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveRole(@RequestBody Roles role) {
         try {
-            EndpointResponseDto<RolesResponseDto> response =
-                    ResponseUtil.createdResponse(rolesService.saveRole(role).getData(), "ROLE_CREATED");
+            RolesResponseDto savedRole = rolesService.saveRole(role);
+            EndpointResponseDto<RolesResponseDto> response = ResponseUtil.createdResponse(savedRole, "ROLE_CREATED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -69,8 +69,8 @@ public class RolesController {
     @PatchMapping(value = "/update/{roleId}")
     public ResponseEntity<EndpointResponseDto<?>> updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
-            EndpointResponseDto<RolesResponseDto> response =
-                    ResponseUtil.successResponse(rolesService.updateRole(roleId, role).getData(), "ROLE_UPDATED");
+            RolesResponseDto updatedRole = rolesService.updateRole(roleId, role);
+            EndpointResponseDto<RolesResponseDto> response = ResponseUtil.successResponse(updatedRole, "ROLE_UPDATED");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(

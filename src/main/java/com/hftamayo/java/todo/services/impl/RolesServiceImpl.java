@@ -57,24 +57,22 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public EndpointResponseDto<RolesResponseDto> getRoles() {
+    public List<RolesResponseDto> getRoles() {
         List<Roles> rolesList = rolesRepository.findAll();
         if (!rolesList.isEmpty()) {
-            List<RolesResponseDto> rolesResponseDtoList = rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
-            return new EndpointResponseDto<>(200, "OPERATION SUCCESSFUL", rolesResponseDtoList);
+            return rolesList.stream().map(roleMapper::toRolesResponseDto).toList();
         } else {
             throw new ResourceNotFoundException("Role", "all");
         }
     }
 
     @Override
-    public EndpointResponseDto<RolesResponseDto> getRoleByName(String name) {
+    public RolesResponseDto getRoleByName(String name) {
         ERole eRole = ERole.valueOf(name);
         Optional<Roles> roleOptional = getRoleByEnum(eRole);
         if (roleOptional.isPresent()) {
             Roles role = roleOptional.get();
-            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(role);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+            return roleMapper.toRolesResponseDto(role);
         } else {
             throw new ResourceNotFoundException("Role", name);
         }
@@ -98,12 +96,11 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<RolesResponseDto> saveRole(Roles newRole) {
+    public RolesResponseDto saveRole(Roles newRole) {
         Optional<Roles> requestedRole = getRoleByEnum(newRole.getRoleEnum());
         if (!requestedRole.isPresent()) {
             Roles savedRole = rolesRepository.save(newRole);
-            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-            return new EndpointResponseDto(201, "OPERATION SUCCESSFUL", roleToDto);
+            return roleMapper.toRolesResponseDto(savedRole);
         } else {
             throw DuplicateResourceException.withIdentifier("Role", newRole.getRoleEnum().name());
         }
@@ -111,13 +108,12 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<RolesResponseDto> updateRole(long roleId, Roles updatedRole) {
+    public RolesResponseDto updateRole(long roleId, Roles updatedRole) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             Roles existingRole = getExistingRole(updatedRole, requestedRoleOptional);
             Roles savedRole = rolesRepository.save(existingRole);
-            RolesResponseDto roleToDto = roleMapper.toRolesResponseDto(savedRole);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", roleToDto);
+            return roleMapper.toRolesResponseDto(savedRole);
         } else {
             throw new ResourceNotFoundException("Role", roleId);
         }
@@ -125,11 +121,10 @@ public class RolesServiceImpl implements RolesService {
 
     @Transactional
     @Override
-    public EndpointResponseDto deleteRole(long roleId) {
+    public void deleteRole(long roleId) {
         Optional<Roles> requestedRoleOptional = getRoleById(roleId);
         if (requestedRoleOptional.isPresent()) {
             rolesRepository.deleteRolesById(requestedRoleOptional.get().getId());
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
             throw new ResourceNotFoundException("Role", roleId);
         }
