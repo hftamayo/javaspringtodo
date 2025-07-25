@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.dto;
+package com.hftamayo.java.todo.dto.error;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;

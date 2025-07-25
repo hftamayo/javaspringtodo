@@ -1,7 +1,7 @@
 package com.hftamayo.java.todo.utilities.endpoints;
 
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;

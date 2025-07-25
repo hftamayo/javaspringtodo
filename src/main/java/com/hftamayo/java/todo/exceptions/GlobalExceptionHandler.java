@@ -1,6 +1,6 @@
 package com.hftamayo.java.todo.exceptions;
 
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
