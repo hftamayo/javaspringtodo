@@ -45,7 +45,8 @@ public class UserController {
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> getUser(@PathVariable long userId) {
         try {
-            EndpointResponseDto<UserResponseDto> response = userService.getUser(userId);
+            UserResponseDto user = userService.getUser(userId);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(user, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -58,7 +59,8 @@ public class UserController {
     @GetMapping(value = "/userbc/{criteria}/{value}")
     public ResponseEntity<EndpointResponseDto<?>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         try {
-            EndpointResponseDto<UserResponseDto> response = userService.getUserByCriteria(criteria, value);
+            UserResponseDto user = userService.getUserByCriteria(criteria, value);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(user, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -72,7 +74,8 @@ public class UserController {
     public ResponseEntity<EndpointResponseDto<?>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value,
                        @PathVariable String criteria2, @PathVariable String value2) {
         try {
-            EndpointResponseDto<UserResponseDto> response = userService.getUserByCriterias(criteria, value, criteria2, value2);
+            UserResponseDto user = userService.getUserByCriterias(criteria, value, criteria2, value2);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(user, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -85,7 +88,8 @@ public class UserController {
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
         try {
-            EndpointResponseDto<UserResponseDto> response = ResponseUtil.createdResponse(userService.saveUser(user).getData(), "USER_CREATED");
+            UserResponseDto savedUser = userService.saveUser(user);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.createdResponse(savedUser, "USER_CREATED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -98,7 +102,8 @@ public class UserController {
     @PatchMapping(value = "/update/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
-            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(userService.updateUser(userId, user).getData(), "USER_UPDATED");
+            UserResponseDto updatedUser = userService.updateUser(userId, user);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(updatedUser, "USER_UPDATED");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -112,7 +117,8 @@ public class UserController {
     public ResponseEntity<EndpointResponseDto<?>> updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
-            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(userService.updateUserStatus(userId, status).getData(), "USER_STATUS_UPDATED");
+            UserResponseDto updatedUser = userService.updateUserStatus(userId, status);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(updatedUser, "USER_STATUS_UPDATED");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -127,7 +133,8 @@ public class UserController {
         try {
             boolean status = (boolean) updates.get("status");
             String roleEnum = (String) updates.get("role");
-            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(userService.updateUserStatusAndRole(userId, status, roleEnum).getData(), "USER_STATUS_AND_ROLE_UPDATED");
+            UserResponseDto updatedUser = userService.updateUserStatusAndRole(userId, status, roleEnum);
+            EndpointResponseDto<UserResponseDto> response = ResponseUtil.successResponse(updatedUser, "USER_STATUS_AND_ROLE_UPDATED");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(

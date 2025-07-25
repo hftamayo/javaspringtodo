@@ -4,7 +4,6 @@ import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
@@ -23,8 +22,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,44 +81,52 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public EndpointResponseDto<UserResponseDto> getUsers() {
+    public List<UserResponseDto> getUsers() {
         List<User> usersList = userRepository.findAll();
         if (!usersList.isEmpty()) {
-            List<UserResponseDto> usersDtoList = usersList.stream().map(userMapper::userToDto).toList();
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", usersDtoList);
+            return usersList.stream().map(userMapper::userToDto).toList();
         } else {
             throw new ResourceNotFoundException("User", "all");
         }
     }
 
     @Override
-    public EndpointResponseDto<UserResponseDto> getUser(long userId) {
+    public UserResponseDto getUser(long userId) {
         Optional<User> userOptional = getUserById(userId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            UserResponseDto userToDto = userMapper.userToDto(user);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            return userMapper.userToDto(user);
         } else {
             throw new ResourceNotFoundException("User", userId);
         }
     }
 
     @Override
-    public EndpointResponseDto<UserResponseDto> getUserByCriteria(String criteria, String value) {
+    public UserResponseDto getUserByCriteria(String criteria, String value) {
         Specification<User> specification = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get(criteria), value);
-        return searchUserByCriteria(specification);
+        List<User> usersList = userRepository.findAll(specification);
+        if (!usersList.isEmpty()) {
+            return userMapper.userToDto(usersList.get(0));
+        } else {
+            throw new ResourceNotFoundException("User", criteria + "=" + value);
+        }
     }
 
     @Override
-    public EndpointResponseDto<UserResponseDto> getUserByCriterias(String criteria, String value,
+    public UserResponseDto getUserByCriterias(String criteria, String value,
                                                                         String criteria2, String value2) {
         Specification<User> specification = (root, query, criteriaBuilder)
                 -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get(criteria), value),
                 criteriaBuilder.equal(root.get(criteria2), value2)
         );
-        return searchUserByCriteria(specification);
+        List<User> usersList = userRepository.findAll(specification);
+        if (!usersList.isEmpty()) {
+            return userMapper.userToDto(usersList.get(0));
+        } else {
+            throw new ResourceNotFoundException("User", criteria + "=" + value + ", " + criteria2 + "=" + value2);
+        }
     }
 
     @Override
@@ -142,7 +147,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<UserResponseDto> saveUser(User newUser) {
+    public UserResponseDto saveUser(User newUser) {
         Optional<User> requestedUser = getUserByEmail(newUser.getEmail());
         if (!requestedUser.isPresent()) {
             if (newUser.getRole() == null) {
@@ -153,8 +158,7 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(newUser.getPassword().trim());
             newUser.setPassword(encodedPassword);
             User savedUser = userRepository.save(newUser);
-            UserResponseDto userToDto = userMapper.userToDto(savedUser);
-            return new EndpointResponseDto(201, "OPERATION SUCCESSFUL", userToDto);
+            return userMapper.userToDto(savedUser);
         } else {
             throw DuplicateResourceException.withFieldValue("email", newUser.getEmail());
         }
@@ -162,13 +166,12 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<UserResponseDto> updateUser(long userId, User updatedUser) {
+    public UserResponseDto updateUser(long userId, User updatedUser) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             User existingUser = getExistingUser(updatedUser, requestedUserOptional);
             User savedUser = userRepository.save(existingUser);
-            UserResponseDto userToDto = userMapper.userToDto(savedUser);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            return userMapper.userToDto(savedUser);
         } else {
             throw new ResourceNotFoundException("User", userId);
         }
@@ -176,14 +179,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<UserResponseDto> updateUserStatus(long userId, boolean status) {
+    public UserResponseDto updateUserStatus(long userId, boolean status) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             User existingUser = requestedUserOptional.get();
             existingUser.setStatus(status);
             User savedUser = userRepository.save(existingUser);
-            UserResponseDto userToDto = userMapper.userToDto(savedUser);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            return userMapper.userToDto(savedUser);
         } else {
             throw new ResourceNotFoundException("User", userId);
         }
@@ -191,8 +193,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public EndpointResponseDto<UserResponseDto>
-    updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
+    public UserResponseDto updateUserStatusAndRole(long userId, boolean status, String roleEnum) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             User existingUser = requestedUserOptional.get();
@@ -204,8 +205,7 @@ public class UserServiceImpl implements UserService {
             }
             existingUser.setRole(roleOptional.get());
             User savedUser = userRepository.save(existingUser);
-            UserResponseDto userToDto = userMapper.userToDto(savedUser);
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", userToDto);
+            return userMapper.userToDto(savedUser);
         } else {
             throw new ResourceNotFoundException("User", userId);
         }
@@ -213,11 +213,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public EndpointResponseDto deleteUser(long userId) {
+    public void deleteUser(long userId) {
         Optional<User> requestedUserOptional = getUserById(userId);
         if (requestedUserOptional.isPresent()) {
             userRepository.deleteUserById(requestedUserOptional.get().getId());
-            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
             throw new ResourceNotFoundException("User", userId);
         }
