@@ -32,7 +32,7 @@ public class AuthController {
     private String environment;
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<EndpointResponseDto<?>> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
         logger.info("Login attempt: {}", loginRequestDto.getEmail());
         try {
             ActiveSessionResponseDto activeSessionResponseDto = authService.login(loginRequestDto);
@@ -47,11 +47,20 @@ public class AuthController {
                         activeSessionResponseDto.getExpiresIn());
             }
 
-            return ResponseEntity.ok("LOGIN_SUCCESSFUL " + loginRequestDto.getEmail() + "!" +
-                    ", your role is: " + activeSessionResponseDto.getRoles());
+            EndpointResponseDto<ActiveSessionResponseDto> response = new EndpointResponseDto<>(
+                200,
+                "LOGIN_SUCCESSFUL",
+                activeSessionResponseDto
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("LOGIN_INVALID_ATTEMPT " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("LOGIN_INVALID_CREDENTIALS");
+            EndpointResponseDto<String> errorResponse = new EndpointResponseDto<>(
+                401,
+                "LOGIN_INVALID_CREDENTIALS",
+                List.of(e.getMessage())
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
