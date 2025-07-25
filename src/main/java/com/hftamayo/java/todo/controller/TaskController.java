@@ -42,7 +42,8 @@ public class TaskController {
     @GetMapping(value = "/task/{taskId}")
     public ResponseEntity<EndpointResponseDto<?>> getTask(@PathVariable long taskId) {
         try {
-            EndpointResponseDto<TaskResponseDto> response = taskService.getTask(taskId);
+            TaskResponseDto task = taskService.getTask(taskId);
+            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.successResponse(task, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -55,7 +56,8 @@ public class TaskController {
     @GetMapping(value = "/taskbc/{criteria}/{value}")
     public ResponseEntity<EndpointResponseDto<?>> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         try {
-            EndpointResponseDto<TaskResponseDto> response = taskService.getTaskByCriteria(criteria, value);
+            TaskResponseDto task = taskService.getTaskByCriteria(criteria, value);
+            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.successResponse(task, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -68,7 +70,8 @@ public class TaskController {
     @GetMapping(value = "/taskbcs/{criteria}/{value}/{criteria2}/{value2}")
     public ResponseEntity<EndpointResponseDto<?>> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         try {
-            EndpointResponseDto<TaskResponseDto> response = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
+            TaskResponseDto task = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
+            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.successResponse(task, "OPERATION_SUCCESS");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -81,7 +84,8 @@ public class TaskController {
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveTask(@RequestBody Task task) {
         try {
-            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.createdResponse(taskService.saveTask(task).getData(), "TASK_CREATED");
+            TaskResponseDto savedTask = taskService.saveTask(task);
+            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.createdResponse(savedTask, "TASK_CREATED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -94,7 +98,8 @@ public class TaskController {
     @PatchMapping(value = "/update/{taskId}")
     public ResponseEntity<EndpointResponseDto<?>> updateTask(@PathVariable long taskId, @RequestBody Task task) {
         try {
-            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.successResponse(taskService.updateTask(taskId, task).getData(), "TASK_UPDATED");
+            TaskResponseDto updatedTask = taskService.updateTask(taskId, task);
+            EndpointResponseDto<TaskResponseDto> response = ResponseUtil.successResponse(updatedTask, "TASK_UPDATED");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
