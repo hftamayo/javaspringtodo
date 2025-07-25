@@ -27,8 +27,8 @@ import java.util.List;
 @RequestMapping("/api/auth")
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-    private AuthService authService;
-    private UserService userService;
+    private final AuthService authService;
+    private final UserService userService;
     
     @Value("${app.environment}")
     private String environment;
