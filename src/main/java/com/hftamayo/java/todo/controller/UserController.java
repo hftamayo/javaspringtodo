@@ -113,7 +113,7 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/status/{userId}")
+    @PatchMapping(value = "/status/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
@@ -128,7 +128,7 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/activate/{userId}")
+    @PatchMapping(value = "/activate/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
