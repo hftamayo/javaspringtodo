@@ -90,6 +90,13 @@
             <version>1.10.8</version>
         </dependency>
 
+        <!-- dependency for loading environment variables -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- dependencies for testing stage -->
         <!-- H2 Database -->
         <dependency>

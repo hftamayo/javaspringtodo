@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.dto.pagination;
+package com.hftamayo.java.todo.dto.health;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PageRequestDto {
-    private int page = 0;
-    private int size = 10;
-    private String sort;
+public class MemoryUsageDto {
+    private long total;
+    private long free;
+
 } 
