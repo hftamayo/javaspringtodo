@@ -58,7 +58,7 @@ public class AuthController {
     public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
         try {
             EndpointResponseDto<UserResponseDto> response = ResponseUtil
-                    .createdResponse(userService.saveUser(user).getData(), "USER_REGISTERED");
+                    .createdResponse(userService.saveUser(user), "USER_REGISTERED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
