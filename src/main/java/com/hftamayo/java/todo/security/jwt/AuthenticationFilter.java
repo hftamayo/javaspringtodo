@@ -1,5 +1,8 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
@@ -9,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +20,15 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final UserInfoProviderManager userInfoProviderManager;
     private final CustomTokenProvider customTokenProvider;
+    private final ObjectMapper objectMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
@@ -50,17 +57,36 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (AuthenticationException e) {
             logger.error("Authentication failed: {}", e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authentication failed: " + e.getMessage());
+            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Authentication failed", e);
         } catch (Exception e) {
             logger.error("Unexpected error in AuthenticationFilter: {}", e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("A problem occurred during the authentication process. Please try again.");
+            sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR,
+                    "A problem occurred during the authentication process", e);
         }
     }
 
+    private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message, Exception e)
+            throws IOException {
+        ErrorResponseDto error = new ErrorResponseDto(
+            LocalDateTime.now(ZoneOffset.UTC),
+            status,
+            message,
+            e.getMessage()
+        );
+        EndpointResponseDto<ErrorResponseDto> errorResponse = new EndpointResponseDto<>(
+            status.value(),
+            message,
+            error
+        );
+        
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+    }
+
     private boolean isPublicEndpoint(String path) {
-        return path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register") || path.startsWith("/api/health");
+        return path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")
+                || path.startsWith("/api/health");
     }
 
     private void authenticateUser(HttpServletRequest request, String token, String email) {
