@@ -90,6 +90,13 @@
             <version>1.10.8</version>
         </dependency>
 
+        <!-- Bucket4j for rate limiting -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.7.0</version>
+        </dependency>
+
         <!-- dependency for loading environment variables -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
