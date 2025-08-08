@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.services.RolesService;
+import com.hftamayo.java.todo.utilities.ratelimit.RateLimit;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
 public class RolesController {
     private final RolesService rolesService;
 
+    @RateLimit(tokens = 10)
     @GetMapping(value = "/list")
     public ResponseEntity<EndpointResponseDto<?>> getRoles(
             @RequestParam(defaultValue = "0") int page,
@@ -37,6 +39,7 @@ public class RolesController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @GetMapping(value = "/rolebn/{roleName}")
     public ResponseEntity<EndpointResponseDto<?>> getRoleByName(@PathVariable String name) {
         try {
@@ -51,6 +54,7 @@ public class RolesController {
         }
     }
 
+    @RateLimit(tokens = 3)
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveRole(@RequestBody Roles role) {
         try {
@@ -65,6 +69,7 @@ public class RolesController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @PatchMapping(value = "/update/{roleId}")
     public ResponseEntity<EndpointResponseDto<?>> updateRole(@PathVariable long roleId, @RequestBody Roles role) {
         try {
@@ -79,6 +84,7 @@ public class RolesController {
         }
     }
 
+    @RateLimit(tokens = 2)
     @DeleteMapping(value = "/delete/{roleId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EndpointResponseDto<?>> deleteRole(@PathVariable long roleId) {

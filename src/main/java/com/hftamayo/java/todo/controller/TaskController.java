@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.services.TaskService;
+import com.hftamayo.java.todo.utilities.ratelimit.RateLimit;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class TaskController {
     private final TaskService taskService;
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
+    @RateLimit(tokens = 15)
     @GetMapping(value = "/list")
     public ResponseEntity<EndpointResponseDto<?>> getTasks(
             @RequestParam(defaultValue = "0") int page,
@@ -39,6 +41,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 10)
     @GetMapping(value = "/task/{taskId}")
     public ResponseEntity<EndpointResponseDto<?>> getTask(@PathVariable long taskId) {
         try {
@@ -53,6 +56,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 8)
     @GetMapping(value = "/taskbc/{criteria}/{value}")
     public ResponseEntity<EndpointResponseDto<?>> getTaskByCriteria(@PathVariable String criteria, @PathVariable String value) {
         try {
@@ -67,6 +71,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 8)
     @GetMapping(value = "/taskbcs/{criteria}/{value}/{criteria2}/{value2}")
     public ResponseEntity<EndpointResponseDto<?>> getTaskByCriterias(@PathVariable String criteria, @PathVariable String value, @PathVariable String criteria2, @PathVariable String value2) {
         try {
@@ -81,6 +86,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveTask(@RequestBody Task task) {
         try {
@@ -95,6 +101,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 8)
     @PatchMapping(value = "/update/{taskId}")
     public ResponseEntity<EndpointResponseDto<?>> updateTask(@PathVariable long taskId, @RequestBody Task task) {
         try {
@@ -109,6 +116,7 @@ public class TaskController {
         }
     }
 
+    @RateLimit(tokens = 3)
     @DeleteMapping(value = "/delete/{taskId}")
     public ResponseEntity<EndpointResponseDto<?>> deleteTask(@PathVariable long taskId) {
         try {
