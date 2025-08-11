@@ -123,3 +123,5 @@ public class VersionInfoDto {
         private List<String> breakingChanges;
     }
 }
+
+

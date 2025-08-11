@@ -23,3 +23,5 @@ public class WebConfig implements WebMvcConfigurer {
             .excludePathPatterns("/api/health/**"); // Exclude health checks
     }
 }
+
+
