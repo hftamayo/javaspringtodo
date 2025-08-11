@@ -21,6 +21,19 @@ jwt:
   expiration-milliseconds: ${JWT_EXPIRATION_MS} # 8 hours
   refresh: ${JWT_REFRESH}
 
+# Version management configuration
+version:
+  api:
+    current: v1
+    supported:
+      - v1
+      - v2
+    legacy-support: true
+    headers:
+      enabled: true
+      version-header: X-API-Version
+      build-header: X-Build-Version
+
 # Common seeding configuration
 seed:
   development: ${SEED_DEVELOPMENT:false}
