@@ -7,6 +7,7 @@ import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.UserService;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
+import com.hftamayo.java.todo.utilities.ratelimit.RateLimit;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    @RateLimit(tokens = 10)
     @GetMapping(value = "/list")
     public ResponseEntity<EndpointResponseDto<?>> getUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +44,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> getUser(@PathVariable long userId) {
         try {
@@ -56,6 +59,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @GetMapping(value = "/userbc/{criteria}/{value}")
     public ResponseEntity<EndpointResponseDto<?>> getUserByCriteria(@PathVariable String criteria, @PathVariable String value) {
         try {
@@ -70,6 +74,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @GetMapping(value = "/userbcs/{criteria}/{value}/{criteria2}/{value2}")
     public ResponseEntity<EndpointResponseDto<?>> getUserByCriterias(@PathVariable String criteria, @PathVariable String value,
                        @PathVariable String criteria2, @PathVariable String value2) {
@@ -85,6 +90,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 3)
     @PostMapping(value = "/create")
     public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
         try {
@@ -99,6 +105,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 5)
     @PatchMapping(value = "/update/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUser(@PathVariable long userId, @RequestBody User user) {
         try {
@@ -113,7 +120,8 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/status/{userId}")
+    @RateLimit(tokens = 5)
+    @PatchMapping(value = "/status/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUserStatus(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
@@ -128,7 +136,8 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/activate/{userId}")
+    @RateLimit(tokens = 3)
+    @PatchMapping(value = "/activate/{userId}")
     public ResponseEntity<EndpointResponseDto<?>> updateUserStatusAndRole(@PathVariable long userId, @RequestBody Map<String, Object> updates) {
         try {
             boolean status = (boolean) updates.get("status");
@@ -144,6 +153,7 @@ public class UserController {
         }
     }
 
+    @RateLimit(tokens = 2)
     @DeleteMapping(value = "/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EndpointResponseDto<?>> deleteUser(@PathVariable long userId) {

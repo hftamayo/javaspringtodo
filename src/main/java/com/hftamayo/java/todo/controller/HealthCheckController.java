@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.dto.health.AppHealthCheckDto;
 import com.hftamayo.java.todo.dto.health.DbHealthCheckDto;
 import com.hftamayo.java.todo.dto.health.MemoryUsageDto;
 import com.hftamayo.java.todo.utilities.endpoints.ResponseUtil;
+import com.hftamayo.java.todo.utilities.ratelimit.RateLimit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class HealthCheckController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @RateLimit(tokens = 1)
     @GetMapping("/app")
     public ResponseEntity<EndpointResponseDto<?>> checkAppHealth() {
         try {
@@ -56,6 +58,7 @@ public class HealthCheckController {
         }
     }
 
+    @RateLimit(tokens = 1)
     @GetMapping("/db")
     public ResponseEntity<EndpointResponseDto<?>> checkDbHealth() {
         String timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now());

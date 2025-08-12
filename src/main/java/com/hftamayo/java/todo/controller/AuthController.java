@@ -7,6 +7,7 @@ import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.services.AuthService;
 import com.hftamayo.java.todo.services.UserService;
+import com.hftamayo.java.todo.utilities.ratelimit.RateLimit;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ public class AuthController {
     @Value("${app.environment}")
     private String environment;
 
+    @RateLimit(tokens = 3)
     @PostMapping("/login")
     public ResponseEntity<EndpointResponseDto<?>> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
         logger.info("Login attempt: {}", loginRequestDto.getEmail());
@@ -54,11 +56,12 @@ public class AuthController {
         }
     }
 
+    @RateLimit(tokens = 2)
     @PostMapping("/register")
     public ResponseEntity<EndpointResponseDto<?>> saveUser(@RequestBody User user) {
         try {
             EndpointResponseDto<UserResponseDto> response = ResponseUtil
-                    .createdResponse(userService.saveUser(user).getData(), "USER_REGISTERED");
+                    .createdResponse(userService.saveUser(user), "USER_REGISTERED");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(
@@ -68,6 +71,7 @@ public class AuthController {
         }
     }
 
+    @RateLimit(tokens = 10)
     @PostMapping("/logout")
     public ResponseEntity<EndpointResponseDto<?>> logout(HttpServletRequest request) {
         try {
@@ -85,6 +89,7 @@ public class AuthController {
         }
     }
 
+    @RateLimit(tokens = 15)
     @GetMapping("/logged-out")
     public ResponseEntity<EndpointResponseDto<?>> loggedOut() {
         try {
