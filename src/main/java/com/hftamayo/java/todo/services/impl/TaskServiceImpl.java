@@ -1,11 +1,9 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
@@ -43,13 +41,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @NotNull
-    private CrudOperationResponseDto<TaskResponseDto> searchTaskByCriteria(Specification<Task> specification) {
+    private EndpointResponseDto<TaskResponseDto> searchTaskByCriteria(Specification<Task> specification) {
         List<Task> taskList = taskRepository.findAll(specification);
         if (!taskList.isEmpty()) {
             List<TaskResponseDto> tasksDtoList = taskList.stream().map(taskMapper::taskToDto).toList();
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", tasksDtoList);
+            return new EndpointResponseDto(200, "OPERATION SUCCESSFUL", tasksDtoList);
         } else {
-            return new CrudOperationResponseDto(404, "NO TASKS FOUND");
+            return new EndpointResponseDto(404, "NO TASKS FOUND");
         }
     }
 
@@ -70,44 +68,51 @@ public class TaskServiceImpl implements TaskService {
 
     //persistence methods
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> getTasks() {
+    public List<TaskResponseDto> getTasks() {
         List<Task> taskList = taskRepository.findAll();
         if (!taskList.isEmpty()) {
-            List<TaskResponseDto> tasksDtoList = taskList.stream().map(taskMapper::taskToDto).toList();
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", tasksDtoList);
+            return taskList.stream().map(taskMapper::taskToDto).toList();
         } else {
             throw new ResourceNotFoundException("Task", "all");
         }
     }
 
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> getTask(long taskId) {
+    public TaskResponseDto getTask(long taskId) {
         Optional<Task> taskOptional = getTaskById(taskId);
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
-            TaskResponseDto taskToDto = taskMapper.taskToDto(task);
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", taskToDto);
+            return taskMapper.taskToDto(task);
         } else {
             throw new ResourceNotFoundException("Task", taskId);
         }
     }
 
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriteria(String criteria, String value) {
+    public TaskResponseDto getTaskByCriteria(String criteria, String value) {
         Specification<Task> specification = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get(criteria), value);
-        return searchTaskByCriteria(specification);
+        List<Task> taskList = taskRepository.findAll(specification);
+        if (!taskList.isEmpty()) {
+            return taskMapper.taskToDto(taskList.get(0));
+        } else {
+            throw new ResourceNotFoundException("Task", criteria + "=" + value);
+        }
     }
 
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> getTaskByCriterias(String criteria, String value,
-                                                                        String criteria2, String value2) {
+    public TaskResponseDto getTaskByCriterias(String criteria, String value, String criteria2, String value2) {
         Specification<Task> specification = (root, query, criteriaBuilder)
                 -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get(criteria), value),
                 criteriaBuilder.equal(root.get(criteria2), value2)
         );
-        return searchTaskByCriteria(specification);
+        List<Task> taskList = taskRepository.findAll(specification);
+        if (!taskList.isEmpty()) {
+            return taskMapper.taskToDto(taskList.get(0));
+        } else {
+            throw new ResourceNotFoundException("Task", criteria + "=" + value + ", " + criteria2 + "=" + value2);
+        }
     }
 
     @Override
@@ -128,12 +133,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> saveTask(Task newTask) {
+    public TaskResponseDto saveTask(Task newTask) {
         Optional<Task> requestedTask = getTaskByTitle(newTask.getTitle());
         if (!requestedTask.isPresent()) {
             Task savedTask = taskRepository.save(newTask);
-            TaskResponseDto taskToDto = taskMapper.taskToDto(savedTask);
-            return new CrudOperationResponseDto(201, "OPERATION SUCCESSFUL", taskToDto);
+            return taskMapper.taskToDto(savedTask);
         } else {
             throw DuplicateResourceException.withFieldValue("title", newTask.getTitle());
         }
@@ -141,13 +145,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto<TaskResponseDto> updateTask(long taskId, Task updatedTask) {
+    public TaskResponseDto updateTask(long taskId, Task updatedTask) {
         Optional<Task> requestedTaskOptional = getTaskById(taskId);
         if (requestedTaskOptional.isPresent()) {
             Task existingTask = getExistingTask(updatedTask, requestedTaskOptional);
             Task savedTask = taskRepository.save(existingTask);
-            TaskResponseDto taskToDto = taskMapper.taskToDto(savedTask);
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL", taskToDto);
+            return taskMapper.taskToDto(savedTask);
         } else {
             throw new ResourceNotFoundException("Task", taskId);
         }
@@ -155,11 +158,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public CrudOperationResponseDto deleteTask(long taskId) {
+    public void deleteTask(long taskId) {
         Optional<Task> requestedTask = getTaskById(taskId);
         if (requestedTask.isPresent()) {
             taskRepository.deleteTaskById(requestedTask.get().getId());
-            return new CrudOperationResponseDto(200, "OPERATION SUCCESSFUL");
         } else {
             throw new ResourceNotFoundException("Task", taskId);
         }

@@ -1,0 +1,13 @@
+# Test environment - very permissive
+rate:
+  limiter:
+    default:
+      capacity: 10000  # Very high for testing
+      refill-rate: 1000
+      refill-duration: PT1S
+    
+    endpoints:
+      /api/auth/login:
+        capacity: 1000
+        refill-rate: 100
+        refill-duration: PT1S

@@ -24,3 +24,39 @@ logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
     com.bytestree.restful: DEBUG 
+    
+# Docker/production-like rate limiting
+rate:
+  limiter:
+    default:
+      capacity: 100
+      refill-rate: 10
+      refill-duration: PT1M
+    
+    endpoints:
+      /api/auth/login:
+        capacity: 20  # Stricter limits for production
+        refill-rate: 2
+        refill-duration: PT2M
+      
+      /api/users:
+        capacity: 50
+        refill-rate: 5
+        refill-duration: PT1M
+      
+      /api/tasks:
+        capacity: 100
+        refill-rate: 10
+        refill-duration: PT1M
+    
+    users:
+      ADMIN:
+        capacity: 200
+        refill-rate: 20
+        refill-duration: PT30S
+      
+      USER:
+        capacity: 100
+        refill-rate: 10
+        refill-duration: PT1M   
+    

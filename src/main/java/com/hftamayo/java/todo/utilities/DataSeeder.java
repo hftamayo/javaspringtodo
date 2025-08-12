@@ -20,7 +20,7 @@ this class only requires integration testing
 
 @Component
 @RequiredArgsConstructor
-public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
+public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private final UserService userService;
     private final RolesService rolesService;
 
@@ -58,13 +58,15 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
             if (seedDevelopment) {
                 seedDevelopment();
             } else {
-                System.out.println("No data seeding required on Development environment");
+                System.out.println("No data seeding required for Users" +
+                        ", Data already seeded in development enviro");
 
             }
             if (seedProduction) {
                 seedProduction();
             } else {
-                System.out.println("No data seeding required on Production environment");
+                System.out.println("No data seeding required for Users" +
+                        ", Data already seeded in production enviro");
             }
 
         } catch (Exception e) {
@@ -92,7 +94,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void seedDevelopment() {
-        System.out.println("Seeding data for development environment started");
+        System.out.println("Seeding user data for development environment started");
 
         User adminUser = new User(null, "Herbert Tamayo", "administrador@tamayo.com",
                 adminPasswod.trim(), 25, true,
@@ -121,7 +123,7 @@ public class UserSeeder implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private void seedProduction() {
-        System.out.println("Seeding data for production environment started");
+        System.out.println("Seeding user data for production environment started");
         User adminUser = new User(null, "Administrator", "administrador@tamayo.com",
                 adminPasswod.trim(), 25, true,
                 true, true, true, true,
