@@ -17,6 +17,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,6 +42,7 @@ public class FilterConfig {
         logger.info("Configuring Security Filter Chain");
 
         httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> {
                     csrf.disable();
                     logger.info("CSRF is disabled");
@@ -63,6 +70,51 @@ public class FilterConfig {
                 .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class);
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Allow specific origins (your frontend URLs)
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:3000",      // React default
+            "http://localhost:5173",      // Vite default
+            "http://localhost:4200",      // Angular default
+            "http://localhost:8080",      // Vue default
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:4200",
+            "http://127.0.0.1:8080"
+        ));
+        
+        // Allow all HTTP methods
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        
+        // Allow all headers
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Allow credentials (cookies, authorization headers)
+        configuration.setAllowCredentials(true);
+        
+        // Set max age for preflight requests
+        configuration.setMaxAge(3600L);
+        
+        // Configure exposed headers
+        configuration.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining", 
+            "X-RateLimit-Reset",
+            "X-API-Version",
+            "X-Build-Version"
+        ));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        
+        logger.info("CORS configuration loaded with allowed origins: {}", configuration.getAllowedOriginPatterns());
+        return source;
     }
 
     @Bean
