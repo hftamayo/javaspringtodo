@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security;
 
+import com.hftamayo.java.todo.config.CorsProperties;
 import com.hftamayo.java.todo.security.handlers.CustomAccessDeniedHandler;
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import com.hftamayo.java.todo.security.managers.CustomAccessDecisionManager;
@@ -34,6 +35,7 @@ public class FilterConfig {
     private final AuthenticationProvider authenticationProvider;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAccessDecisionManager customAccessDecisionManager;
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -76,17 +78,12 @@ public class FilterConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Allow specific origins (your frontend URLs)
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:3000",      // React default
-            "http://localhost:5173",      // Vite default
-            "http://localhost:4200",      // Angular default
-            "http://localhost:8080",      // Vue default
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:5173",
-            "http://127.0.0.1:4200",
-            "http://127.0.0.1:8080"
-        ));
+        // Get origins from configuration properties
+        List<String> allowedOrigins = corsProperties.getOrigins();
+        logger.info("Configuring CORS with allowed origins: {}", corsProperties.getOriginsAsString());
+        
+        // Set allowed origins from configuration
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -113,7 +110,7 @@ public class FilterConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         
-        logger.info("CORS configuration loaded with allowed origins: {}", configuration.getAllowedOriginPatterns());
+        logger.info("CORS configuration loaded successfully with {} origins", allowedOrigins.size());
         return source;
     }
 
