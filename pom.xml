@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.hftamayo.java</groupId>
     <artifactId>todo</artifactId>
-    <version>0.1.5-main</version>
+    <version>0.1.5-refactor</version>
     <name>jsbtodo</name>
     <description>Todo Application</description>
     <properties>
