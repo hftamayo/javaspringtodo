@@ -156,12 +156,21 @@
                 <configuration>
                     <mainClass>com.hftamayo.java.todo.TodoApplication</mainClass>
                     <layout>JAR</layout>
+                    <generateBuildInfo>true</generateBuildInfo>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal>
+                            <goal>build-info</goal>
                         </goals>
+                        <configuration>
+                            <additionalProperties>
+                                <encoding.source>UTF-8</encoding.source>
+                                <encoding.reporting>UTF-8</encoding.reporting>
+                                <java.source>17</java.source>
+                                <java.target>17</java.target>
+                            </additionalProperties>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
