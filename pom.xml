@@ -156,7 +156,6 @@
                 <configuration>
                     <mainClass>com.hftamayo.java.todo.TodoApplication</mainClass>
                     <layout>JAR</layout>
-                    <generateBuildInfo>true</generateBuildInfo>
                 </configuration>
                 <executions>
                     <execution>
