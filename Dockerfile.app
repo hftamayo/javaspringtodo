@@ -14,7 +14,7 @@ RUN ./mvnw dependency:go-offline -B
 COPY src src
 
 # Build the application with production profile
-RUN ./mvnw clean package -DskipTests -Pprod
+RUN ./mvnw -B -DskipTests clean package
 
 # Stage 2: Extract layered JAR for faster startup
 FROM eclipse-temurin:17-jdk-alpine AS extract
