@@ -1,5 +1,9 @@
 package com.hftamayo.java.todo.controller;
 
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.health.AppHealthCheckDto;
+import com.hftamayo.java.todo.dto.health.DbHealthCheckDto;
+import com.hftamayo.java.todo.dto.health.MemoryUsageDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,23 +45,33 @@ class HealthCheckControllerTest {
 
     @Test
     void checkAppHealth_WhenApplicationIsRunning_ShouldReturnOkStatus() {
-        ResponseEntity<String> response = healthCheckController.checkAppHealth();
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = healthCheckController.checkAppHealth();
 
+        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
-                () -> assertTrue(response.getBody().contains("HealthCheck: Application is up and running")),
-                () -> assertTrue(response.getBody().contains("Timestamp:"))
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
+                () -> assertTrue(response.getBody().getData() instanceof AppHealthCheckDto)
         );
     }
 
     @Test
     void checkDbHealth_WhenDatabaseIsConnected_ShouldReturnOkStatus() throws SQLException {
-        ResponseEntity<String> response = healthCheckController.checkDbHealth();
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = healthCheckController.checkDbHealth();
 
+        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
-                () -> assertTrue(response.getBody().contains("HealthCheck: The connection to the data layer is up and running")),
-                () -> assertTrue(response.getBody().contains("Timestamp:")),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
+                () -> assertTrue(response.getBody().getData() instanceof DbHealthCheckDto),
                 () -> verify(connection).close(),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
@@ -65,16 +79,21 @@ class HealthCheckControllerTest {
     }
 
     @Test
-    void checkDbHealth_WhenDatabaseIsNotConnected_ShouldReturnError() throws SQLException {
+    void checkDbHealth_WhenDatabaseIsNotConnected_ShouldReturnServiceUnavailable() throws SQLException {
+        // Arrange
         String errorMessage = "Database connection error";
         when(dataSource.getConnection()).thenThrow(new SQLException(errorMessage));
 
-        ResponseEntity<String> response = healthCheckController.checkDbHealth();
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = healthCheckController.checkDbHealth();
 
+        // Assert
         assertAll(
                 () -> assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode()),
-                () -> assertTrue(response.getBody().contains("HealthCheck: Database connection failed:")),
-                () -> assertTrue(response.getBody().contains(errorMessage)),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Database connection failed", response.getBody().getResultMessage()),
+                () -> assertEquals(503, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
         );

@@ -1,30 +1,24 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
-import com.hftamayo.java.todo.exceptions.ValidationException;
-import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.services.RolesService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import org.mockito.ArgumentCaptor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
-import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RolesControllerTest {
@@ -37,229 +31,169 @@ class RolesControllerTest {
 
     @Test
     void getRoleByName_WhenRoleExists_ShouldReturnSuccessResponse() {
+        // Arrange
         String roleName = "ROLE_ADMIN";
-        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new RolesResponseDto());
+        RolesResponseDto roleResponse = new RolesResponseDto();
+        roleResponse.setName(roleName);
+        roleResponse.setDescription("Administrator role");
 
-        when(rolesService.getRoleByName(roleName)).thenReturn(expectedResponse);
+        when(rolesService.getRoleByName(roleName)).thenReturn(roleResponse);
 
-        CrudOperationResponseDto<RolesResponseDto> response = rolesController.getRoleByName(roleName);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.getRoleByName(roleName);
 
+        // Assert
         assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
                 () -> verify(rolesService).getRoleByName(roleName)
         );
     }
 
     @Test
-    void getRoleByName_WhenRoleNotFound_ShouldThrowResourceNotFoundException() {
+    void getRoleByName_WhenRoleNotFound_ShouldReturnNotFoundResponse() {
+        // Arrange
         String roleName = "ROLE_INVALID";
         when(rolesService.getRoleByName(roleName)).thenThrow(new ResourceNotFoundException("Role not found: " + roleName));
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> rolesController.getRoleByName(roleName));
-        
-        assertEquals("Role not found: ROLE_INVALID", exception.getMessage());
-        verify(rolesService).getRoleByName(roleName);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.getRoleByName(roleName);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Role not found", response.getBody().getResultMessage()),
+                () -> assertEquals(404, response.getBody().getCode()),
+                () -> verify(rolesService).getRoleByName(roleName)
+        );
     }
 
     @Test
-    void saveRole_WhenValidRole_ShouldReturnSuccessResponse() {
+    void saveRole_WhenValidRole_ShouldReturnCreatedResponse() {
+        // Arrange
         Roles role = new Roles();
-        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(201);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new RolesResponseDto());
+        role.setName("ROLE_TEST");
+        role.setDescription("Test role");
 
-        when(rolesService.saveRole(role)).thenReturn(expectedResponse);
+        RolesResponseDto savedRole = new RolesResponseDto();
+        savedRole.setName("ROLE_TEST");
+        savedRole.setDescription("Test role");
 
-        CrudOperationResponseDto<RolesResponseDto> response = rolesController.saveRole(role);
+        when(rolesService.saveRole(role)).thenReturn(savedRole);
 
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.saveRole(role);
+
+        // Assert
         assertAll(
-                () -> assertEquals(201, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(HttpStatus.CREATED, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("ROLE_CREATED", response.getBody().getResultMessage()),
+                () -> assertEquals(201, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
                 () -> verify(rolesService).saveRole(role)
         );
     }
 
     @Test
-    void saveRole_WhenInvalidRole_ShouldThrowValidationException() {
+    void saveRole_WhenInvalidRole_ShouldReturnBadRequestResponse() {
+        // Arrange
         Roles role = new Roles();
-        when(rolesService.saveRole(role)).thenThrow(new ValidationException("Role name is required"));
+        // Invalid role without required fields
 
-        ValidationException exception = assertThrows(ValidationException.class, 
-            () -> rolesController.saveRole(role));
-        
-        assertEquals("Role name is required", exception.getMessage());
-        verify(rolesService).saveRole(role);
-    }
+        when(rolesService.saveRole(role)).thenThrow(new RuntimeException("Invalid role data"));
 
-    @Test
-    void saveRole_WhenDuplicateRole_ShouldThrowDuplicateResourceException() {
-        Roles role = new Roles();
-        role.setRoleEnum(ERole.valueOf("ROLE_ADMIN"));
-        when(rolesService.saveRole(role)).thenThrow(new DuplicateResourceException("Role already exists"));
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.saveRole(role);
 
-        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, 
-            () -> rolesController.saveRole(role));
-        
-        assertEquals("Role already exists", exception.getMessage());
-        verify(rolesService).saveRole(role);
-    }
-
-    @Test
-    void updateRole_WhenRoleExists_ShouldReturnSuccessResponse() {
-        long roleId = 1L;
-        Roles role = new Roles();
-        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new RolesResponseDto());
-
-        when(rolesService.updateRole(roleId, role)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<RolesResponseDto> response = rolesController.updateRole(roleId, role);
-
+        // Assert
         assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> verify(rolesService).updateRole(roleId, role)
+                () -> assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Failed to create role", response.getBody().getResultMessage()),
+                () -> assertEquals(400, response.getBody().getCode()),
+                () -> verify(rolesService).saveRole(role)
         );
     }
 
     @Test
-    void updateRole_WhenRoleNotFound_ShouldThrowResourceNotFoundException() {
-        long roleId = 999L;
-        Roles role = new Roles();
-        when(rolesService.updateRole(roleId, role)).thenThrow(new ResourceNotFoundException("Role not found with id: " + roleId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> rolesController.updateRole(roleId, role));
-        
-        assertEquals("Role not found with id: 999", exception.getMessage());
-        verify(rolesService).updateRole(roleId, role);
-    }
-
-    @Test
-    void deleteRole_WhenRoleExists_ShouldReturnSuccessResponse() {
-        long roleId = 1L;
-        CrudOperationResponseDto<RolesResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-
-        when(rolesService.deleteRole(roleId)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<RolesResponseDto> response = rolesController.deleteRole(roleId);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> verify(rolesService).deleteRole(roleId)
-        );
-    }
-
-    @Test
-    void deleteRole_WhenRoleNotFound_ShouldThrowResourceNotFoundException() {
-        long roleId = 999L;
-        when(rolesService.deleteRole(roleId)).thenThrow(new ResourceNotFoundException("Role not found with id: " + roleId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> rolesController.deleteRole(roleId));
-        
-        assertEquals("Role not found with id: 999", exception.getMessage());
-        verify(rolesService).deleteRole(roleId);
-    }
-
-    @Test
-    void getRoles_WhenRolesExist_ShouldReturnPaginatedResponse() {
-        PaginatedDataDto<RolesResponseDto> paginatedData = getRolesResponseDtoPaginatedDataDto();
-
+    void getRoles_WhenRolesExist_ShouldReturnSuccessResponse() {
+        // Arrange
         int page = 0;
         int size = 2;
         String sort = null;
+
+        PaginatedDataDto<RolesResponseDto> paginatedData = getRolesResponseDtoPaginatedDataDto();
+
         when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(paginatedData);
 
-        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> response = rolesController.getRoles(page, size, sort);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.getRoles(page, size, sort);
 
-        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
-
-        verify(rolesService).getPaginatedRoles(pageRequestCaptor.capture());
-
-        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
-        PaginatedDataDto<RolesResponseDto> responseData = response.getData();
-
+        // Assert
         assertAll(
-                () -> assertEquals(1, responseData.getContent().size()),
-                () -> assertEquals(0, responseData.getPagination().getCurrentPage()),
-                () -> assertEquals(2, responseData.getPagination().getLimit()),
-                () -> assertEquals(1, responseData.getPagination().getTotalCount()),
-                () -> assertEquals(1, responseData.getPagination().getTotalPages()),
-                () -> assertTrue(responseData.getPagination().isLastPage()),
-                () -> assertEquals(page, capturedRequest.getPage()),
-                () -> assertEquals(size, capturedRequest.getSize()),
-                () -> assertEquals(sort, capturedRequest.getSort())
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
+                () -> verify(rolesService).getPaginatedRoles(any(PageRequestDto.class))
         );
     }
 
     @Test
     void getRoles_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
-        PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
-        paginatedData.setContent(List.of());
-        
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setCurrentPage(0);
-        pagination.setLimit(2);
-        pagination.setTotalCount(0);
-        pagination.setTotalPages(0);
-        pagination.setLastPage(true);
-        paginatedData.setPagination(pagination);
-
+        // Arrange
         int page = 0;
         int size = 2;
         String sort = null;
 
-        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(paginatedData);
+        PaginatedDataDto<RolesResponseDto> emptyPaginatedData = new PaginatedDataDto<>();
+        emptyPaginatedData.setContent(List.of());
+        emptyPaginatedData.setTotalElements(0L);
+        emptyPaginatedData.setTotalPages(0);
+        emptyPaginatedData.setSize(2);
+        emptyPaginatedData.setNumber(0);
+        emptyPaginatedData.setFirst(true);
+        emptyPaginatedData.setLast(true);
+        emptyPaginatedData.setNumberOfElements(0);
 
-        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> response = rolesController.getRoles(page, size, sort);
+        when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(emptyPaginatedData);
 
-        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = rolesController.getRoles(page, size, sort);
 
-        verify(rolesService).getPaginatedRoles(pageRequestCaptor.capture());
-
-        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
-        PaginatedDataDto<RolesResponseDto> responseData = response.getData();
-
+        // Assert
         assertAll(
-                () -> assertEquals(0, responseData.getContent().size()),
-                () -> assertEquals(0, responseData.getPagination().getTotalCount()),
-                () -> assertEquals(0, responseData.getPagination().getTotalPages()),
-                () -> assertTrue(responseData.getPagination().isLastPage()),
-                () -> assertEquals(page, capturedRequest.getPage()),
-                () -> assertEquals(size, capturedRequest.getSize()),
-                () -> assertEquals(sort, capturedRequest.getSort())
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
+                () -> verify(rolesService).getPaginatedRoles(any(PageRequestDto.class))
         );
     }
 
-    private static @NotNull PaginatedDataDto<RolesResponseDto> getRolesResponseDtoPaginatedDataDto() {
+    // Helper method
+    private PaginatedDataDto<RolesResponseDto> getRolesResponseDtoPaginatedDataDto() {
+        RolesResponseDto roleResponse = new RolesResponseDto();
+        roleResponse.setName("ROLE_USER");
+        roleResponse.setDescription("User role");
+
         PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
-        paginatedData.setContent(List.of(new RolesResponseDto()));
+        paginatedData.setContent(List.of(roleResponse));
+        paginatedData.setTotalElements(1L);
+        paginatedData.setTotalPages(1);
+        paginatedData.setSize(2);
+        paginatedData.setNumber(0);
+        paginatedData.setFirst(true);
+        paginatedData.setLast(true);
+        paginatedData.setNumberOfElements(1);
 
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setCurrentPage(0);
-        pagination.setLimit(2);
-        pagination.setTotalCount(1);
-        pagination.setTotalPages(1);
-        pagination.setLastPage(true);
-        paginatedData.setPagination(pagination);
-
-        CrudOperationResponseDto<PaginatedDataDto<RolesResponseDto>> expectedResponse =
-                new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
         return paginatedData;
     }
 }

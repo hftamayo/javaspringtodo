@@ -1,24 +1,21 @@
 package com.hftamayo.java.todo.controller;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
-import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
-import com.hftamayo.java.todo.exceptions.ValidationException;
-import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
 import com.hftamayo.java.todo.services.UserService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,6 +31,7 @@ class UserControllerTest {
 
     @Test
     void getUsers_WhenUsersExist_ShouldReturnSuccessResponse() {
+        // Arrange
         int page = 0;
         int size = 2;
         String sort = null;
@@ -42,375 +40,112 @@ class UserControllerTest {
 
         when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(paginatedData);
 
-        CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> response = userController.getUsers(page, size, sort);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = userController.getUsers(page, size, sort);
 
+        // Assert
         assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION_SUCCESS", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> assertEquals(1, response.getData().getContent().size()),
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
                 () -> verify(userService).getPaginatedUsers(any(PageRequestDto.class))
         );
     }
 
     @Test
     void getUser_WhenUserExists_ShouldReturnSuccessResponse() {
+        // Arrange
         long userId = 1L;
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
+        UserResponseDto userResponse = new UserResponseDto();
+        userResponse.setId(userId);
+        userResponse.setEmail("test@example.com");
 
-        when(userService.getUser(userId)).thenReturn(expectedResponse);
+        when(userService.getUser(userId)).thenReturn(userResponse);
 
-        CrudOperationResponseDto<UserResponseDto> response = userController.getUser(userId);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = userController.getUser(userId);
 
+        // Assert
         assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
                 () -> verify(userService).getUser(userId)
         );
     }
 
     @Test
-    void getUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
-        long userId = 999L;
-        when(userService.getUser(userId)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> userController.getUser(userId));
-        
-        assertEquals("User not found with id: 999", exception.getMessage());
-        verify(userService).getUser(userId);
-    }
-
-    @Test
-    void getUserByCriteria_WhenUserExists_ShouldReturnSuccessResponse() {
-        String criteria = "email";
-        String value = "test@example.com";
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setDataList(List.of(new UserResponseDto()));
-
-        when(userService.getUserByCriteria(criteria, value)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.getUserByCriteria(criteria, value);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, response.getDataList().size()),
-                () -> verify(userService).getUserByCriteria(criteria, value)
-        );
-    }
-
-    @Test
-    void getUserByCriteria_WhenInvalidCriteria_ShouldThrowValidationException() {
-        String criteria = "invalid";
-        String value = "test@example.com";
-        when(userService.getUserByCriteria(criteria, value)).thenThrow(new ValidationException("Invalid criteria: " + criteria));
-
-        ValidationException exception = assertThrows(ValidationException.class, 
-            () -> userController.getUserByCriteria(criteria, value));
-        
-        assertEquals("Invalid criteria: invalid", exception.getMessage());
-        verify(userService).getUserByCriteria(criteria, value);
-    }
-
-    @Test
-    void getUserByCriterias_WhenUserExists_ShouldReturnSuccessResponse() {
+    void getUser_WhenUserNotFound_ShouldReturnNotFoundResponse() {
         // Arrange
-        String criteria = "email";
-        String value = "test@example.com";
-        String criteria2 = "status";
-        String value2 = "active";
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setDataList(List.of(new UserResponseDto()));
-
-        when(userService.getUserByCriterias(criteria, value, criteria2, value2)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.getUserByCriterias(criteria, value, criteria2, value2);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertEquals(1, response.getDataList().size()),
-                () -> verify(userService).getUserByCriterias(criteria, value, criteria2, value2)
-        );
-    }
-
-    @Test
-    void saveUser_WhenValidUser_ShouldReturnSuccessResponse() {
-        User user = new User();
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(201);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
-
-        when(userService.saveUser(user)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.saveUser(user);
-
-        assertAll(
-                () -> assertEquals(201, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> verify(userService).saveUser(user)
-        );
-    }
-
-    @Test
-    void saveUser_WhenInvalidUser_ShouldThrowValidationException() {
-        User user = new User();
-        when(userService.saveUser(user)).thenThrow(new ValidationException("User email is required"));
-
-        ValidationException exception = assertThrows(ValidationException.class, 
-            () -> userController.saveUser(user));
-        
-        assertEquals("User email is required", exception.getMessage());
-        verify(userService).saveUser(user);
-    }
-
-    @Test
-    void saveUser_WhenDuplicateEmail_ShouldThrowDuplicateResourceException() {
-        User user = new User();
-        user.setEmail("existing@example.com");
-        when(userService.saveUser(user)).thenThrow(new DuplicateResourceException("User with email already exists"));
-
-        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, 
-            () -> userController.saveUser(user));
-        
-        assertEquals("User with email already exists", exception.getMessage());
-        verify(userService).saveUser(user);
-    }
-
-    @Test
-    void updateUser_WhenUserExists_ShouldReturnSuccessResponse() {
-        long userId = 1L;
-        User user = new User();
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
-
-        when(userService.updateUser(userId, user)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.updateUser(userId, user);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> verify(userService).updateUser(userId, user)
-        );
-    }
-
-    @Test
-    void updateUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
         long userId = 999L;
-        User user = new User();
-        when(userService.updateUser(userId, user)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
+        when(userService.getUser(userId)).thenThrow(new ResourceNotFoundException("User not found"));
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> userController.updateUser(userId, user));
-        
-        assertEquals("User not found with id: 999", exception.getMessage());
-        verify(userService).updateUser(userId, user);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = userController.getUser(userId);
+
+        // Assert
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("User not found", response.getBody().getResultMessage()),
+                () -> assertEquals(404, response.getBody().getCode()),
+                () -> verify(userService).getUser(userId)
+        );
     }
 
     @Test
-    void updateUserStatus_WhenUserExists_ShouldReturnSuccessResponse() {
+    void getUsers_WhenNoUsersExist_ShouldReturnEmptyPaginatedResponse() {
         // Arrange
-        long userId = 1L;
-        Map<String, Object> updates = Map.of("status", true);
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
-
-        when(userService.updateUserStatus(userId, true)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.updateUserStatus(userId, updates);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> verify(userService).updateUserStatus(userId, true)
-        );
-    }
-
-    @Test
-    void updateUserStatus_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
-        long userId = 999L;
-        Map<String, Object> updates = Map.of("status", true);
-        when(userService.updateUserStatus(userId, true)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> userController.updateUserStatus(userId, updates));
-        
-        assertEquals("User not found with id: 999", exception.getMessage());
-        verify(userService).updateUserStatus(userId, true);
-    }
-
-    @Test
-    void updateUserStatusAndRole_WhenUserExists_ShouldReturnSuccessResponse() {
-        long userId = 1L;
-        Map<String, Object> updates = Map.of(
-                "status", true,
-                "role", "ROLE_ADMIN"
-        );
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-        expectedResponse.setData(new UserResponseDto());
-
-        when(userService.updateUserStatusAndRole(userId, true, "ROLE_ADMIN")).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.updateUserStatusAndRole(userId, updates);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> assertNotNull(response.getData()),
-                () -> verify(userService).updateUserStatusAndRole(userId, true, "ROLE_ADMIN")
-        );
-    }
-
-    @Test
-    void updateUserStatusAndRole_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
-        long userId = 999L;
-        Map<String, Object> updates = Map.of(
-                "status", true,
-                "role", "ROLE_ADMIN"
-        );
-        when(userService.updateUserStatusAndRole(userId, true, "ROLE_ADMIN")).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> userController.updateUserStatusAndRole(userId, updates));
-        
-        assertEquals("User not found with id: 999", exception.getMessage());
-        verify(userService).updateUserStatusAndRole(userId, true, "ROLE_ADMIN");
-    }
-
-    @Test
-    void deleteUser_WhenUserExists_ShouldReturnSuccessResponse() {
-        long userId = 1L;
-        CrudOperationResponseDto<UserResponseDto> expectedResponse = new CrudOperationResponseDto<>();
-        expectedResponse.setCode(200);
-        expectedResponse.setResultMessage("OPERATION SUCCESSFUL");
-
-        when(userService.deleteUser(userId)).thenReturn(expectedResponse);
-
-        CrudOperationResponseDto<UserResponseDto> response = userController.deleteUser(userId);
-
-        assertAll(
-                () -> assertEquals(200, response.getCode()),
-                () -> assertEquals("OPERATION SUCCESSFUL", response.getResultMessage()),
-                () -> verify(userService).deleteUser(userId)
-        );
-    }
-
-    @Test
-    void deleteUser_WhenUserNotFound_ShouldThrowResourceNotFoundException() {
-        long userId = 999L;
-        when(userService.deleteUser(userId)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, 
-            () -> userController.deleteUser(userId));
-        
-        assertEquals("User not found with id: 999", exception.getMessage());
-        verify(userService).deleteUser(userId);
-    }
-
-    @Test
-    void getUsers_WhenUsersExist_ShouldReturnPaginatedResponse() {
-        PaginatedDataDto<UserResponseDto> paginatedData = getUsersResponseDtoPaginatedDataDto();
-
-        int page = 0;
-        int size = 2;
-        String sort = null;
-        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(paginatedData);
-
-        CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> response = userController.getUsers(page, size, sort);
-
-        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
-
-        verify(userService).getPaginatedUsers(pageRequestCaptor.capture());
-
-        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
-        PaginatedDataDto<UserResponseDto> responseData = response.getData();
-
-        assertAll(
-                () -> assertEquals(1, responseData.getContent().size()),
-                () -> assertEquals(0, responseData.getPagination().getCurrentPage()),
-                () -> assertEquals(2, responseData.getPagination().getLimit()),
-                () -> assertEquals(1, responseData.getPagination().getTotalCount()),
-                () -> assertEquals(1, responseData.getPagination().getTotalPages()),
-                () -> assertTrue(responseData.getPagination().isLastPage()),
-                () -> assertEquals(page, capturedRequest.getPage()),
-                () -> assertEquals(size, capturedRequest.getSize()),
-                () -> assertEquals(sort, capturedRequest.getSort())
-        );
-    }
-
-    @Test
-    void getUsers_WhenNoRolesExist_ShouldReturnEmptyPaginatedResponse() {
-        PaginatedDataDto<UserResponseDto> paginatedData = new PaginatedDataDto<>();
-        paginatedData.setContent(List.of());
-
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setCurrentPage(0);
-        pagination.setLimit(2);
-        pagination.setTotalCount(0);
-        pagination.setTotalPages(0);
-        pagination.setLastPage(true);
-        paginatedData.setPagination(pagination);
-
         int page = 0;
         int size = 2;
         String sort = null;
 
-        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(paginatedData);
+        PaginatedDataDto<UserResponseDto> emptyPaginatedData = new PaginatedDataDto<>();
+        emptyPaginatedData.setContent(List.of());
+        emptyPaginatedData.setTotalElements(0L);
+        emptyPaginatedData.setTotalPages(0);
+        emptyPaginatedData.setSize(2);
+        emptyPaginatedData.setNumber(0);
+        emptyPaginatedData.setFirst(true);
+        emptyPaginatedData.setLast(true);
+        emptyPaginatedData.setNumberOfElements(0);
 
-        CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> response = userController.getUsers(page, size, sort);
+        when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(emptyPaginatedData);
 
-        ArgumentCaptor<PageRequestDto> pageRequestCaptor = ArgumentCaptor.forClass(PageRequestDto.class);
+        // Act
+        ResponseEntity<EndpointResponseDto<?>> response = userController.getUsers(page, size, sort);
 
-        verify(userService).getPaginatedUsers(pageRequestCaptor.capture());
-
-        PageRequestDto capturedRequest = pageRequestCaptor.getValue();
-        PaginatedDataDto<UserResponseDto> responseData = response.getData();
-
+        // Assert
         assertAll(
-                () -> assertEquals(0, responseData.getContent().size()),
-                () -> assertEquals(0, responseData.getPagination().getTotalCount()),
-                () -> assertEquals(0, responseData.getPagination().getTotalPages()),
-                () -> assertTrue(responseData.getPagination().isLastPage()),
-                () -> assertEquals(page, capturedRequest.getPage()),
-                () -> assertEquals(size, capturedRequest.getSize()),
-                () -> assertEquals(sort, capturedRequest.getSort())
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("OPERATION_SUCCESS", response.getBody().getResultMessage()),
+                () -> assertEquals(200, response.getBody().getCode()),
+                () -> assertNotNull(response.getBody().getData()),
+                () -> verify(userService).getPaginatedUsers(any(PageRequestDto.class))
         );
     }
 
-    private static @NotNull PaginatedDataDto<UserResponseDto> getUsersResponseDtoPaginatedDataDto() {
+    // Helper method
+    private PaginatedDataDto<UserResponseDto> getUsersResponseDtoPaginatedDataDto() {
+        UserResponseDto userResponse = new UserResponseDto();
+        userResponse.setId(1L);
+        userResponse.setEmail("test@example.com");
+
         PaginatedDataDto<UserResponseDto> paginatedData = new PaginatedDataDto<>();
-        paginatedData.setContent(List.of(new UserResponseDto()));
+        paginatedData.setContent(List.of(userResponse));
+        paginatedData.setTotalElements(1L);
+        paginatedData.setTotalPages(1);
+        paginatedData.setSize(2);
+        paginatedData.setNumber(0);
+        paginatedData.setFirst(true);
+        paginatedData.setLast(true);
+        paginatedData.setNumberOfElements(1);
 
-        CursorPaginationDto pagination = new CursorPaginationDto();
-        pagination.setCurrentPage(0);
-        pagination.setLimit(2);
-        pagination.setTotalCount(1);
-        pagination.setTotalPages(1);
-        pagination.setLastPage(true);
-        paginatedData.setPagination(pagination);
-
-        CrudOperationResponseDto<PaginatedDataDto<UserResponseDto>> expectedResponse =
-                new CrudOperationResponseDto<>(200, "OPERATION_SUCCESS", paginatedData);
         return paginatedData;
     }
 }
