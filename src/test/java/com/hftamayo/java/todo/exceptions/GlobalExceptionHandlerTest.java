@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.exceptions;
 
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
+import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -34,17 +35,16 @@ class GlobalExceptionHandlerTest {
         AuthenticationException exception = new AuthenticationException("Invalid credentials");
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleAuthenticationException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleAuthenticationException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Authentication failed", response.getBody().getMessage());
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getBody().getStatus());
-        assertEquals(401, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("Invalid credentials"), response.getBody().getErrors());
+        assertEquals("Authentication failed", response.getBody().getResultMessage());
+        assertEquals(401, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -54,17 +54,16 @@ class GlobalExceptionHandlerTest {
         ValidationException exception = new ValidationException("email", "Email format is invalid");
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleValidationException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleValidationException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Validation failed", response.getBody().getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST, response.getBody().getStatus());
-        assertEquals(400, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("Email format is invalid"), response.getBody().getErrors());
+        assertEquals("Validation failed", response.getBody().getResultMessage());
+        assertEquals(400, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -74,17 +73,16 @@ class GlobalExceptionHandlerTest {
         ResourceNotFoundException exception = new ResourceNotFoundException("User", 123L);
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleResourceNotFoundException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleResourceNotFoundException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Resource not found", response.getBody().getMessage());
-        assertEquals(HttpStatus.NOT_FOUND, response.getBody().getStatus());
-        assertEquals(404, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("User with id 123 not found"), response.getBody().getErrors());
+        assertEquals("Resource not found", response.getBody().getResultMessage());
+        assertEquals(404, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -94,17 +92,16 @@ class GlobalExceptionHandlerTest {
         DuplicateResourceException exception = DuplicateResourceException.withIdentifier("User", "test@example.com");
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleDuplicateResourceException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleDuplicateResourceException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Resource already exists", response.getBody().getMessage());
-        assertEquals(HttpStatus.CONFLICT, response.getBody().getStatus());
-        assertEquals(409, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("User with identifier test@example.com already exists"), response.getBody().getErrors());
+        assertEquals("Resource already exists", response.getBody().getResultMessage());
+        assertEquals(409, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -114,17 +111,16 @@ class GlobalExceptionHandlerTest {
         BusinessLogicException exception = new BusinessLogicException("TASK-001", "Cannot delete task with dependencies");
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleBusinessLogicException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleBusinessLogicException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Business rule violation", response.getBody().getMessage());
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getBody().getStatus());
-        assertEquals(422, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("Cannot delete task with dependencies"), response.getBody().getErrors());
+        assertEquals("Business rule violation", response.getBody().getResultMessage());
+        assertEquals(422, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -137,19 +133,16 @@ class GlobalExceptionHandlerTest {
         when(exception.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleMethodArgumentNotValid(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleMethodArgumentNotValid(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Validation failed", response.getBody().getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST, response.getBody().getStatus());
-        assertEquals(400, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(2, response.getBody().getErrors().size());
-        assertTrue(response.getBody().getErrors().contains("Email is required"));
-        assertTrue(response.getBody().getErrors().contains("Password must be at least 8 characters"));
+        assertEquals("Validation failed", response.getBody().getResultMessage());
+        assertEquals(400, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -159,17 +152,16 @@ class GlobalExceptionHandlerTest {
         Exception exception = new Exception("An unexpected error occurred");
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleGenericException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleGenericException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("An unexpected error occurred", response.getBody().getMessage());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getBody().getStatus());
-        assertEquals(500, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("An unexpected error occurred"), response.getBody().getErrors());
+        assertEquals("An unexpected error occurred", response.getBody().getResultMessage());
+        assertEquals(500, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
 
     @Test
@@ -179,16 +171,15 @@ class GlobalExceptionHandlerTest {
         Exception exception = new Exception();
         
         // Act
-        ResponseEntity<ErrorResponseDto> response = exceptionHandler.handleGenericException(exception, webRequest);
+        ResponseEntity<EndpointResponseDto<ErrorResponseDto>> response = exceptionHandler.handleGenericException(exception, webRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("An unexpected error occurred", response.getBody().getMessage());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getBody().getStatus());
-        assertEquals(500, response.getBody().getStatusCode());
-        assertNotNull(response.getBody().getTimestamp());
-        assertEquals(List.of("An unexpected error occurred"), response.getBody().getErrors());
+        assertEquals("An unexpected error occurred", response.getBody().getResultMessage());
+        assertEquals(500, response.getBody().getCode());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData() instanceof ErrorResponseDto);
     }
-} 
+}

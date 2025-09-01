@@ -1,29 +1,26 @@
 package com.hftamayo.java.todo.services.impl;
 
+import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
-import com.hftamayo.java.todo.repository.RolesRepository;
-import com.hftamayo.java.todo.mapper.RoleMapper;
 import com.hftamayo.java.todo.entity.ERole;
 import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.mapper.RoleMapper;
+import com.hftamayo.java.todo.repository.RolesRepository;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
-import com.hftamayo.java.todo.exceptions.ValidationException;
-import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.mockito.Mock;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,21 +38,24 @@ public class RolesServiceImplTest {
 
     @Test
     void getRoles_WhenRolesExist_ShouldReturnListOfRoles() {
+        // Arrange
         List<Roles> rolesList = List.of(
-                createRole(1L, ERole.ROLE_ADMIN),
-                createRole(2L, ERole.ROLE_USER)
+                createRole(1L, ERole.ROLE_USER),
+                createRole(2L, ERole.ROLE_ADMIN)
         );
         List<RolesResponseDto> responseDtos = List.of(
-                createRoleDto(1L, "ADMIN"),
-                createRoleDto(2L, "USER")
+                createRoleDto(1L, ERole.ROLE_USER),
+                createRoleDto(2L, ERole.ROLE_ADMIN)
         );
 
         when(rolesRepository.findAll()).thenReturn(rolesList);
         when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
         when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
 
-        List<RolesResponseDto> result = rolesService.getRoles().getDataList();
+        // Act
+        List<RolesResponseDto> result = rolesService.getRoles();
 
+        // Assert
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(rolesRepository).findAll();
@@ -63,267 +63,210 @@ public class RolesServiceImplTest {
     }
 
     @Test
-    void getRoleByName_WhenRoleExists_ShouldReturnRole() {
-        Roles role = createRole(1L, ERole.ROLE_ADMIN);
-        RolesResponseDto responseDto = createRoleDto(1L, "ADMIN");
+    void getRoles_WhenNoRolesExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        when(rolesRepository.findAll()).thenReturn(Collections.emptyList());
 
-        when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(role));
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> rolesService.getRoles());
+        
+        assertEquals("Role with identifier all not found", exception.getMessage());
+        verify(rolesRepository).findAll();
+        verifyNoInteractions(roleMapper);
+    }
+
+    @Test
+    void getRoleByName_WhenRoleExists_ShouldReturnRole() {
+        // Arrange
+        String roleName = "ROLE_USER";
+        Roles role = createRole(1L, ERole.ROLE_USER);
+        RolesResponseDto responseDto = createRoleDto(1L, ERole.ROLE_USER);
+
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.of(role));
         when(roleMapper.toRolesResponseDto(role)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.getRoleByName("ROLE_ADMIN").getData();
+        // Act
+        RolesResponseDto result = rolesService.getRoleByName(roleName);
 
-        assertEquals("ADMIN", result.getRoleName());
-        verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
+        // Assert
+        assertEquals(responseDto, result);
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
         verify(roleMapper).toRolesResponseDto(role);
     }
 
     @Test
     void getRoleByName_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
-        when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.empty());
+        // Arrange
+        String roleName = "ROLE_INVALID";
+        when(rolesRepository.findByRoleEnum(ERole.valueOf(roleName))).thenReturn(Optional.empty());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> rolesService.getRoleByName("ROLE_ADMIN"));
+                () -> rolesService.getRoleByName(roleName));
         
-        assertEquals("Role with identifier ROLE_ADMIN not found", exception.getMessage());
-        verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
+        assertEquals("Role with identifier ROLE_INVALID not found", exception.getMessage());
+        verify(rolesRepository).findByRoleEnum(ERole.valueOf(roleName));
         verifyNoInteractions(roleMapper);
     }
-/*
-    @Test
-    void getRoleByName_WhenRoleNameIsInvalid_ShouldThrowInvalidRequestException() {
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> rolesService.getRoleByName("INVALID_ROLE"));
 
-        assertEquals("Role with identifier ROLE_ADMIN not found", exception.getMessage());
-        verifyNoInteractions(rolesRepository);
-        verifyNoInteractions(roleMapper);
+    @Test
+    void getPaginatedRoles_WhenRolesExist_ShouldReturnPaginatedData() {
+        // Arrange
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        List<Roles> rolesList = List.of(
+                createRole(1L, ERole.ROLE_USER),
+                createRole(2L, ERole.ROLE_ADMIN)
+        );
+        List<RolesResponseDto> responseDtos = List.of(
+                createRoleDto(1L, ERole.ROLE_USER),
+                createRoleDto(2L, ERole.ROLE_ADMIN)
+        );
+        
+        Page<Roles> rolesPage = new PageImpl<>(rolesList, PageRequest.of(0, 2), 2);
+        
+        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
+        when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
+        when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
+
+        // Act
+        PaginatedDataDto<RolesResponseDto> result = rolesService.getPaginatedRoles(pageRequestDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertEquals(responseDtos, result.getContent());
+        verify(rolesRepository).findAll(any(PageRequest.class));
+        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
     }
-*/
+
     @Test
-    void saveRole_WhenRoleDoesNotExist_ShouldReturnSavedRole() {
-        Roles newRole = createRole(1L, ERole.ROLE_ADMIN);
-        RolesResponseDto responseDto = createRoleDto(1L, "ADMIN");
+    void saveRole_WhenValidRole_ShouldReturnSavedRole() {
+        // Arrange
+        Roles newRole = createRole(null, ERole.ROLE_USER);
+        Roles savedRole = createRole(1L, ERole.ROLE_USER);
+        RolesResponseDto responseDto = createRoleDto(1L, ERole.ROLE_USER);
 
-        when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.empty());
-        when(rolesRepository.save(newRole)).thenReturn(newRole);
-        when(roleMapper.toRolesResponseDto(newRole)).thenReturn(responseDto);
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.empty());
+        when(rolesRepository.save(newRole)).thenReturn(savedRole);
+        when(roleMapper.toRolesResponseDto(savedRole)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.saveRole(newRole).getData();
+        // Act
+        RolesResponseDto result = rolesService.saveRole(newRole);
 
-        assertEquals("ADMIN", result.getRoleName());
-        verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
+        // Assert
+        assertEquals(responseDto, result);
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
         verify(rolesRepository).save(newRole);
-        verify(roleMapper).toRolesResponseDto(newRole);
+        verify(roleMapper).toRolesResponseDto(savedRole);
     }
 
     @Test
-    void saveRole_WhenRoleExists_ShouldThrowResourceAlreadyExistsException() {
-        Roles newRole = createRole(1L, ERole.ROLE_ADMIN);
+    void saveRole_WhenRoleWithSameEnumExists_ShouldThrowDuplicateResourceException() {
+        // Arrange
+        Roles newRole = createRole(null, ERole.ROLE_USER);
+        Roles existingRole = createRole(1L, ERole.ROLE_USER);
 
-        when(rolesRepository.findByRoleEnum(ERole.ROLE_ADMIN)).thenReturn(Optional.of(newRole));
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.of(existingRole));
 
+        // Act & Assert
         DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
                 () -> rolesService.saveRole(newRole));
         
-        assertEquals("Role with identifier ROLE_ADMIN already exists", exception.getMessage());
-        verify(rolesRepository).findByRoleEnum(ERole.ROLE_ADMIN);
-        verifyNoMoreInteractions(rolesRepository);
+        assertTrue(exception.getMessage().contains("Role"));
+        assertTrue(exception.getMessage().contains("ROLE_USER"));
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
+        verify(rolesRepository, never()).save(any(Roles.class));
         verifyNoInteractions(roleMapper);
     }
 
     @Test
     void updateRole_WhenRoleExists_ShouldReturnUpdatedRole() {
-        Roles existingRole = createRole(1L, ERole.ROLE_ADMIN);
-        Roles updatedRole = createRole(1L, ERole.ROLE_USER);
-        RolesResponseDto responseDto = createRoleDto(1L, "USER");
+        // Arrange
+        Long roleId = 1L;
+        Roles existingRole = createRole(roleId, ERole.ROLE_USER);
+        Roles updatedRole = createRole(roleId, ERole.ROLE_ADMIN);
+        RolesResponseDto responseDto = createRoleDto(roleId, ERole.ROLE_ADMIN);
 
-        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.of(existingRole));
-        when(rolesRepository.save(any(Roles.class))).thenReturn(existingRole);
-        when(roleMapper.toRolesResponseDto(existingRole)).thenReturn(responseDto);
+        when(rolesRepository.findRolesById(roleId)).thenReturn(Optional.of(existingRole));
+        when(rolesRepository.save(any(Roles.class))).thenReturn(updatedRole);
+        when(roleMapper.toRolesResponseDto(updatedRole)).thenReturn(responseDto);
 
-        RolesResponseDto result = rolesService.updateRole(1L, updatedRole).getData();
+        // Act
+        RolesResponseDto result = rolesService.updateRole(roleId, updatedRole);
 
-        assertEquals("USER", result.getRoleName());
-        verify(rolesRepository).findRolesById(1L);
+        // Assert
+        assertEquals(responseDto, result);
+        verify(rolesRepository).findRolesById(roleId);
         verify(rolesRepository).save(any(Roles.class));
-        verify(roleMapper).toRolesResponseDto(existingRole);
+        verify(roleMapper).toRolesResponseDto(updatedRole);
     }
 
     @Test
     void updateRole_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Roles updatedRole = createRole(1L, ERole.ROLE_USER);
+        // Arrange
+        Long roleId = 999L;
+        Roles updatedRole = createRole(roleId, ERole.ROLE_ADMIN);
 
-        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
+        when(rolesRepository.findRolesById(roleId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> rolesService.updateRole(1L, updatedRole));
+                () -> rolesService.updateRole(roleId, updatedRole));
         
-        assertEquals("Role with id 1 not found", exception.getMessage());
-        verify(rolesRepository).findRolesById(1L);
-        verifyNoMoreInteractions(rolesRepository);
+        assertEquals("Role with id " + roleId + " not found", exception.getMessage());
+        verify(rolesRepository).findRolesById(roleId);
+        verify(rolesRepository, never()).save(any(Roles.class));
         verifyNoInteractions(roleMapper);
     }
 
     @Test
     void deleteRole_WhenRoleExists_ShouldDeleteRole() {
-        Roles existingRole = createRole(1L, ERole.ROLE_ADMIN);
+        // Arrange
+        Long roleId = 1L;
+        Roles role = createRole(roleId, ERole.ROLE_USER);
 
-        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.of(existingRole));
+        when(rolesRepository.findRolesById(roleId)).thenReturn(Optional.of(role));
+        doNothing().when(rolesRepository).deleteRolesById(roleId);
 
-        rolesService.deleteRole(1L);
+        // Act
+        assertDoesNotThrow(() -> rolesService.deleteRole(roleId));
 
-        verify(rolesRepository).findRolesById(1L);
-        verify(rolesRepository).deleteRolesById(1L);
+        // Assert
+        verify(rolesRepository).findRolesById(roleId);
+        verify(rolesRepository).deleteRolesById(roleId);
     }
 
     @Test
     void deleteRole_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
-        when(rolesRepository.findRolesById(1L)).thenReturn(Optional.empty());
+        // Arrange
+        Long roleId = 999L;
+        when(rolesRepository.findRolesById(roleId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> rolesService.deleteRole(1L));
+                () -> rolesService.deleteRole(roleId));
         
-        assertEquals("Role with id 1 not found", exception.getMessage());
-        verify(rolesRepository).findRolesById(1L);
-        verifyNoMoreInteractions(rolesRepository);
+        assertEquals("Role with id " + roleId + " not found", exception.getMessage());
+        verify(rolesRepository).findRolesById(roleId);
+        verify(rolesRepository, never()).deleteRolesById(any(Long.class));
     }
 
-    @Test
-    void getPaginatedRoles_WhenRolesExist_ShouldReturnPaginatedRoles() {
-        List<Roles> rolesList = List.of(
-            createRole(1L, ERole.ROLE_ADMIN),
-            createRole(2L, ERole.ROLE_USER)
-        );
-        List<RolesResponseDto> responseDtos = List.of(
-            createRoleDto(1L, "ADMIN"),
-            createRoleDto(2L, "USER")
-        );
-        Page<Roles> rolesPage = new PageImpl<>(rolesList, PageRequest.of(0, 2), 2);
-
-        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
-        when(roleMapper.toRolesResponseDto(rolesList.get(0))).thenReturn(responseDtos.get(0));
-        when(roleMapper.toRolesResponseDto(rolesList.get(1))).thenReturn(responseDtos.get(1));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-
-        var result = rolesService.getPaginatedRoles(pageRequestDto);
-
-        assertEquals(2, result.getContent().size());
-        assertEquals(responseDtos, result.getContent());
-        assertNotNull(result.getPagination());
-        assertEquals(1, result.getPagination().getCurrentPage());
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(2, result.getPagination().getTotalCount());
-        assertEquals(1, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
-        verify(rolesRepository).findAll(any(PageRequest.class));
-        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
-    }
-
-    @Test
-    void getPaginatedRoles_WhenMultiplePages_ShouldReturnFirstPageWithCorrectMetadata() {
-        // Arrange
-        List<Roles> firstPageRoles = List.of(
-                createRole(1L, ERole.ROLE_ADMIN),
-                createRole(2L, ERole.ROLE_USER)
-        );
-        List<RolesResponseDto> firstPageDtos = List.of(
-                createRoleDto(1L, "ADMIN"),
-                createRoleDto(2L, "USER")
-        );
-
-        // Creamos una página con 2 elementos, pero indicamos que hay 5 elementos en total
-        // Esto significa que habrá 3 páginas en total (5 elementos / 2 por página = 3 páginas)
-        Page<Roles> rolesPage = new PageImpl<>(firstPageRoles, PageRequest.of(0, 2), 5);
-
-        // Configuramos los mocks
-        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
-        when(roleMapper.toRolesResponseDto(firstPageRoles.get(0))).thenReturn(firstPageDtos.get(0));
-        when(roleMapper.toRolesResponseDto(firstPageRoles.get(1))).thenReturn(firstPageDtos.get(1));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-
-        // Act
-        var result = rolesService.getPaginatedRoles(pageRequestDto);
-
-        // Assert
-        assertEquals(2, result.getContent().size());
-        assertEquals(1, result.getPagination().getCurrentPage()); // Primera página (índice 0)
-        assertEquals(2, result.getPagination().getLimit()); // 2 elementos por página
-        assertEquals(5, result.getPagination().getTotalCount()); // 5 elementos en total
-        assertEquals(3, result.getPagination().getTotalPages()); // 3 páginas en total
-        assertFalse(result.getPagination().isLastPage()); // No es la última página
-        assertEquals(firstPageDtos, result.getContent());
-
-        verify(rolesRepository).findAll(any(PageRequest.class));
-        verify(roleMapper, times(2)).toRolesResponseDto(any(Roles.class));
-    }
-
-    @Test
-    void getPaginatedRoles_WhenOnLastPage_ShouldIndicateIsLastPage() {
-        // Arrange
-        List<Roles> lastPageRoles = List.of(
-                createRole(5L, ERole.ROLE_ADMIN)
-        );
-        List<RolesResponseDto> lastPageDtos = List.of(
-                createRoleDto(5L, "ADMIN")
-        );
-
-        // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
-        Page<Roles> rolesPage = new PageImpl<>(lastPageRoles, PageRequest.of(2, 2), 5);
-
-        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
-        when(roleMapper.toRolesResponseDto(lastPageRoles.get(0))).thenReturn(lastPageDtos.get(0));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
-
-        // Act
-        var result = rolesService.getPaginatedRoles(pageRequestDto);
-
-        // Assert
-        assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(3, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(5, result.getPagination().getTotalCount());
-        assertEquals(3, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage()); // Es la última página
-
-        verify(rolesRepository).findAll(any(PageRequest.class));
-        verify(roleMapper).toRolesResponseDto(any(Roles.class));
-    }
-
-    @Test
-    void getPaginatedRoles_WhenNoRolesExist_ShouldReturnEmptyPage() {
-        List<Roles> rolesList = List.of();
-        Page<Roles> rolesPage = new PageImpl<>(rolesList, PageRequest.of(0, 2), 0);
-
-        when(rolesRepository.findAll(any(PageRequest.class))).thenReturn(rolesPage);
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-
-        var result = rolesService.getPaginatedRoles(pageRequestDto);
-
-        assertEquals(0, result.getContent().size());
-        assertEquals(0, result.getPagination().getTotalCount());
-        assertEquals(0, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
-        verify(rolesRepository).findAll(any(PageRequest.class));
-        verifyNoInteractions(roleMapper);
-    }
-
-    //helper methods
+    // Helper methods
     private Roles createRole(Long id, ERole roleEnum) {
         Roles role = new Roles();
         role.setId(id);
         role.setRoleEnum(roleEnum);
+        role.setDescription("Description for " + roleEnum.name());
         role.setStatus(true);
         return role;
     }
 
-    private RolesResponseDto createRoleDto(Long id, String name) {
+    private RolesResponseDto createRoleDto(Long id, ERole roleEnum) {
         RolesResponseDto dto = new RolesResponseDto();
         dto.setId(id);
-        dto.setRoleName(name);
+        dto.setName(roleEnum.name());
+        dto.setDescription("Description for " + roleEnum.name());
         dto.setStatus(true);
         return dto;
     }

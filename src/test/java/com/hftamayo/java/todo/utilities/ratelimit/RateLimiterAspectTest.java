@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.utilities.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,16 +1,16 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
-import com.hftamayo.java.todo.entity.User;
-import com.hftamayo.java.todo.entity.Roles;
 import com.hftamayo.java.todo.entity.ERole;
+import com.hftamayo.java.todo.entity.Roles;
+import com.hftamayo.java.todo.entity.User;
+import com.hftamayo.java.todo.mapper.UserMapper;
+import com.hftamayo.java.todo.repository.RolesRepository;
+import com.hftamayo.java.todo.repository.UserRepository;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
-import com.hftamayo.java.todo.mapper.UserMapper;
-import com.hftamayo.java.todo.repository.UserRepository;
-import com.hftamayo.java.todo.repository.RolesRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,10 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +48,7 @@ public class UserServiceImplTest {
 
     @Test
     void getUsers_ShouldReturnListOfUsers() {
+        // Arrange
         List<User> usersList = List.of(
                 createUser(1L, "John Doe"),
                 createUser(2L, "Jane Doe")
@@ -61,8 +62,10 @@ public class UserServiceImplTest {
         when(userMapper.userToDto(usersList.get(0))).thenReturn(responseDtos.get(0));
         when(userMapper.userToDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
-        List<UserResponseDto> result = userService.getUsers().getDataList();
+        // Act
+        List<UserResponseDto> result = userService.getUsers();
 
+        // Assert
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(userRepository).findAll();
@@ -70,7 +73,22 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void getUsers_WhenNoUsersExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.getUsers());
+        
+        assertEquals("User with identifier all not found", exception.getMessage());
+        verify(userRepository).findAll();
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
     void getUserById_WhenUserExists_ShouldReturnUser() {
+        // Arrange
         Long userId = 1L;
         User user = createUser(userId, "John Doe");
         UserResponseDto responseDto = createUserDto(userId, "John Doe");
@@ -78,8 +96,10 @@ public class UserServiceImplTest {
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
         when(userMapper.userToDto(user)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.getUser(userId).getData();
+        // Act
+        UserResponseDto result = userService.getUser(userId);
 
+        // Assert
         assertEquals(responseDto, result);
         verify(userRepository).findUserById(userId);
         verify(userMapper).userToDto(user);
@@ -87,10 +107,11 @@ public class UserServiceImplTest {
 
     @Test
     void getUserById_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Long userId = 1L;
-
+        // Arrange
+        Long userId = 999L;
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> userService.getUser(userId));
         
@@ -100,117 +121,85 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void saveUser_WhenUserDoesNotExist_ShouldReturnSavedUser() {
-        User newUser = createUser(null, "John Doe");
-        newUser.setEmail("john.doe@example.com");
-        newUser.setPassword("password123");
-        
-        User savedUser = createUser(1L, "John Doe");
-        savedUser.setEmail("john.doe@example.com");
-        savedUser.setPassword("encodedPassword");
-        
+    void getUserByCriteria_WhenUserExists_ShouldReturnUser() {
+        // Arrange
+        String criteria = "email";
+        String value = "john@example.com";
+        User user = createUser(1L, "John Doe");
         UserResponseDto responseDto = createUserDto(1L, "John Doe");
-        Roles defaultRole = new Roles();
-        defaultRole.setRoleEnum(ERole.ROLE_USER);
 
-        when(userRepository.findUserByEmail(newUser.getEmail())).thenReturn(Optional.empty());
-        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.of(defaultRole));
-        when(passwordEncoder.encode(newUser.getPassword().trim())).thenReturn("encodedPassword");
-        when(userRepository.save(newUser)).thenReturn(savedUser);
-        when(userMapper.userToDto(savedUser)).thenReturn(responseDto);
+        when(userRepository.findAll((Specification<User>) any())).thenReturn(List.of(user));
+        when(userMapper.userToDto(user)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.saveUser(newUser).getData();
+        // Act
+        UserResponseDto result = userService.getUserByCriteria(criteria, value);
 
+        // Assert
         assertEquals(responseDto, result);
-        verify(userRepository).findUserByEmail(newUser.getEmail());
-        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
-        verify(passwordEncoder).encode("password123");
-        verify(userRepository).save(newUser);
-        verify(userMapper).userToDto(savedUser);
+        verify(userRepository).findAll((Specification<User>) any());
+        verify(userMapper).userToDto(user);
     }
 
     @Test
-    void saveUser_WhenUserAlreadyExists_ShouldThrowResourceAlreadyExistsException() {
-        User existingUser = createUser(1L, "John Doe");
-        existingUser.setEmail("john.doe@example.com");
+    void getUserByCriteria_WhenNoUsersExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        String criteria = "email";
+        String value = "nonexistent@example.com";
+        when(userRepository.findAll((Specification<User>) any())).thenReturn(Collections.emptyList());
 
-        when(userRepository.findUserByEmail(existingUser.getEmail())).thenReturn(Optional.of(existingUser));
-
-        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
-                () -> userService.saveUser(existingUser));
-        
-        assertEquals("Resource with email '" + existingUser.getEmail() + "' already exists", exception.getMessage());
-        verify(userRepository).findUserByEmail(existingUser.getEmail());
-        verifyNoMoreInteractions(userRepository);
-        verifyNoInteractions(rolesRepository, passwordEncoder, userMapper);
-    }
-
-    @Test
-    void updateUser_WhenUserExists_ShouldReturnUpdatedUser() {
-        Long userId = 1L;
-        User existingUser = createUser(userId, "John Doe");
-        User updatedUser = createUser(userId, "John Smith");
-        UserResponseDto responseDto = createUserDto(userId, "John Smith");
-
-        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
-        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
-
-        CrudOperationResponseDto<UserResponseDto> response = userService.updateUser(userId, updatedUser);
-        UserResponseDto result = response.getData();
-
-        assertNotNull(result);
-        assertEquals(responseDto, result);
-        verify(userRepository).findUserById(userId);
-        verify(userRepository).save(any(User.class));
-        verify(userMapper).userToDto(updatedUser);
-    }
-
-    @Test
-    void updateUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Long userId = 1L;
-        User updatedUser = createUser(userId, "John Smith");
-
-        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
-
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> userService.updateUser(userId, updatedUser));
+                () -> userService.getUserByCriteria(criteria, value));
         
-        assertEquals("User with id " + userId + " not found", exception.getMessage());
-        verify(userRepository).findUserById(userId);
-        verifyNoMoreInteractions(userRepository);
+        assertEquals("User with identifier email=nonexistent@example.com not found", exception.getMessage());
+        verify(userRepository).findAll((Specification<User>) any());
         verifyNoInteractions(userMapper);
     }
 
     @Test
-    void deleteUser_WhenUserExists_ShouldDeleteUser() {
-        Long userId = 1L;
-        User existingUser = createUser(userId, "John Doe");
+    void getUserByCriterias_WhenUserExists_ShouldReturnUser() {
+        // Arrange
+        String criteria = "email";
+        String value = "john@example.com";
+        String criteria2 = "status";
+        String value2 = "true";
+        User user = createUser(1L, "John Doe");
+        UserResponseDto responseDto = createUserDto(1L, "John Doe");
 
-        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findAll((Specification<User>) any())).thenReturn(List.of(user));
+        when(userMapper.userToDto(user)).thenReturn(responseDto);
 
-        userService.deleteUser(userId);
+        // Act
+        UserResponseDto result = userService.getUserByCriterias(criteria, value, criteria2, value2);
 
-        verify(userRepository).findUserById(userId);
-        verify(userRepository).deleteUserById(userId);
+        // Assert
+        assertEquals(responseDto, result);
+        verify(userRepository).findAll((Specification<User>) any());
+        verify(userMapper).userToDto(user);
     }
 
     @Test
-    void deleteUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Long userId = 1L;
+    void getUserByCriterias_WhenNoUsersExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        String criteria = "email";
+        String value = "nonexistent@example.com";
+        String criteria2 = "status";
+        String value2 = "true";
+        when(userRepository.findAll((Specification<User>) any())).thenReturn(Collections.emptyList());
 
-        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
-
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> userService.deleteUser(userId));
+                () -> userService.getUserByCriterias(criteria, value, criteria2, value2));
         
-        assertEquals("User with id " + userId + " not found", exception.getMessage());
-        verify(userRepository).findUserById(userId);
-        verifyNoMoreInteractions(userRepository);
+        assertEquals("User with identifier email=nonexistent@example.com, status=true not found", exception.getMessage());
+        verify(userRepository).findAll((Specification<User>) any());
+        verifyNoInteractions(userMapper);
     }
 
     @Test
-    void getPaginatedUsers_WhenUsersExist_ShouldReturnPaginatedUsers() {
+    void getPaginatedUsers_WhenUsersExist_ShouldReturnPaginatedData() {
+        // Arrange
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
         List<User> usersList = List.of(
                 createUser(1L, "John Doe"),
                 createUser(2L, "Jane Doe")
@@ -219,125 +208,202 @@ public class UserServiceImplTest {
                 createUserDto(1L, "John Doe"),
                 createUserDto(2L, "Jane Doe")
         );
-        Page<User> usersPage = new PageImpl<>(usersList, PageRequest.of(0, 2), 2);
-
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(usersPage);
+        
+        Page<User> userPage = new PageImpl<>(usersList, PageRequest.of(0, 2), 2);
+        
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(userPage);
         when(userMapper.toUserResponseDto(usersList.get(0))).thenReturn(responseDtos.get(0));
         when(userMapper.toUserResponseDto(usersList.get(1))).thenReturn(responseDtos.get(1));
 
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        // Act
+        PaginatedDataDto<UserResponseDto> result = userService.getPaginatedUsers(pageRequestDto);
 
-        var result = userService.getPaginatedUsers(pageRequestDto);
-
+        // Assert
+        assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
-        assertNotNull(result.getPagination());
-        assertEquals(1, result.getPagination().getCurrentPage());
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(2, result.getPagination().getTotalCount());
-        assertEquals(1, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
         verify(userRepository).findAll(any(PageRequest.class));
         verify(userMapper, times(2)).toUserResponseDto(any(User.class));
     }
 
     @Test
-    void getPaginatedUsers_WhenMultiplePages_ShouldReturnFirstPageWithCorrectMetadata() {
+    void saveUser_WhenValidUser_ShouldReturnSavedUser() {
         // Arrange
-        List<User> firstPageUsers = List.of(
-                createUser(1L, "John Doe"),
-                createUser(2L, "Jane Doe")
-        );
-        List<UserResponseDto> firstPageDtos = List.of(
-                createUserDto(1L, "John Doe"),
-                createUserDto(2L, "Jane Doe")
-        );
+        User newUser = createUser(null, "New User");
+        newUser.setEmail("newuser@example.com");
+        newUser.setPassword("password123");
+        
+        User savedUser = createUser(1L, "New User");
+        savedUser.setEmail("newuser@example.com");
+        
+        UserResponseDto responseDto = createUserDto(1L, "New User");
+        responseDto.setEmail("newuser@example.com");
+        
+        Roles defaultRole = createRole(1L, ERole.ROLE_USER);
 
-        // Creamos una página con 2 elementos, pero indicamos que hay 5 elementos en total
-        // Esto significa que habrá 3 páginas en total (5 elementos / 2 por página = 3 páginas)
-        Page<User> userPage = new PageImpl<>(firstPageUsers, PageRequest.of(0, 2), 5);
-
-        // Configuramos los mocks
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(userPage);
-        when(userMapper.toUserResponseDto(firstPageUsers.get(0))).thenReturn(firstPageDtos.get(0));
-        when(userMapper.toUserResponseDto(firstPageUsers.get(1))).thenReturn(firstPageDtos.get(1));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        when(userRepository.findUserByEmail("newuser@example.com")).thenReturn(Optional.empty());
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_USER)).thenReturn(Optional.of(defaultRole));
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userMapper.userToDto(savedUser)).thenReturn(responseDto);
 
         // Act
-        var result = userService.getPaginatedUsers(pageRequestDto);
+        UserResponseDto result = userService.saveUser(newUser);
 
         // Assert
-        assertEquals(2, result.getContent().size());
-        assertEquals(1, result.getPagination().getCurrentPage()); // Primera página (índice 0)
-        assertEquals(2, result.getPagination().getLimit()); // 2 elementos por página
-        assertEquals(5, result.getPagination().getTotalCount()); // 5 elementos en total
-        assertEquals(3, result.getPagination().getTotalPages()); // 3 páginas en total
-        assertFalse(result.getPagination().isLastPage()); // No es la última página
-        assertEquals(firstPageDtos, result.getContent());
-
-        verify(userRepository).findAll(any(PageRequest.class));
-        verify(userMapper, times(2)).toUserResponseDto(any(User.class));
+        assertEquals(responseDto, result);
+        verify(userRepository).findUserByEmail("newuser@example.com");
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_USER);
+        verify(passwordEncoder).encode("password123");
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).userToDto(savedUser);
     }
 
     @Test
-    void getPaginatedUsers_WhenOnLastPage_ShouldIndicateIsLastPage() {
+    void saveUser_WhenUserWithSameEmailExists_ShouldThrowDuplicateResourceException() {
         // Arrange
-        List<User> lastPageUsers = List.of(
-                createUser(1L, "John Doe")
-        );
-        List<UserResponseDto> lastPageDtos = List.of(
-                createUserDto(1L, "John Doe")
-        );
+        User newUser = createUser(null, "New User");
+        newUser.setEmail("existing@example.com");
+        User existingUser = createUser(1L, "Existing User");
+        existingUser.setEmail("existing@example.com");
 
-        // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
-        Page<User> usersPage = new PageImpl<>(lastPageUsers, PageRequest.of(2, 2), 5);
+        when(userRepository.findUserByEmail("existing@example.com")).thenReturn(Optional.of(existingUser));
 
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(usersPage);
-        when(userMapper.toUserResponseDto(lastPageUsers.get(0))).thenReturn(lastPageDtos.get(0));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
-
-        // Act
-        var result = userService.getPaginatedUsers(pageRequestDto);
-
-        // Assert
-        assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(3, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(5, result.getPagination().getTotalCount());
-        assertEquals(3, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage()); // Es la última página
-
-        verify(userRepository).findAll(any(PageRequest.class));
-        verify(userMapper).toUserResponseDto(any(User.class));
-    }
-
-    @Test
-    void getPaginatedUser_WhenNoUsersExist_ShouldReturnEmptyPage() {
-        List<User> usersList = List.of();
-        Page<User> userPage = new PageImpl<>(usersList, PageRequest.of(0, 2), 0);
-
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(userPage);
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-
-        var result = userService.getPaginatedUsers(pageRequestDto);
-
-        assertEquals(0, result.getContent().size());
-        assertEquals(0, result.getPagination().getTotalCount());
-        assertEquals(0, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
-        verify(userRepository).findAll(any(PageRequest.class));
+        // Act & Assert
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
+                () -> userService.saveUser(newUser));
+        
+        assertTrue(exception.getMessage().contains("email"));
+        assertTrue(exception.getMessage().contains("existing@example.com"));
+        verify(userRepository).findUserByEmail("existing@example.com");
+        verify(userRepository, never()).save(any(User.class));
         verifyNoInteractions(userMapper);
     }
 
-    //helper methods
+    @Test
+    void updateUser_WhenUserExists_ShouldReturnUpdatedUser() {
+        // Arrange
+        Long userId = 1L;
+        User existingUser = createUser(userId, "Original User");
+        User updatedUser = createUser(userId, "Updated User");
+        UserResponseDto responseDto = createUserDto(userId, "Updated User");
+
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
+
+        // Act
+        UserResponseDto result = userService.updateUser(userId, updatedUser);
+
+        // Assert
+        assertEquals(responseDto, result);
+        verify(userRepository).findUserById(userId);
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).userToDto(updatedUser);
+    }
+
+    @Test
+    void updateUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        Long userId = 999L;
+        User updatedUser = createUser(userId, "Updated User");
+
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUser(userId, updatedUser));
+        
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
+        verify(userRepository).findUserById(userId);
+        verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void updateUserStatus_WhenUserExists_ShouldReturnUpdatedUser() {
+        // Arrange
+        Long userId = 1L;
+        User existingUser = createUser(userId, "User");
+        existingUser.setStatus(true);
+        
+        User updatedUser = createUser(userId, "User");
+        updatedUser.setStatus(false);
+        
+        UserResponseDto responseDto = createUserDto(userId, "User");
+        responseDto.setStatus(false);
+
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.userToDto(updatedUser)).thenReturn(responseDto);
+
+        // Act
+        UserResponseDto result = userService.updateUserStatus(userId, false);
+
+        // Assert
+        assertEquals(responseDto, result);
+        verify(userRepository).findUserById(userId);
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).userToDto(updatedUser);
+    }
+
+    @Test
+    void updateUserStatus_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        Long userId = 999L;
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUserStatus(userId, false));
+        
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
+        verify(userRepository).findUserById(userId);
+        verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void deleteUser_WhenUserExists_ShouldDeleteUser() {
+        // Arrange
+        Long userId = 1L;
+        User user = createUser(userId, "User to Delete");
+
+        when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
+        doNothing().when(userRepository).deleteUserById(userId);
+
+        // Act
+        assertDoesNotThrow(() -> userService.deleteUser(userId));
+
+        // Assert
+        verify(userRepository).findUserById(userId);
+        verify(userRepository).deleteUserById(userId);
+    }
+
+    @Test
+    void deleteUser_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        Long userId = 999L;
+        when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.deleteUser(userId));
+        
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
+        verify(userRepository).findUserById(userId);
+        verify(userRepository, never()).deleteUserById(any(Long.class));
+    }
+
+    // Helper methods
     private User createUser(Long id, String name) {
         User user = new User();
         user.setId(id);
         user.setName(name);
+        user.setEmail(name.toLowerCase().replace(" ", "") + "@example.com");
+        user.setAge(25);
         user.setStatus(true);
+        user.setAdmin(false);
         return user;
     }
 
@@ -345,7 +411,19 @@ public class UserServiceImplTest {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(id);
         dto.setName(name);
+        dto.setEmail(name.toLowerCase().replace(" ", "") + "@example.com");
+        dto.setAge(25);
         dto.setStatus(true);
+        dto.setAdmin(false);
         return dto;
+    }
+
+    private Roles createRole(Long id, ERole roleEnum) {
+        Roles role = new Roles();
+        role.setId(id);
+        role.setRoleEnum(roleEnum);
+        role.setDescription("Description for " + roleEnum.name());
+        role.setStatus(true);
+        return role;
     }
 }

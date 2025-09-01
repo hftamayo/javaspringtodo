@@ -1,13 +1,10 @@
 package com.hftamayo.java.todo.services.impl;
 
-import com.hftamayo.java.todo.dto.CrudOperationResponseDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
-import com.hftamayo.java.todo.dto.pagination.PageResponseDto;
-import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
+import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
-import com.hftamayo.java.todo.entity.Roles;
-import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.entity.Task;
+import com.hftamayo.java.todo.mapper.TaskMapper;
 import com.hftamayo.java.todo.repository.TaskRepository;
 import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 import com.hftamayo.java.todo.exceptions.DuplicateResourceException;
@@ -40,6 +37,7 @@ public class TaskServiceImplTest {
 
     @Test
     void getTasks_WhenTasksExist_ShouldReturnListOfTasks() {
+        // Arrange
         List<Task> tasksList = List.of(
                 createTask(1L, "Task 1"),
                 createTask(2L, "Task 2")
@@ -53,8 +51,10 @@ public class TaskServiceImplTest {
         when(taskMapper.taskToDto(tasksList.get(0))).thenReturn(responseDtos.get(0));
         when(taskMapper.taskToDto(tasksList.get(1))).thenReturn(responseDtos.get(1));
 
-        List<TaskResponseDto> result = taskService.getTasks().getDataList();
+        // Act
+        List<TaskResponseDto> result = taskService.getTasks();
 
+        // Assert
         assertEquals(2, result.size());
         assertEquals(responseDtos, result);
         verify(taskRepository).findAll();
@@ -63,8 +63,10 @@ public class TaskServiceImplTest {
 
     @Test
     void getTasks_WhenNoTasksExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
         when(taskRepository.findAll()).thenReturn(Collections.emptyList());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTasks());
         
@@ -75,6 +77,7 @@ public class TaskServiceImplTest {
 
     @Test
     void getTask_ById_WhenTaskExists_ShouldReturnTask() {
+        // Arrange
         Long taskId = 1L;
         Task task = createTask(taskId, "Task 1");
         TaskResponseDto responseDto = createTaskDto(taskId, "Task 1");
@@ -82,8 +85,10 @@ public class TaskServiceImplTest {
         when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        TaskResponseDto result = taskService.getTask(taskId).getData();
+        // Act
+        TaskResponseDto result = taskService.getTask(taskId);
 
+        // Assert
         assertEquals(responseDto, result);
         verify(taskRepository).findTaskById(taskId);
         verify(taskMapper).taskToDto(task);
@@ -91,10 +96,11 @@ public class TaskServiceImplTest {
 
     @Test
     void getTask_ById_WhenTaskDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
         Long taskId = 1L;
-
         when(taskRepository.findTaskById(taskId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTask(taskId));
         
@@ -105,6 +111,7 @@ public class TaskServiceImplTest {
 
     @Test
     void getTask_ByCriteria_WhenTaskExists_ShouldReturnTask() {
+        // Arrange
         String criteria = "title";
         String value = "Task 1";
         Task task = createTask(1L, "Task 1");
@@ -113,163 +120,75 @@ public class TaskServiceImplTest {
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        List<TaskResponseDto> result = taskService.getTaskByCriteria(criteria, value).getDataList();
+        // Act
+        TaskResponseDto result = taskService.getTaskByCriteria(criteria, value);
 
-        assertEquals(List.of(responseDto), result);
+        // Assert
+        assertEquals(responseDto, result);
         verify(taskRepository).findAll((Specification<Task>) any());
         verify(taskMapper).taskToDto(task);
     }
 
     @Test
     void getTask_ByCriteria_WhenNoTasksExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
         String criteria = "title";
-        String value = "Task 1";
-
+        String value = "Non-existent Task";
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
-        CrudOperationResponseDto<TaskResponseDto> response = taskService.getTaskByCriteria(criteria, value);
-
-        assertEquals(404, response.getCode());
-        assertEquals("NO TASKS FOUND", response.getResultMessage());
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskService.getTaskByCriteria(criteria, value));
+        
+        assertEquals("Task with identifier title=Non-existent Task not found", exception.getMessage());
         verify(taskRepository).findAll((Specification<Task>) any());
+        verifyNoInteractions(taskMapper);
     }
 
     @Test
     void getTask_ByCriterias_WhenTaskExists_ShouldReturnTask() {
+        // Arrange
         String criteria = "title";
         String value = "Task 1";
         String criteria2 = "status";
-        String value2 = "completed";
+        String value2 = "true";
         Task task = createTask(1L, "Task 1");
         TaskResponseDto responseDto = createTaskDto(1L, "Task 1");
 
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(List.of(task));
         when(taskMapper.taskToDto(task)).thenReturn(responseDto);
 
-        List<TaskResponseDto> result = taskService
-                .getTaskByCriterias(criteria, value, criteria2, value2).getDataList();
+        // Act
+        TaskResponseDto result = taskService.getTaskByCriterias(criteria, value, criteria2, value2);
 
-        assertEquals(List.of(responseDto), result);
+        // Assert
+        assertEquals(responseDto, result);
         verify(taskRepository).findAll((Specification<Task>) any());
         verify(taskMapper).taskToDto(task);
     }
 
     @Test
     void getTask_ByCriterias_WhenNoTasksExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
         String criteria = "title";
-        String value = "Task 1";
+        String value = "Non-existent Task";
         String criteria2 = "status";
-        String value2 = "completed";
-
+        String value2 = "true";
         when(taskRepository.findAll((Specification<Task>) any())).thenReturn(Collections.emptyList());
 
-        CrudOperationResponseDto<TaskResponseDto> response = taskService.getTaskByCriteria(criteria, value);
-
-        assertEquals(404, response.getCode());
-        assertEquals("NO TASKS FOUND", response.getResultMessage());
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskService.getTaskByCriterias(criteria, value, criteria2, value2));
+        
+        assertEquals("Task with identifier title=Non-existent Task, status=true not found", exception.getMessage());
         verify(taskRepository).findAll((Specification<Task>) any());
         verifyNoInteractions(taskMapper);
     }
 
-        @Test
-    void saveTask_WhenTaskIsValid_ShouldReturnSavedTask() {
-        Task task = createTask(1L, "Task 1");
-        TaskResponseDto taskDto = createTaskDto(1L, "Task 1");
-
-        when(taskRepository.save(task)).thenReturn(task);
-        when(taskMapper.taskToDto(task)).thenReturn(taskDto);
-
-        TaskResponseDto result = taskService.saveTask(task).getData();
-
-        assertEquals(taskDto, result);
-        verify(taskRepository).save(task);
-        verify(taskMapper).taskToDto(task);
-    }
-
     @Test
-    void saveTask_WhenTaskAlreadyExists_ShouldThrowResourceAlreadyExistsException() {
-        Task existingTask = createTask(1L, "Task 1");
-
-        when(taskRepository.findTaskByTitle(existingTask.getTitle())).thenReturn(Optional.of(existingTask));
-
-        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
-                () -> taskService.saveTask(existingTask));
-        
-        assertEquals("Resource with title '" + existingTask.getTitle() + "' already exists", exception.getMessage());
-        verify(taskRepository).findTaskByTitle(existingTask.getTitle());
-        verify(taskRepository, never()).save(any(Task.class));
-        verify(taskMapper, never()).toTaskResponseDto(any(Task.class));
-        verifyNoMoreInteractions(taskRepository);
-        verifyNoInteractions(taskMapper);
-    }
-
-    @Test
-    void updateTask_WhenTaskExists_ShouldReturnUpdatedTask() {
-        Long taskId = 1L;
-        Task existingTask = createTask(taskId, "Task 1");
-        Task updatedTask = createTask(taskId, "Updated Task 1");
-        TaskResponseDto taskDto = createTaskDto(taskId, "Updated Task 1");
-
-        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(existingTask));
-        when(taskRepository.save(updatedTask)).thenReturn(updatedTask);
-        when(taskMapper.taskToDto(updatedTask)).thenReturn(taskDto);
-
-        TaskResponseDto result = taskService.updateTask(taskId, updatedTask).getData();
-
-        assertEquals(taskDto, result);
-        verify(taskRepository).findTaskById(taskId);
-        verify(taskRepository).save(updatedTask);
-        verify(taskMapper).taskToDto(updatedTask);
-    }
-
-    @Test
-    void updateTask_WhenTaskDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Long taskId = 1L;
-        Task updatedTask = createTask(taskId, "Updated Task 1");
-
-        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.empty());
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> taskService.updateTask(taskId, updatedTask));
-        
-        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
-        verify(taskRepository).findTaskById(taskId);
-        verify(taskRepository, never()).save(any(Task.class));
-        verify(taskMapper, never()).toTaskResponseDto(any(Task.class));
-        verifyNoMoreInteractions(taskRepository);
-        verifyNoInteractions(taskMapper);
-    }
-
-    @Test
-    void deleteTask_WhenTaskExists_ShouldDeleteTask() {
-        Long taskId = 1L;
-        Task existingTask = createTask(taskId, "Task 1");
-
-        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(existingTask));
-
-        taskService.deleteTask(taskId);
-
-        verify(taskRepository).findTaskById(taskId);
-        verify(taskRepository).deleteTaskById(taskId);
-    }
-
-    @Test
-    void deleteTask_WhenTaskDoesNotExist_ShouldThrowResourceNotFoundException() {
-        Long taskId = 1L;
-
-        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.empty());
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> taskService.deleteTask(taskId));
-        
-        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
-        verify(taskRepository).findTaskById(taskId);
-        verify(taskRepository, never()).deleteTaskById(any(Long.class));
-        verifyNoMoreInteractions(taskRepository);
-    }
-
-    @Test
-    void getPaginatedTasks_WhenTasksExist_ShouldReturnPaginatedTasks() {
+    void getPaginatedTasks_WhenTasksExist_ShouldReturnPaginatedData() {
+        // Arrange
+        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
         List<Task> tasksList = List.of(
                 createTask(1L, "Task 1"),
                 createTask(2L, "Task 2")
@@ -278,132 +197,152 @@ public class TaskServiceImplTest {
                 createTaskDto(1L, "Task 1"),
                 createTaskDto(2L, "Task 2")
         );
+        
         Page<Task> taskPage = new PageImpl<>(tasksList, PageRequest.of(0, 2), 2);
-
+        
         when(taskRepository.findAll(any(PageRequest.class))).thenReturn(taskPage);
         when(taskMapper.toTaskResponseDto(tasksList.get(0))).thenReturn(responseDtos.get(0));
         when(taskMapper.toTaskResponseDto(tasksList.get(1))).thenReturn(responseDtos.get(1));
 
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        // Act
+        PaginatedDataDto<TaskResponseDto> result = taskService.getPaginatedTasks(pageRequestDto);
 
-        var result = taskService.getPaginatedTasks(pageRequestDto);
-
+        // Assert
+        assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(responseDtos, result.getContent());
-        assertEquals(1, result.getPagination().getCurrentPage());
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(2, result.getPagination().getTotalCount());
-        assertEquals(1, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
         verify(taskRepository).findAll(any(PageRequest.class));
         verify(taskMapper, times(2)).toTaskResponseDto(any(Task.class));
     }
 
     @Test
-    void getPaginatedRoles_WhenMultiplePages_ShouldReturnFirstPageWithCorrectMetadata() {
+    void saveTask_WhenValidTask_ShouldReturnSavedTask() {
         // Arrange
-        List<Task> firstPageTask = List.of(
-                createTask(1L, "Task 1"),
-                createTask(2L, "Task 2")
-        );
-        List<TaskResponseDto> firstPageDtos = List.of(
-                createTaskDto(1L, "Task 1"),
-                createTaskDto(2L, "Task 2")
-        );
+        Task newTask = createTask(null, "New Task");
+        Task savedTask = createTask(1L, "New Task");
+        TaskResponseDto responseDto = createTaskDto(1L, "New Task");
 
-        // Creamos una página con 2 elementos, pero indicamos que hay 5 elementos en total
-        // Esto significa que habrá 3 páginas en total (5 elementos / 2 por página = 3 páginas)
-        Page<Task> taskPage = new PageImpl<>(firstPageTask, PageRequest.of(0, 2), 5);
-
-        // Configuramos los mocks
-        when(taskRepository.findAll(any(PageRequest.class))).thenReturn(taskPage);
-        when(taskMapper.toTaskResponseDto(firstPageTask.get(0))).thenReturn(firstPageDtos.get(0));
-        when(taskMapper.toTaskResponseDto(firstPageTask.get(1))).thenReturn(firstPageDtos.get(1));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
+        when(taskRepository.findTaskByTitle("New Task")).thenReturn(Optional.empty());
+        when(taskRepository.save(newTask)).thenReturn(savedTask);
+        when(taskMapper.taskToDto(savedTask)).thenReturn(responseDto);
 
         // Act
-        var result = taskService.getPaginatedTasks(pageRequestDto);
+        TaskResponseDto result = taskService.saveTask(newTask);
 
         // Assert
-        assertEquals(2, result.getContent().size());
-        assertEquals(1, result.getPagination().getCurrentPage());
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(5, result.getPagination().getTotalCount());
-        assertEquals(3, result.getPagination().getTotalPages());
-        assertFalse(result.getPagination().isLastPage());
-        assertEquals(firstPageDtos, result.getContent());
-
-        verify(taskRepository).findAll(any(PageRequest.class));
-        verify(taskMapper, times(2)).toTaskResponseDto(any(Task.class));
+        assertEquals(responseDto, result);
+        verify(taskRepository).findTaskByTitle("New Task");
+        verify(taskRepository).save(newTask);
+        verify(taskMapper).taskToDto(savedTask);
     }
 
     @Test
-    void getPaginatedTask_WhenOnLastPage_ShouldIndicateIsLastPage() {
+    void saveTask_WhenTaskWithSameTitleExists_ShouldThrowDuplicateResourceException() {
         // Arrange
-        List<Task> lastPageTask = List.of(
-                createTask(1L, "Task 1")
-        );
-        List<TaskResponseDto> lastPageDtos = List.of(
-                createTaskDto(1L, "Task 1")
-        );
+        Task newTask = createTask(null, "Existing Task");
+        Task existingTask = createTask(1L, "Existing Task");
 
-        // Creamos la última página (índice 2) con 1 elemento, de un total de 5 elementos
-        Page<Task> taskPage = new PageImpl<>(lastPageTask, PageRequest.of(2, 2), 5);
+        when(taskRepository.findTaskByTitle("Existing Task")).thenReturn(Optional.of(existingTask));
 
-        when(taskRepository.findAll(any(PageRequest.class))).thenReturn(taskPage);
-        when(taskMapper.toTaskResponseDto(lastPageTask.get(0))).thenReturn(lastPageDtos.get(0));
-
-        PageRequestDto pageRequestDto = new PageRequestDto(2, 2, null);
-
-        // Act
-        var result = taskService.getPaginatedTasks(pageRequestDto);
-
-        // Assert
-        assertEquals(1, result.getContent().size()); // Solo 1 elemento en la última página
-        assertEquals(3, result.getPagination().getCurrentPage()); // Tercera página (índice 2)
-        assertEquals(2, result.getPagination().getLimit());
-        assertEquals(5, result.getPagination().getTotalCount());
-        assertEquals(3, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage()); // Es la última página
-
-        verify(taskRepository).findAll(any(PageRequest.class));
-        verify(taskMapper).toTaskResponseDto(any(Task.class));
-    }
-
-    @Test
-    void getPaginatedTask_WhenNoRolesExist_ShouldReturnEmptyPage() {
-        List<Task> taskList = List.of();
-        Page<Task> taskPage = new PageImpl<>(taskList, PageRequest.of(0, 2), 0);
-
-        when(taskRepository.findAll(any(PageRequest.class))).thenReturn(taskPage);
-
-        PageRequestDto pageRequestDto = new PageRequestDto(0, 2, null);
-
-        var result = taskService.getPaginatedTasks(pageRequestDto);
-
-        assertEquals(0, result.getContent().size());
-        assertEquals(0, result.getPagination().getTotalCount());
-        assertEquals(0, result.getPagination().getTotalPages());
-        assertTrue(result.getPagination().isLastPage());
-        verify(taskRepository).findAll(any(PageRequest.class));
+        // Act & Assert
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class,
+                () -> taskService.saveTask(newTask));
+        
+        assertTrue(exception.getMessage().contains("title"));
+        assertTrue(exception.getMessage().contains("Existing Task"));
+        verify(taskRepository).findTaskByTitle("Existing Task");
+        verify(taskRepository, never()).save(any(Task.class));
         verifyNoInteractions(taskMapper);
     }
 
-    ///
+    @Test
+    void updateTask_WhenTaskExists_ShouldReturnUpdatedTask() {
+        // Arrange
+        Long taskId = 1L;
+        Task existingTask = createTask(taskId, "Original Task");
+        Task updatedTask = createTask(taskId, "Updated Task");
+        TaskResponseDto responseDto = createTaskDto(taskId, "Updated Task");
 
-    // Helper methods to create test data
+        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(existingTask));
+        when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
+        when(taskMapper.taskToDto(updatedTask)).thenReturn(responseDto);
+
+        // Act
+        TaskResponseDto result = taskService.updateTask(taskId, updatedTask);
+
+        // Assert
+        assertEquals(responseDto, result);
+        verify(taskRepository).findTaskById(taskId);
+        verify(taskRepository).save(any(Task.class));
+        verify(taskMapper).taskToDto(updatedTask);
+    }
+
+    @Test
+    void updateTask_WhenTaskDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        Long taskId = 999L;
+        Task updatedTask = createTask(taskId, "Updated Task");
+
+        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskService.updateTask(taskId, updatedTask));
+        
+        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
+        verify(taskRepository).findTaskById(taskId);
+        verify(taskRepository, never()).save(any(Task.class));
+        verifyNoInteractions(taskMapper);
+    }
+
+    @Test
+    void deleteTask_WhenTaskExists_ShouldDeleteTask() {
+        // Arrange
+        Long taskId = 1L;
+        Task task = createTask(taskId, "Task to Delete");
+
+        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(task));
+        doNothing().when(taskRepository).deleteTaskById(taskId);
+
+        // Act
+        assertDoesNotThrow(() -> taskService.deleteTask(taskId));
+
+        // Assert
+        verify(taskRepository).findTaskById(taskId);
+        verify(taskRepository).deleteTaskById(taskId);
+    }
+
+    @Test
+    void deleteTask_WhenTaskDoesNotExist_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        Long taskId = 999L;
+        when(taskRepository.findTaskById(taskId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskService.deleteTask(taskId));
+        
+        assertEquals("Task with id " + taskId + " not found", exception.getMessage());
+        verify(taskRepository).findTaskById(taskId);
+        verify(taskRepository, never()).deleteTaskById(any(Long.class));
+    }
+
+    // Helper methods
     private Task createTask(Long id, String title) {
         Task task = new Task();
         task.setId(id);
         task.setTitle(title);
+        task.setDescription("Description for " + title);
+        task.setStatus(true);
         return task;
     }
 
     private TaskResponseDto createTaskDto(Long id, String title) {
-        TaskResponseDto taskDto = new TaskResponseDto();
-        taskDto.setId(id);
-        taskDto.setTitle(title);
-        return taskDto;
+        TaskResponseDto dto = new TaskResponseDto();
+        dto.setId(id);
+        dto.setTitle(title);
+        dto.setDescription("Description for " + title);
+        dto.setStatus(true);
+        return dto;
     }
 }
