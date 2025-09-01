@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.dto;
 
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ class ErrorResponseDtoTest {
         assertEquals(status, errorResponse.getStatus());
         assertEquals(message, errorResponse.getMessage());
         assertEquals(errors, errorResponse.getErrors());
-        assertEquals(status.value(), errorResponse.getStatusCode());
+        assertEquals(status.value(), errorResponse.getStatus().value());
     }
 
     @Test
@@ -50,7 +51,7 @@ class ErrorResponseDtoTest {
         assertEquals(status, errorResponse.getStatus());
         assertEquals(message, errorResponse.getMessage());
         assertEquals(List.of(singleError), errorResponse.getErrors());
-        assertEquals(status.value(), errorResponse.getStatusCode());
+        assertEquals(status.value(), errorResponse.getStatus().value());
     }
 
     @Test
@@ -70,7 +71,7 @@ class ErrorResponseDtoTest {
         assertEquals(status, errorResponse.getStatus());
         assertEquals(message, errorResponse.getMessage());
         assertNull(errorResponse.getErrors());
-        assertEquals(status.value(), errorResponse.getStatusCode());
+        assertEquals(status.value(), errorResponse.getStatus().value());
     }
 
     @Test
@@ -91,7 +92,7 @@ class ErrorResponseDtoTest {
         assertEquals(status, errorResponse.getStatus());
         assertEquals(message, errorResponse.getMessage());
         assertTrue(errorResponse.getErrors().isEmpty());
-        assertEquals(status.value(), errorResponse.getStatusCode());
+        assertEquals(status.value(), errorResponse.getStatus().value());
     }
 
     @Test
@@ -112,6 +113,6 @@ class ErrorResponseDtoTest {
         assertEquals(status, errorResponse.getStatus());
         assertNull(errorResponse.getMessage());
         assertEquals(List.of(error), errorResponse.getErrors());
-        assertEquals(status.value(), errorResponse.getStatusCode());
+        assertEquals(status.value(), errorResponse.getStatus().value());
     }
 } 
