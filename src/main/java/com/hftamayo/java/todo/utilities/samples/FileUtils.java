@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.utilities;
+package com.hftamayo.java.todo.utilities.samples;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
