@@ -2,7 +2,7 @@ package com.hftamayo.java.todo.utilities.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
-import com.hftamayo.java.todo.dto.ErrorResponseDto;
+import com.hftamayo.java.todo.dto.error.ErrorResponseDto;
 import io.github.bucket4j.Bucket;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -15,13 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Aspect for rate limiting method calls using AOP.

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.hftamayo.java</groupId>
     <artifactId>todo</artifactId>
-    <version>0.1.5-main</version>
+    <version>0.1.5-refactor</version>
     <name>jsbtodo</name>
     <description>Todo Application</description>
     <properties>
@@ -160,8 +160,16 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal>
+                            <goal>build-info</goal>
                         </goals>
+                        <configuration>
+                            <additionalProperties>
+                                <encoding.source>UTF-8</encoding.source>
+                                <encoding.reporting>UTF-8</encoding.reporting>
+                                <java.source>17</java.source>
+                                <java.target>17</java.target>
+                            </additionalProperties>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
