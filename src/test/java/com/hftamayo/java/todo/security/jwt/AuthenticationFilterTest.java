@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.exceptions.AuthenticationException;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import jakarta.servlet.FilterChain;
@@ -33,6 +34,9 @@ class AuthenticationFilterTest {
     private CustomTokenProvider customTokenProvider;
 
     @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
     private HttpServletRequest request;
 
     @Mock
@@ -53,6 +57,9 @@ class AuthenticationFilterTest {
         stringWriter = new StringWriter();
         writer = new PrintWriter(stringWriter);
         lenient().when(response.getWriter()).thenReturn(writer);
+        
+        // Mock ObjectMapper to return a simple JSON string
+        lenient().when(objectMapper.writeValueAsString(any())).thenReturn("{\"error\":\"test error\"}");
     }
 
     @Test

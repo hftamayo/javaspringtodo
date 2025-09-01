@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hftamayo.java.todo.security.managers.UserInfoProviderManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,9 @@ class AuthenticationFilterConfigTest {
 
     @Mock
     private CustomTokenProvider customTokenProvider;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private AuthenticationFilterConfig authenticationFilterConfig;
