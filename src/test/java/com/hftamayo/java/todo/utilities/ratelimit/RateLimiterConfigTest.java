@@ -146,7 +146,7 @@ class RateLimiterConfigTest {
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> rateLimiterConfig.validateConfiguration());
-        assertTrue(exception.getMessage().contains("capacity"));
+        assertTrue(exception.getMessage().contains("Capacity"));
     }
 
     @Test
@@ -159,7 +159,7 @@ class RateLimiterConfigTest {
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> rateLimiterConfig.validateConfiguration());
-        assertTrue(exception.getMessage().contains("refill rate"));
+        assertTrue(exception.getMessage().contains("Refill rate"));
     }
 
     @Test
@@ -172,7 +172,7 @@ class RateLimiterConfigTest {
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> rateLimiterConfig.validateConfiguration());
-        assertTrue(exception.getMessage().contains("refill duration"));
+        assertTrue(exception.getMessage().contains("Refill duration"));
     }
 
     @Test
@@ -335,4 +335,4 @@ class RateLimiterConfigTest {
         assertEquals(shortDuration, rateLimiterConfig.getRefillDuration());
         assertDoesNotThrow(() -> rateLimiterConfig.validateConfiguration());
     }
-} 
+}
