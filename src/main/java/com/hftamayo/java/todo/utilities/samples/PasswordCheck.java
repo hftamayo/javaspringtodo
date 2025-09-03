@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.utilities;
+package com.hftamayo.java.todo.utilities.samples;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
