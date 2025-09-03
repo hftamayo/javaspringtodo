@@ -114,36 +114,52 @@ class AuthenticationFilterTest {
     void doFilterInternal_InvalidToken_ShouldReturnUnauthorized() throws ServletException, IOException {
         // Arrange
         String token = "invalid.jwt.token";
+        String expectedErrorMessage = "Authentication failed: Invalid token format";
 
         when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(customTokenProvider.getEmailFromToken(token)).thenThrow(new AuthenticationException("Invalid token format"));
+
+        // Configure ObjectMapper to return JSON with the expected error message
+        when(objectMapper.writeValueAsString(any())).thenReturn(
+            "{\"code\":401,\"resultMessage\":\"Authentication failed\",\"data\":{\"message\":\"" + expectedErrorMessage + "\"}}"
+        );
 
         // Act
         authenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        assertTrue(stringWriter.toString().contains("Authentication failed: Invalid token format"));
+        verify(response).setContentType("application/json");
+        verify(objectMapper).writeValueAsString(any());
+        assertTrue(stringWriter.toString().contains(expectedErrorMessage));
     }
 
     @Test
     void doFilterInternal_ExpiredToken_ShouldReturnUnauthorized() throws ServletException, IOException {
         // Arrange
-        String token = "expired.jwt.token";
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIn0.test";
         String email = "test@example.com";
+        String expectedErrorMessage = "Authentication failed: Invalid or expired token";
 
         when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(customTokenProvider.getEmailFromToken(token)).thenReturn(email);
         when(customTokenProvider.isTokenValid(token, email)).thenReturn(false);
 
+        // Configure ObjectMapper to return JSON with the expected error message
+        when(objectMapper.writeValueAsString(any())).thenReturn(
+            "{\"code\":401,\"resultMessage\":\"Authentication failed\",\"data\":{\"message\":\"" + expectedErrorMessage + "\"}}"
+        );
+
         // Act
         authenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        assertTrue(stringWriter.toString().contains("Authentication failed: Invalid or expired token"));
+        verify(response).setContentType("application/json");
+        verify(objectMapper).writeValueAsString(any());
+        assertTrue(stringWriter.toString().contains(expectedErrorMessage));
     }
 
     @Test
@@ -164,16 +180,24 @@ class AuthenticationFilterTest {
     void doFilterInternal_UnexpectedError_ShouldReturnInternalServerError() throws ServletException, IOException {
         // Arrange
         String token = "valid.jwt.token";
+        String expectedErrorMessage = "A problem occurred during the authentication process";
 
         when(request.getRequestURI()).thenReturn("/api/secured/endpoint");
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(customTokenProvider.getEmailFromToken(token)).thenThrow(new RuntimeException("Unexpected error"));
+
+        // Configure ObjectMapper to return a JSON that contains the expected message
+        when(objectMapper.writeValueAsString(any())).thenReturn(
+            "{\"code\":500,\"resultMessage\":\"" + expectedErrorMessage + "\",\"data\":{\"message\":\"" + expectedErrorMessage + "\"}}"
+        );
 
         // Act
         authenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        assertTrue(stringWriter.toString().contains("A problem occurred during the authentication process"));
+        verify(response).setContentType("application/json");
+        verify(objectMapper).writeValueAsString(any());
+        assertTrue(stringWriter.toString().contains(expectedErrorMessage));
     }
 }
