@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.roles.RolesResponseDto;
@@ -153,15 +154,11 @@ class RolesControllerTest {
         int size = 2;
         String sort = null;
 
+        CursorPaginationDto paginationInfo = createEmptyPaginationInfo(page, size, sort);
+
         PaginatedDataDto<RolesResponseDto> emptyPaginatedData = new PaginatedDataDto<>();
         emptyPaginatedData.setContent(List.of());
-        emptyPaginatedData.setTotalElements(0L);
-        emptyPaginatedData.setTotalPages(0);
-        emptyPaginatedData.setSize(2);
-        emptyPaginatedData.setNumber(0);
-        emptyPaginatedData.setFirst(true);
-        emptyPaginatedData.setLast(true);
-        emptyPaginatedData.setNumberOfElements(0);
+        emptyPaginatedData.setPagination(paginationInfo);
 
         when(rolesService.getPaginatedRoles(any(PageRequestDto.class))).thenReturn(emptyPaginatedData);
 
@@ -182,19 +179,35 @@ class RolesControllerTest {
     // Helper method
     private PaginatedDataDto<RolesResponseDto> getRolesResponseDtoPaginatedDataDto() {
         RolesResponseDto roleResponse = new RolesResponseDto();
-        roleResponse.setName("ROLE_USER");
-        roleResponse.setDescription("User role");
+        roleResponse.setRoleName("ROLE_USER");
+        roleResponse.setRoleDescription("User role");
+
+        CursorPaginationDto paginationInfo = createPaginationInfo(0, 2, null, 1L, 1);
 
         PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
         paginatedData.setContent(List.of(roleResponse));
-        paginatedData.setTotalElements(1L);
-        paginatedData.setTotalPages(1);
-        paginatedData.setSize(2);
-        paginatedData.setNumber(0);
-        paginatedData.setFirst(true);
-        paginatedData.setLast(true);
-        paginatedData.setNumberOfElements(1);
+        paginatedData.setPagination(paginationInfo);
 
         return paginatedData;
+    }
+
+    private CursorPaginationDto createEmptyPaginationInfo(int page, int size, String sort) {
+        return createPaginationInfo(page, size, sort, 0L, 0);
+    }
+
+    private CursorPaginationDto createPaginationInfo(int currentPage, int limit, String order, long totalCount, int totalPages) {
+        CursorPaginationDto paginationInfo = new CursorPaginationDto();
+        paginationInfo.setNextCursor(null);
+        paginationInfo.setPrevCursor(null);
+        paginationInfo.setLimit(limit);
+        paginationInfo.setTotalCount(totalCount);
+        paginationInfo.setHasMore(totalCount > limit);
+        paginationInfo.setCurrentPage(currentPage);
+        paginationInfo.setTotalPages(totalPages);
+        paginationInfo.setOrder(order);
+        paginationInfo.setHasPrev(currentPage > 0);
+        paginationInfo.setFirstPage(currentPage == 0);
+        paginationInfo.setLastPage(currentPage == totalPages - 1 || totalPages <= 1);
+        return paginationInfo;
     }
 }
