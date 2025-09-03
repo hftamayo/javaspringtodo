@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.task.TaskResponseDto;
@@ -330,15 +331,14 @@ class TaskControllerTest {
         taskResponse.setId(1L);
         taskResponse.setTitle("Test Task");
 
+        PaginatorHelper paginatorHelper = new PaginatorHelper();
+
+        CursorPaginationDto paginationInfo = paginatorHelper
+                .createPaginationInfo(0, 2, null, 1L, 1);
+
         PaginatedDataDto<TaskResponseDto> paginatedData = new PaginatedDataDto<>();
         paginatedData.setContent(List.of(taskResponse));
-        paginatedData.setTotalElements(1L);
-        paginatedData.setTotalPages(1);
-        paginatedData.setSize(2);
-        paginatedData.setNumber(0);
-        paginatedData.setFirst(true);
-        paginatedData.setLast(true);
-        paginatedData.setNumberOfElements(1);
+        paginatedData.setPagination(paginationInfo);
 
         return paginatedData;
     }

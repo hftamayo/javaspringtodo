@@ -154,7 +154,9 @@ class RolesControllerTest {
         int size = 2;
         String sort = null;
 
-        CursorPaginationDto paginationInfo = createEmptyPaginationInfo(page, size, sort);
+        PaginatorHelper paginatorHelper = new PaginatorHelper();
+
+        CursorPaginationDto paginationInfo = paginatorHelper.createEmptyPaginationInfo(page, size, sort);
 
         PaginatedDataDto<RolesResponseDto> emptyPaginatedData = new PaginatedDataDto<>();
         emptyPaginatedData.setContent(List.of());
@@ -182,7 +184,10 @@ class RolesControllerTest {
         roleResponse.setRoleName("ROLE_USER");
         roleResponse.setRoleDescription("User role");
 
-        CursorPaginationDto paginationInfo = createPaginationInfo(0, 2, null, 1L, 1);
+        PaginatorHelper paginatorHelper = new PaginatorHelper();
+
+        CursorPaginationDto paginationInfo = paginatorHelper
+                .createPaginationInfo(0, 2, null, 1L, 1);
 
         PaginatedDataDto<RolesResponseDto> paginatedData = new PaginatedDataDto<>();
         paginatedData.setContent(List.of(roleResponse));
@@ -191,23 +196,4 @@ class RolesControllerTest {
         return paginatedData;
     }
 
-    private CursorPaginationDto createEmptyPaginationInfo(int page, int size, String sort) {
-        return createPaginationInfo(page, size, sort, 0L, 0);
-    }
-
-    private CursorPaginationDto createPaginationInfo(int currentPage, int limit, String order, long totalCount, int totalPages) {
-        CursorPaginationDto paginationInfo = new CursorPaginationDto();
-        paginationInfo.setNextCursor(null);
-        paginationInfo.setPrevCursor(null);
-        paginationInfo.setLimit(limit);
-        paginationInfo.setTotalCount(totalCount);
-        paginationInfo.setHasMore(totalCount > limit);
-        paginationInfo.setCurrentPage(currentPage);
-        paginationInfo.setTotalPages(totalPages);
-        paginationInfo.setOrder(order);
-        paginationInfo.setHasPrev(currentPage > 0);
-        paginationInfo.setFirstPage(currentPage == 0);
-        paginationInfo.setLastPage(currentPage == totalPages - 1 || totalPages <= 1);
-        return paginationInfo;
-    }
 }

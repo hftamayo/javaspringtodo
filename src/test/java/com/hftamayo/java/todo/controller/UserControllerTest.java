@@ -1,6 +1,7 @@
 package com.hftamayo.java.todo.controller;
 
 import com.hftamayo.java.todo.dto.EndpointResponseDto;
+import com.hftamayo.java.todo.dto.pagination.CursorPaginationDto;
 import com.hftamayo.java.todo.dto.pagination.PageRequestDto;
 import com.hftamayo.java.todo.dto.pagination.PaginatedDataDto;
 import com.hftamayo.java.todo.dto.user.UserResponseDto;
@@ -104,15 +105,13 @@ class UserControllerTest {
         int size = 2;
         String sort = null;
 
+        PaginatorHelper paginatorHelper = new PaginatorHelper();
+
+        CursorPaginationDto paginationInfo = paginatorHelper.createEmptyPaginationInfo(page, size, sort);
+
         PaginatedDataDto<UserResponseDto> emptyPaginatedData = new PaginatedDataDto<>();
         emptyPaginatedData.setContent(List.of());
-        emptyPaginatedData.setTotalElements(0L);
-        emptyPaginatedData.setTotalPages(0);
-        emptyPaginatedData.setSize(2);
-        emptyPaginatedData.setNumber(0);
-        emptyPaginatedData.setFirst(true);
-        emptyPaginatedData.setLast(true);
-        emptyPaginatedData.setNumberOfElements(0);
+        emptyPaginatedData.setPagination(paginationInfo);
 
         when(userService.getPaginatedUsers(any(PageRequestDto.class))).thenReturn(emptyPaginatedData);
 
@@ -136,15 +135,14 @@ class UserControllerTest {
         userResponse.setId(1L);
         userResponse.setEmail("test@example.com");
 
+        PaginatorHelper paginatorHelper = new PaginatorHelper();
+
+        CursorPaginationDto paginationInfo = paginatorHelper
+                .createPaginationInfo(0, 2, null, 1L, 1);
+
         PaginatedDataDto<UserResponseDto> paginatedData = new PaginatedDataDto<>();
         paginatedData.setContent(List.of(userResponse));
-        paginatedData.setTotalElements(1L);
-        paginatedData.setTotalPages(1);
-        paginatedData.setSize(2);
-        paginatedData.setNumber(0);
-        paginatedData.setFirst(true);
-        paginatedData.setLast(true);
-        paginatedData.setNumberOfElements(1);
+        paginatedData.setPagination(paginationInfo);
 
         return paginatedData;
     }
