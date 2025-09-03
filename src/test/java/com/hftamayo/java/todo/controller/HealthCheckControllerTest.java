@@ -93,7 +93,9 @@ class HealthCheckControllerTest {
                 () -> assertNotNull(response.getBody()),
                 () -> assertEquals("Database connection failed", response.getBody().getResultMessage()),
                 () -> assertEquals(503, response.getBody().getCode()),
-                () -> assertNotNull(response.getBody().getData()),
+                () -> assertNull(response.getBody().getData()),
+                () -> assertNotNull(response.getBody().getResultMessage()),
+                () -> assertFalse(response.getBody().getResultMessage().isEmpty()),
                 () -> verify(dataSource).getConnection(),
                 () -> verify(jdbcTemplate).getDataSource()
         );
