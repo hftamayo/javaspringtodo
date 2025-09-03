@@ -82,9 +82,11 @@ public class FilterConfig {
         List<String> allowedOrigins = corsProperties.getOrigins();
         logger.info("Configuring CORS with allowed origins: {}", corsProperties.getOriginsAsString());
         
-        // Set allowed origins from configuration
-        configuration.setAllowedOriginPatterns(allowedOrigins);
-        
+        // Set allowed origins from configuration - handle null case
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            configuration.setAllowedOriginPatterns(allowedOrigins);
+        }
+
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         
@@ -110,7 +112,7 @@ public class FilterConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         
-        logger.info("CORS configuration loaded successfully with {} origins", allowedOrigins.size());
+        logger.info("CORS configuration loaded successfully with {} origins", allowedOrigins != null ? allowedOrigins.size() : 0);
         return source;
     }
 
