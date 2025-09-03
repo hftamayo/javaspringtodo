@@ -302,7 +302,7 @@ public class TaskServiceImplTest {
         Task task = createTask(taskId, "Task to Delete");
 
         when(taskRepository.findTaskById(taskId)).thenReturn(Optional.of(task));
-        doNothing().when(taskRepository).deleteTaskById(taskId);
+        when(taskRepository.deleteTaskById(taskId)).thenReturn(Optional.of(task));
 
         // Act
         assertDoesNotThrow(() -> taskService.deleteTask(taskId));

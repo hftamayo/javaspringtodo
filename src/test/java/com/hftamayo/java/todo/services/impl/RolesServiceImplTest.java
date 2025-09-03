@@ -98,15 +98,15 @@ public class RolesServiceImplTest {
     @Test
     void getRoleByName_WhenRoleDoesNotExist_ShouldThrowResourceNotFoundException() {
         // Arrange
-        String roleName = "ROLE_INVALID";
-        when(rolesRepository.findByRoleEnum(ERole.valueOf(roleName))).thenReturn(Optional.empty());
+        String roleName = "ROLE_SUPERVISOR";
+        when(rolesRepository.findByRoleEnum(ERole.ROLE_SUPERVISOR)).thenReturn(Optional.empty());
 
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> rolesService.getRoleByName(roleName));
         
-        assertEquals("Role with identifier ROLE_INVALID not found", exception.getMessage());
-        verify(rolesRepository).findByRoleEnum(ERole.valueOf(roleName));
+        assertEquals("Role with identifier ROLE_SUPERVISOR not found", exception.getMessage());
+        verify(rolesRepository).findByRoleEnum(ERole.ROLE_SUPERVISOR);
         verifyNoInteractions(roleMapper);
     }
 
@@ -227,7 +227,7 @@ public class RolesServiceImplTest {
         Roles role = createRole(roleId, ERole.ROLE_USER);
 
         when(rolesRepository.findRolesById(roleId)).thenReturn(Optional.of(role));
-        doNothing().when(rolesRepository).deleteRolesById(roleId);
+        when(rolesRepository.deleteRolesById(roleId)).thenReturn(Optional.of(role));
 
         // Act
         assertDoesNotThrow(() -> rolesService.deleteRole(roleId));

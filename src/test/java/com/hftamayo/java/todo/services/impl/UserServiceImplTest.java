@@ -370,7 +370,7 @@ public class UserServiceImplTest {
         User user = createUser(userId, "User to Delete");
 
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
-        doNothing().when(userRepository).deleteUserById(userId);
+        when(userRepository.deleteUserById(userId)).thenReturn(Optional.of(user));
 
         // Act
         assertDoesNotThrow(() -> userService.deleteUser(userId));
