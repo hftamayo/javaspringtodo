@@ -10,10 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -127,7 +124,7 @@ class RateLimiterUtilTest {
     }
 
     @Test
-    void shouldHandleConcurrentTokenConsumption() throws InterruptedException {
+    void shouldHandleConcurrentTokenConsumption() throws InterruptedException, ExecutionException, TimeoutException {
         // Given
         Bucket bucket = rateLimiterUtil.createBucket(100L, 10L, Duration.ofMinutes(1));
         ExecutorService executor = Executors.newFixedThreadPool(10);
