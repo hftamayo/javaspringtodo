@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static com.hftamayo.java.todo.entity.ERole.ROLE_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -34,8 +35,8 @@ class RolesControllerTest {
         // Arrange
         String roleName = "ROLE_ADMIN";
         RolesResponseDto roleResponse = new RolesResponseDto();
-        roleResponse.setName(roleName);
-        roleResponse.setDescription("Administrator role");
+        roleResponse.setRoleName(roleName);
+        roleResponse.setRoleDescription("Administrator role");
 
         when(rolesService.getRoleByName(roleName)).thenReturn(roleResponse);
 
@@ -76,12 +77,12 @@ class RolesControllerTest {
     void saveRole_WhenValidRole_ShouldReturnCreatedResponse() {
         // Arrange
         Roles role = new Roles();
-        role.setName("ROLE_TEST");
+        role.setRoleEnum(ROLE_USER);
         role.setDescription("Test role");
 
         RolesResponseDto savedRole = new RolesResponseDto();
-        savedRole.setName("ROLE_TEST");
-        savedRole.setDescription("Test role");
+        savedRole.setRoleName("ROLE_TEST");
+        savedRole.setRoleDescription("Test role");
 
         when(rolesService.saveRole(role)).thenReturn(savedRole);
 

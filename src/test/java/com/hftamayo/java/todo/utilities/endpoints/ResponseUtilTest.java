@@ -29,14 +29,14 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getCode());
-        assertEquals("Validation failed", response.getMessage());
+        assertEquals("Validation failed", response.getResultMessage());
         assertNotNull(response.getData());
 
         ErrorResponseDto errorData = response.getData();
         assertNotNull(errorData.getTimestamp());
         assertEquals(HttpStatus.BAD_REQUEST, errorData.getStatus());
         assertEquals("Validation failed", errorData.getMessage());
-        assertEquals("Invalid input data", errorData.getDetails());
+        assertEquals("Invalid input data", errorData.getErrors());
     }
 
     @Test
@@ -52,14 +52,14 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getCode());
-        assertEquals("Internal server error", response.getMessage());
+        assertEquals("Internal server error", response.getResultMessage());
         assertNotNull(response.getData());
 
         ErrorResponseDto errorData = response.getData();
         assertNotNull(errorData.getTimestamp());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, errorData.getStatus());
         assertEquals("Internal server error", errorData.getMessage());
-        assertNull(errorData.getDetails());
+        assertNull(errorData.getErrors());
     }
 
     @Test
@@ -75,14 +75,14 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getCode());
-        assertEquals("Resource not found", response.getMessage());
+        assertEquals("Resource not found", response.getResultMessage());
         assertNotNull(response.getData());
 
         ErrorResponseDto errorData = response.getData();
         assertNotNull(errorData.getTimestamp());
         assertEquals(HttpStatus.NOT_FOUND, errorData.getStatus());
         assertEquals("Resource not found", errorData.getMessage());
-        assertNull(errorData.getDetails());
+        assertNull(errorData.getErrors());
     }
 
     @Test
@@ -107,7 +107,7 @@ class ResponseUtilTest {
             // Then
             assertNotNull(response);
             assertEquals(status.value(), response.getCode());
-            assertEquals("Test message", response.getMessage());
+            assertEquals("Test message", response.getResultMessage());
             assertNotNull(response.getData());
             assertEquals(status, response.getData().getStatus());
         }
@@ -146,7 +146,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(200, response.getCode());
-        assertEquals("SUCCESS", response.getMessage());
+        assertEquals("SUCCESS", response.getResultMessage());
         assertEquals("Test data", response.getData());
     }
 
@@ -158,7 +158,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(200, response.getCode());
-        assertEquals("SUCCESS", response.getMessage());
+        assertEquals("SUCCESS", response.getResultMessage());
         assertNull(response.getData());
     }
 
@@ -174,7 +174,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(200, response.getCode());
-        assertEquals("Data retrieved successfully", response.getMessage());
+        assertEquals("Data retrieved successfully", response.getResultMessage());
         assertEquals(testData, response.getData());
         assertEquals(3, response.getData().size());
     }
@@ -190,7 +190,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(200, response.getCode());
-        assertEquals("Operation completed", response.getMessage());
+        assertEquals("Operation completed", response.getResultMessage());
         assertNull(response.getData());
     }
 
@@ -202,12 +202,13 @@ class ResponseUtilTest {
         String customMessage = "Request accepted";
 
         // When
-        EndpointResponseDto<Map<String, Object>> response = ResponseUtil.successResponse(testData, customCode, customMessage);
+        EndpointResponseDto<Map<String, Object>> response = ResponseUtil
+                .successResponse(testData, customCode, customMessage);
 
         // Then
         assertNotNull(response);
         assertEquals(202, response.getCode());
-        assertEquals("Request accepted", response.getMessage());
+        assertEquals("Request accepted", response.getResultMessage());
         assertEquals(testData, response.getData());
         assertEquals(2, response.getData().size());
     }
@@ -224,7 +225,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(204, response.getCode());
-        assertEquals("No content", response.getMessage());
+        assertEquals("No content", response.getResultMessage());
         assertNull(response.getData());
     }
 
@@ -267,7 +268,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(201, response.getCode());
-        assertEquals("Resource created successfully", response.getMessage());
+        assertEquals("Resource created successfully", response.getResultMessage());
         assertEquals("New resource created", response.getData());
     }
 
@@ -282,7 +283,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(201, response.getCode());
-        assertEquals("Resource created", response.getMessage());
+        assertEquals("Resource created", response.getResultMessage());
         assertNull(response.getData());
     }
 
@@ -302,7 +303,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(201, response.getCode());
-        assertEquals("User created successfully", response.getMessage());
+        assertEquals("User created successfully", response.getResultMessage());
         assertEquals(createdResource, response.getData());
         assertEquals(3, response.getData().size());
     }
@@ -314,15 +315,15 @@ class ResponseUtilTest {
         // Test error response with empty message
         EndpointResponseDto<ErrorResponseDto> errorResponse = ResponseUtil.errorResponse(
             HttpStatus.BAD_REQUEST, "", new RuntimeException("Test"));
-        assertEquals("", errorResponse.getMessage());
+        assertEquals("", errorResponse.getResultMessage());
 
         // Test success response with empty message
         EndpointResponseDto<String> successResponse = ResponseUtil.successResponse("data", "");
-        assertEquals("", successResponse.getMessage());
+        assertEquals("", successResponse.getResultMessage());
 
         // Test created response with empty message
         EndpointResponseDto<String> createdResponse = ResponseUtil.createdResponse("data", "");
-        assertEquals("", createdResponse.getMessage());
+        assertEquals("", createdResponse.getResultMessage());
     }
 
     @Test
@@ -339,7 +340,7 @@ class ResponseUtilTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(longMessage, response.getMessage());
+        assertEquals(longMessage, response.getResultMessage());
         assertEquals(longMessage, response.getData().getMessage());
     }
 
@@ -355,9 +356,9 @@ class ResponseUtilTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(specialMessage, response.getMessage());
+        assertEquals(specialMessage, response.getResultMessage());
         assertEquals(specialMessage, response.getData().getMessage());
-        assertEquals("Exception with special chars: ñáéíóú 中文 русский", response.getData().getDetails());
+        assertEquals("Exception with special chars: ñáéíóú 中文 русский", response.getData().getErrors());
     }
 
     @Test
@@ -372,7 +373,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(-1, response.getCode());
-        assertEquals("Test message", response.getMessage());
+        assertEquals("Test message", response.getResultMessage());
         assertEquals("data", response.getData());
     }
 
@@ -388,7 +389,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(999999, response.getCode());
-        assertEquals("Test message", response.getMessage());
+        assertEquals("Test message", response.getResultMessage());
         assertEquals("data", response.getData());
     }
 
@@ -396,7 +397,8 @@ class ResponseUtilTest {
     void shouldHandleChainedExceptions() {
         // Given
         RuntimeException originalCause = new RuntimeException("Original cause");
-        IllegalArgumentException intermediateCause = new IllegalArgumentException("Intermediate cause", originalCause);
+        IllegalArgumentException intermediateCause = new
+                IllegalArgumentException("Intermediate cause", originalCause);
         String message = "Final error message";
 
         // When
@@ -405,8 +407,8 @@ class ResponseUtilTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(message, response.getMessage());
-        assertEquals("Intermediate cause", response.getData().getDetails());
+        assertEquals(message, response.getResultMessage());
+        assertEquals("Intermediate cause", response.getData().getErrors());
     }
 
     @Test
@@ -417,7 +419,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(200, response.getCode());
-        assertNull(response.getMessage());
+        assertNull(response.getResultMessage());
         assertEquals("data", response.getData());
     }
 
@@ -429,7 +431,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(201, response.getCode());
-        assertNull(response.getMessage());
+        assertNull(response.getResultMessage());
         assertEquals("data", response.getData());
     }
 
@@ -441,7 +443,7 @@ class ResponseUtilTest {
         // Then
         assertNotNull(response);
         assertEquals(202, response.getCode());
-        assertNull(response.getMessage());
+        assertNull(response.getResultMessage());
         assertEquals("data", response.getData());
     }
 
@@ -460,7 +462,7 @@ class ResponseUtilTest {
         assertNotNull(response);
         assertTrue(response instanceof EndpointResponseDto);
         assertEquals(200, response.getCode());
-        assertEquals("Test message", response.getMessage());
+        assertEquals("Test message", response.getResultMessage());
         assertEquals("Test data", response.getData());
     }
 
@@ -483,7 +485,7 @@ class ResponseUtilTest {
         assertNotNull(errorData.getTimestamp());
         assertEquals(HttpStatus.BAD_REQUEST, errorData.getStatus());
         assertEquals("Validation error", errorData.getMessage());
-        assertEquals("Invalid input", errorData.getDetails());
+        assertEquals("Invalid input", errorData.getErrors());
     }
 
     @Test
@@ -493,9 +495,12 @@ class ResponseUtilTest {
         
         // Create different response types with the same data
         EndpointResponseDto<List<String>> successResponse = ResponseUtil.successResponse(originalData);
-        EndpointResponseDto<List<String>> successWithMessage = ResponseUtil.successResponse(originalData, "Custom message");
-        EndpointResponseDto<List<String>> successWithCode = ResponseUtil.successResponse(originalData, 202, "Accepted");
-        EndpointResponseDto<List<String>> createdResponse = ResponseUtil.createdResponse(originalData, "Created");
+        EndpointResponseDto<List<String>> successWithMessage = ResponseUtil
+                .successResponse(originalData, "Custom message");
+        EndpointResponseDto<List<String>> successWithCode = ResponseUtil
+                .successResponse(originalData, 202, "Accepted");
+        EndpointResponseDto<List<String>> createdResponse = ResponseUtil
+                .createdResponse(originalData, "Created");
 
         // Verify data integrity
         assertEquals(originalData, successResponse.getData());
