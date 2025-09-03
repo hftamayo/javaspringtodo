@@ -20,7 +20,7 @@ public class ResponseUtil {
             LocalDateTime.now(ZoneOffset.UTC),
             status,
             message,
-            e.getMessage()
+            e.getMessage() != null ? e.getMessage() : "Unknown error"  // Use the String constructor
         );
         return new EndpointResponseDto<>(status.value(), message, error);
     }
@@ -54,4 +54,4 @@ public class ResponseUtil {
     }
 
     // Future: Add methods for paginated or list responses here
-} 
+}
