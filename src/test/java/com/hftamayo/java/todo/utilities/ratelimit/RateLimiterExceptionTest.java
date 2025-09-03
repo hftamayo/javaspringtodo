@@ -110,7 +110,7 @@ class RateLimiterExceptionTest {
         // Then
         assertNotNull(exception);
         assertNull(exception.getCause());
-        assertNotNull(exception.getMessage()); // Should have default message
+        assertNull(exception.getMessage()); // When cause is null, message is also null
     }
 
     @Test
@@ -339,4 +339,4 @@ class RateLimiterExceptionTest {
         assertEquals(emptyMessage, exception.getMessage());
         assertEquals(cause, exception.getCause());
     }
-} 
+}
