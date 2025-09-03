@@ -53,8 +53,8 @@ class RateLimiterAspectTest {
         // Set up request context
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockRequest, mockResponse));
 
-        // Set up common mock behavior
-        when(mockJoinPoint.getSignature()).thenReturn(mockMethodSignature);
+        // Set up common mock behavior with lenient to avoid unnecessary stubbing warnings
+        lenient().when(mockJoinPoint.getSignature()).thenReturn(mockMethodSignature);
     }
 
     @Test
@@ -123,7 +123,7 @@ class RateLimiterAspectTest {
         RateLimiterConfig endpointConfig = createTestConfig();
         endpointConfig.setCapacity(50L);
         
-        when(mockRateLimiterConfig.getCombinedConfig("/api/users", anyString()))
+        when(mockRateLimiterConfig.getCombinedConfig(eq("/api/users"), anyString()))
                 .thenReturn(endpointConfig);
         when(mockRateLimiterUtil.createBucket(endpointConfig))
                 .thenReturn(createTestBucket());
@@ -136,7 +136,7 @@ class RateLimiterAspectTest {
         rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
-        verify(mockRateLimiterConfig).getCombinedConfig("/api/users", anyString());
+        verify(mockRateLimiterConfig).getCombinedConfig(eq("/api/users"), anyString());
         verify(mockRateLimiterUtil).createBucket(endpointConfig);
     }
 
@@ -214,8 +214,6 @@ class RateLimiterAspectTest {
     void shouldHandleNullRequestContext() throws Throwable {
         // Given
         RequestContextHolder.resetRequestAttributes();
-        Method method = getTestMethodWithAnnotation();
-        when(mockMethodSignature.getMethod()).thenReturn(method);
 
         // When & Then
         assertThrows(RateLimiterException.class, () -> 
@@ -388,4 +386,3 @@ class RateLimiterAspectTest {
         public void testMethodWithCustomTokens() {}
     }
 }
-
