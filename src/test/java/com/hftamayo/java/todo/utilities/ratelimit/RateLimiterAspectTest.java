@@ -1,8 +1,9 @@
 package com.hftamayo.java.todo.utilities.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hftamayo.java.todo.dto.EndpointResponseDto;
 
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +15,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
@@ -36,6 +35,12 @@ class RateLimiterAspectTest {
     @Mock
     private ObjectMapper mockObjectMapper;
 
+    @Mock
+    private ProceedingJoinPoint mockJoinPoint;
+
+    @Mock
+    private MethodSignature mockMethodSignature;
+
     private MockHttpServletRequest mockRequest;
     private MockHttpServletResponse mockResponse;
 
@@ -47,39 +52,45 @@ class RateLimiterAspectTest {
         
         // Set up request context
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockRequest, mockResponse));
+
+        // Set up common mock behavior
+        when(mockJoinPoint.getSignature()).thenReturn(mockMethodSignature);
     }
 
     @Test
     void shouldAllowRequestWhenTokensAvailable() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(9L);
 
         // When
-        Object result = rateLimiterAspect.rateLimit(method, args, target);
+        Object result = rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
-        assertNull(result); // Should proceed to actual method
+        assertEquals("success", result);
+        verify(mockJoinPoint).proceed();
         verify(mockRateLimiterUtil).tryConsume(any(), eq(1L));
-        verify(mockResponse).setHeader("X-RateLimit-Remaining", anyString());
-        verify(mockResponse).setHeader("X-RateLimit-Reset", anyString());
+        assertEquals("10", mockResponse.getHeader("X-RateLimit-Limit"));
+        assertEquals("9", mockResponse.getHeader("X-RateLimit-Remaining"));
+        assertNotNull(mockResponse.getHeader("X-RateLimit-Reset"));
     }
 
     @Test
     void shouldBlockRequestWhenNoTokensAvailable() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
@@ -92,21 +103,21 @@ class RateLimiterAspectTest {
                 .thenReturn("{\"error\":\"Rate limit exceeded\"}");
 
         // When
-        Object result = rateLimiterAspect.rateLimit(method, args, target);
+        Object result = rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
-        assertNotNull(result);
-        verify(mockResponse).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-        verify(mockResponse).setContentType("application/json");
-        verify(mockResponse).getWriter();
+        assertNull(result); // Returns null when rate limited
+        verify(mockJoinPoint, never()).proceed();
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS.value(), mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
     }
 
     @Test
     void shouldUseEndpointSpecificConfiguration() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
         mockRequest.setRequestURI("/api/users");
         
         RateLimiterConfig endpointConfig = createTestConfig();
@@ -118,9 +129,11 @@ class RateLimiterAspectTest {
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(49L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterConfig).getCombinedConfig("/api/users", anyString());
@@ -131,8 +144,8 @@ class RateLimiterAspectTest {
     void shouldUseUserRoleConfiguration() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
         mockRequest.setRequestURI("/api/admin");
         mockRequest.addHeader("Authorization", "Bearer admin-token");
         
@@ -145,9 +158,11 @@ class RateLimiterAspectTest {
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(199L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterConfig).getCombinedConfig(anyString(), eq("ADMIN"));
@@ -158,9 +173,9 @@ class RateLimiterAspectTest {
     void shouldSetCorrectRateLimitHeaders() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
@@ -171,26 +186,27 @@ class RateLimiterAspectTest {
                 .thenReturn(9L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
-        verify(mockResponse).setHeader("X-RateLimit-Limit", "10");
-        verify(mockResponse).setHeader("X-RateLimit-Remaining", "9");
-        verify(mockResponse).setHeader("X-RateLimit-Reset", anyString());
+        assertEquals("10", mockResponse.getHeader("X-RateLimit-Limit"));
+        assertEquals("9", mockResponse.getHeader("X-RateLimit-Remaining"));
+        assertNotNull(mockResponse.getHeader("X-RateLimit-Reset"));
     }
 
     @Test
     void shouldHandleMethodWithoutAnnotation() throws Throwable {
         // Given
         Method method = getTestMethodWithoutAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
 
         // When
-        Object result = rateLimiterAspect.rateLimit(method, args, target);
+        Object result = rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
-        assertNull(result); // Should proceed to actual method
+        assertEquals("success", result);
+        verify(mockJoinPoint).proceed();
         verifyNoInteractions(mockRateLimiterUtil, mockRateLimiterConfig);
     }
 
@@ -199,52 +215,31 @@ class RateLimiterAspectTest {
         // Given
         RequestContextHolder.resetRequestAttributes();
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
 
         // When & Then
         assertThrows(RateLimiterException.class, () -> 
-            rateLimiterAspect.rateLimit(method, args, target));
-    }
-
-    @Test
-    void shouldHandleNullMethod() throws Throwable {
-        // Given
-        Object[] args = new Object[]{};
-        Object target = new Object();
-
-        // When & Then
-        assertThrows(IllegalArgumentException.class, () -> 
-            rateLimiterAspect.rateLimit(null, args, target));
-    }
-
-    @Test
-    void shouldHandleNullTarget() throws Throwable {
-        // Given
-        Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-
-        // When & Then
-        assertThrows(IllegalArgumentException.class, () -> 
-            rateLimiterAspect.rateLimit(method, args, null));
+            rateLimiterAspect.rateLimit(mockJoinPoint));
     }
 
     @Test
     void shouldHandleCustomTokenConsumption() throws Throwable {
         // Given
         Method method = getTestMethodWithCustomTokens();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(5L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(5L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterUtil).tryConsume(any(), eq(5L));
@@ -254,24 +249,22 @@ class RateLimiterAspectTest {
     void shouldHandleRateLimiterException() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenThrow(new RateLimiterException("Configuration error"));
 
         // When & Then
         assertThrows(RateLimiterException.class, () -> 
-            rateLimiterAspect.rateLimit(method, args, target));
+            rateLimiterAspect.rateLimit(mockJoinPoint));
     }
 
     @Test
     void shouldHandleObjectMapperException() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), anyString()))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
@@ -283,15 +276,15 @@ class RateLimiterAspectTest {
 
         // When & Then
         assertThrows(RateLimiterException.class, () -> 
-            rateLimiterAspect.rateLimit(method, args, target));
+            rateLimiterAspect.rateLimit(mockJoinPoint));
     }
 
     @Test
     void shouldExtractUserRoleFromAuthorizationHeader() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
         mockRequest.addHeader("Authorization", "Bearer user-token");
         
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), eq("USER")))
@@ -300,9 +293,11 @@ class RateLimiterAspectTest {
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(9L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterConfig).getCombinedConfig(anyString(), eq("USER"));
@@ -312,18 +307,20 @@ class RateLimiterAspectTest {
     void shouldUseDefaultUserRoleWhenNoAuthorizationHeader() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
-        
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
+
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), eq("ANONYMOUS")))
                 .thenReturn(createTestConfig());
         when(mockRateLimiterUtil.createBucket(any(RateLimiterConfig.class)))
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(9L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterConfig).getCombinedConfig(anyString(), eq("ANONYMOUS"));
@@ -333,8 +330,8 @@ class RateLimiterAspectTest {
     void shouldHandleEmptyAuthorizationHeader() throws Throwable {
         // Given
         Method method = getTestMethodWithAnnotation();
-        Object[] args = new Object[]{};
-        Object target = new Object();
+        when(mockMethodSignature.getMethod()).thenReturn(method);
+        when(mockJoinPoint.proceed()).thenReturn("success");
         mockRequest.addHeader("Authorization", "");
         
         when(mockRateLimiterConfig.getCombinedConfig(anyString(), eq("ANONYMOUS")))
@@ -343,9 +340,11 @@ class RateLimiterAspectTest {
                 .thenReturn(createTestBucket());
         when(mockRateLimiterUtil.tryConsume(any(), eq(1L)))
                 .thenReturn(true);
+        when(mockRateLimiterUtil.getAvailableTokens(any()))
+                .thenReturn(9L);
 
         // When
-        rateLimiterAspect.rateLimit(method, args, target);
+        rateLimiterAspect.rateLimit(mockJoinPoint);
 
         // Then
         verify(mockRateLimiterConfig).getCombinedConfig(anyString(), eq("ANONYMOUS"));
@@ -374,8 +373,7 @@ class RateLimiterAspectTest {
 
     private io.github.bucket4j.Bucket createTestBucket() {
         return io.github.bucket4j.Bucket.builder()
-                .addLimit(io.github.bucket4j.Bandwidth.classic(10L, 
-                    io.github.bucket4j.Refill.intervally(5L, Duration.ofMinutes(1))))
+                .addLimit(io.github.bucket4j.Bandwidth.simple(10L, Duration.ofMinutes(1)))
                 .build();
     }
 
@@ -389,4 +387,5 @@ class RateLimiterAspectTest {
         @RateLimit(tokens = 5)
         public void testMethodWithCustomTokens() {}
     }
-} 
+}
+
