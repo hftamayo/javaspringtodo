@@ -265,8 +265,8 @@ public class RolesServiceImplTest {
     private RolesResponseDto createRoleDto(Long id, ERole roleEnum) {
         RolesResponseDto dto = new RolesResponseDto();
         dto.setId(id);
-        dto.setName(roleEnum.name());
-        dto.setDescription("Description for " + roleEnum.name());
+        dto.setRoleName(roleEnum.name());
+        dto.setRoleDescription("Description for " + roleEnum.name());
         dto.setStatus(true);
         return dto;
     }
