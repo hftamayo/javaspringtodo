@@ -9,24 +9,24 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CrudOperationResponseDto<T> {
+public class EndpointResponseDto<T> {
     private int code;
     private String resultMessage;
     private T data;
     private List<T> dataList;
 
-    public CrudOperationResponseDto(int code, String resultMessage) {
+    public EndpointResponseDto(int code, String resultMessage) {
         this.code = code;
         this.resultMessage = resultMessage;
     }
 
-    public CrudOperationResponseDto(int code, String resultMessage, T data) {
+    public EndpointResponseDto(int code, String resultMessage, T data) {
         this.code = code;
         this.resultMessage = resultMessage;
         this.data = data;
     }
 
-    public CrudOperationResponseDto(int code, String resultMessage, List<T> dataList) {
+    public EndpointResponseDto(int code, String resultMessage, List<T> dataList) {
         this.code = code;
         this.resultMessage = resultMessage;
         this.dataList = dataList;

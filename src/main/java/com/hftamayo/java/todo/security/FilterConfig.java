@@ -1,5 +1,6 @@
 package com.hftamayo.java.todo.security;
 
+import com.hftamayo.java.todo.config.CorsProperties;
 import com.hftamayo.java.todo.security.handlers.CustomAccessDeniedHandler;
 import com.hftamayo.java.todo.security.jwt.AuthenticationFilter;
 import com.hftamayo.java.todo.security.managers.CustomAccessDecisionManager;
@@ -17,6 +18,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +35,7 @@ public class FilterConfig {
     private final AuthenticationProvider authenticationProvider;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAccessDecisionManager customAccessDecisionManager;
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -36,6 +44,7 @@ public class FilterConfig {
         logger.info("Configuring Security Filter Chain");
 
         httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> {
                     csrf.disable();
                     logger.info("CSRF is disabled");
@@ -63,6 +72,48 @@ public class FilterConfig {
                 .addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class);
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Get origins from configuration properties
+        List<String> allowedOrigins = corsProperties.getOrigins();
+        logger.info("Configuring CORS with allowed origins: {}", corsProperties.getOriginsAsString());
+        
+        // Set allowed origins from configuration - handle null case
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            configuration.setAllowedOriginPatterns(allowedOrigins);
+        }
+
+        // Allow all HTTP methods
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        
+        // Allow all headers
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Allow credentials (cookies, authorization headers)
+        configuration.setAllowCredentials(true);
+        
+        // Set max age for preflight requests
+        configuration.setMaxAge(3600L);
+        
+        // Configure exposed headers
+        configuration.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining", 
+            "X-RateLimit-Reset",
+            "X-API-Version",
+            "X-Build-Version"
+        ));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        
+        logger.info("CORS configuration loaded successfully with {} origins", allowedOrigins != null ? allowedOrigins.size() : 0);
+        return source;
     }
 
     @Bean

@@ -1,4 +1,4 @@
-package com.hftamayo.java.todo.utilities;
+package com.hftamayo.java.todo.utilities.samples;
 
 public class ValidationUtils {
     public static boolean isValidEmail(String email) {

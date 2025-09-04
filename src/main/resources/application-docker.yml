@@ -1,0 +1,62 @@
+# Docker profile configuration
+spring:
+  datasource:
+    url: jdbc:mysql://mysqldev:3306/${DB_NAME_DEVELOPMENT:jsbtododev}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    defer-datasource-initialization: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+
+# Docker logging
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+    com.bytestree.restful: DEBUG 
+    
+# Docker/production-like rate limiting
+rate:
+  limiter:
+    default:
+      capacity: 100
+      refill-rate: 10
+      refill-duration: PT1M
+    
+    endpoints:
+      /api/auth/login:
+        capacity: 20  # Stricter limits for production
+        refill-rate: 2
+        refill-duration: PT2M
+      
+      /api/users:
+        capacity: 50
+        refill-rate: 5
+        refill-duration: PT1M
+      
+      /api/tasks:
+        capacity: 100
+        refill-rate: 10
+        refill-duration: PT1M
+    
+    users:
+      ADMIN:
+        capacity: 200
+        refill-rate: 20
+        refill-duration: PT30S
+      
+      USER:
+        capacity: 100
+        refill-rate: 10
+        refill-duration: PT1M   
+    

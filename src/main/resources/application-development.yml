@@ -1,0 +1,63 @@
+# Development profile configuration
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3307/${DB_NAME_DEVELOPMENT:jsbtododev}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+
+# Development logging
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    
+# Development-specific rate limiting
+rate:
+  limiter:
+    default:
+      capacity: 1000  # Higher limits for development
+      refill-rate: 100
+      refill-duration: PT30S
+    
+# Endpoint-specific limits for development
+endpoints:
+  /api/auth/login:
+    capacity: 50
+    refill-rate: 5
+    refill-duration: PT1M
+      
+  /api/users:
+    capacity: 200
+    refill-rate: 20
+    refill-duration: PT30S
+      
+  /api/tasks:
+    capacity: 300
+    refill-rate: 30
+    refill-duration: PT30S
+    
+# User role-specific limits
+users:
+  ADMIN:
+    capacity: 500
+    refill-rate: 50
+    refill-duration: PT30S
+      
+  USER:
+    capacity: 200
+    refill-rate: 20
+    refill-duration: PT1M    

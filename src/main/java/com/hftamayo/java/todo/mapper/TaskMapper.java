@@ -5,6 +5,7 @@ import com.hftamayo.java.todo.entity.Task;
 import com.hftamayo.java.todo.entity.User;
 import com.hftamayo.java.todo.repository.UserRepository;
 import org.springframework.stereotype.Component;
+import com.hftamayo.java.todo.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +45,7 @@ public class TaskMapper {
 
     private User getOwnerByEmail(String owner) {
         return userRepository.findUserByEmail(owner)
-                .orElseThrow(() -> new RuntimeException("Error: Owner is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User", owner));
     }
 
     public TaskResponseDto taskToDto(Task task) {

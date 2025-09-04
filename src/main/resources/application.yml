@@ -1,0 +1,72 @@
+# Base application configuration
+spring:
+  profiles:
+    active: ${EXECUTION_MODE:development}
+  application:
+    name: todo-app
+
+# Common server configuration
+server:
+  port: ${DOCKER_INTERNAL_PORT:8080}
+
+# Common logging configuration
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.hftamayo.java.todo: DEBUG
+
+# Common JWT configuration (will be overridden by profiles)
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-milliseconds: ${JWT_EXPIRATION_MS} # 8 hours
+  refresh: ${JWT_REFRESH}
+
+# Version management configuration
+version:
+  api:
+    current: v1
+    supported:
+      - v1
+      - v2
+    legacy-support: true
+    headers:
+      enabled: true
+      version-header: X-API-Version
+      build-header: X-Build-Version
+
+# Common seeding configuration
+seed:
+  development: ${SEED_DEVELOPMENT:false}
+  production: ${SEED_PRODUCTION:false}
+  admin:
+    password: ${ADMIN_PASSWORD}
+  supervisor:
+    password: ${SUPERVISOR_PASSWORD}
+  user1:
+    password: ${USER1_PASSWORD}
+  user2:
+    password: ${USER2_PASSWORD}
+
+pagination:
+  default-page-size: 5
+  max-page-size: 100
+
+# Default rate limiting configuration
+rate:
+  limiter:
+    default:
+      capacity: 100
+      refill-rate: 10
+      refill-duration: PT1M
+
+frontend:
+  origins: ${FRONTEND_ORIGINS:http://localhost:5173}
+
+# Common test user configuration
+test:
+  user:
+    email: test@example.com
+    password: password123 
+
+app:
+  environment: ${EXECUTION_MODE:development}

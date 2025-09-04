@@ -1,2 +1,0 @@
-#accepted values: docker | testing | development
-spring.profiles.active=testing
